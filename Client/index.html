@@ -17,11 +17,11 @@
     .login-box button { width: 100%; background: #1e3a8a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
     .err-msg { color: #dc2626; font-size: 13px; font-weight: bold; margin-top: 8px; display: none; }
 
-    .container { max-width: 1340px; margin: auto; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: none; }
+    .container { max-width: 1360px; margin: auto; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: none; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
     h1 { margin: 0; font-size: 20px; color: #1e3a8a; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
-    input[type="month"] { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    input[type="month"], select.filter-sel { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: #fff; }
     .btn { border: none; padding: 9px 13px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
     .btn-master { background: #15803d; color: #fff; }
     .btn-excel { background: #16a34a; color: #fff; font-size: 12px; padding: 7px 12px; }
@@ -33,7 +33,7 @@
     .btn-admin { background: #1e3a8a; color: #fff; text-decoration: none; }
     .btn-bill { background: #0284c7; color: #fff; border: none; padding: 5px 9px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; }
     
-    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-bottom: 14px; }
     .kpi { background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 8px; }
     .kpi span { font-size: 12px; color: #475569; display: block; }
     .kpi strong { font-size: 18px; color: #1e3a8a; }
@@ -53,7 +53,7 @@
     td[contenteditable="true"] { background: #fef9c3; outline: 1px dashed #ca8a04; }
     .sheet-box { display: none; }
     .sheet-box.active { display: block; }
-    .table-wrap { overflow-x: auto; }
+    .table-wrap { overflow-x: auto; max-height: 560px; }
     .print-header { display: none; }
 
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; padding: 15px; }
@@ -66,6 +66,7 @@
       .top-bar, .actions, .kpis, .tabs, .sheet-toolbar, .no-print { display: none !important; }
       .sheet-box { display: none !important; }
       .sheet-box.active { display: block !important; }
+      .table-wrap { max-height: none; overflow: visible; }
       .print-header { display: block !important; text-align: center; margin-bottom: 12px; border-bottom: 2px solid #1e3a8a; padding-bottom: 6px; }
       th { background: #1e3a8a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
@@ -93,8 +94,11 @@
   </div>
 
   <div class="actions">
-    <label><b>Mahina Nivda:</b></label>
+    <label><b>Mahina:</b></label>
     <input type="month" id="monthFilter" onchange="renderAll()">
+    <select id="workerFilter" class="filter-sel" onchange="renderAll()">
+      <option value="">-- Sarva Kamgar --</option>
+    </select>
     <button class="btn btn-refresh" onclick="fetchCloudData()">🔄 Live Refresh</button>
     <button id="editToggleBtn" class="btn btn-edit" onclick="toggleEditMode()">✏️ Edit Mode: OFF</button>
     <button class="btn btn-master" onclick="downloadStyledExcel('ALL')">📊 Master Excel (All 4 Sheets)</button>
@@ -112,7 +116,7 @@
   <!-- TAB 1: LABOUR -->
   <div id="s_att" class="sheet-box active">
     <div class="sheet-toolbar">
-      <h3>👷 Labour Attendance & Payroll</h3>
+      <h3>👷 Daily Labour Attendance & Payroll</h3>
       <div class="tool-btns">
         <button class="btn btn-excel" onclick="downloadStyledExcel('ATT')">📥 Excel</button>
         <button class="btn btn-pdf" onclick="downloadTabPDF('print_att', 'Labour_Attendance')">📄 PDF</button>
@@ -186,6 +190,12 @@
 
 <script>
 const CLIENT_PASS = "9049";
+const DB_URL = "https://achyuth-enterprises-default-rtdb.asia-southeast1.firebasedatabase.app";
+const JSON_HEADERS = { "Content-Type": "application/json" };
+
+let editMode = false;
+let cloudAtt = [], cloudMat = [], cloudRep = [], cloudWorkers = [];
+document.getElementById('monthFilter').value = new Date().toISOString().slice(0, 7);
 
 function checkClientLogin() {
   const val = document.getElementById('clientPassInput').value.trim();
@@ -199,20 +209,14 @@ function checkClientLogin() {
   }
 }
 
-if (sessionStorage.getItem('ae_client_auth') === '1') {
-  document.getElementById('clientLoginScreen').style.display = 'none';
-  document.getElementById('clientMainApp').style.display = 'block';
-}
-
-const DB_URL = "https://achyuth-enterprises-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-let editMode = false;
-let cloudAtt = [], cloudMat = [], cloudRep = [], cloudWorkers = [];
-document.getElementById('monthFilter').value = new Date().toISOString().slice(0, 7);
-
 function objToArray(obj) {
   if (!obj) return [];
   return Object.keys(obj).map(key => ({ _key: key, ...obj[key] }));
+}
+
+function getDaysInMonth(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m, 0).getDate();
 }
 
 async function fetchCloudData() {
@@ -224,10 +228,16 @@ async function fetchCloudData() {
       fetch(`${DB_URL}/workers.json`).then(r => r.json())
     ]);
     cloudAtt = objToArray(rAtt);
-    cloudAtt.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    cloudAtt.sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.name || "").localeCompare(b.name || ""));
     cloudMat = objToArray(rMat);
     cloudRep = objToArray(rRep);
     cloudWorkers = Array.isArray(rW) ? rW : [];
+
+    const wf = document.getElementById('workerFilter');
+    const prevW = wf.value;
+    wf.innerHTML = `<option value="">-- Sarva Kamgar (${cloudWorkers.length}) --</option>` + cloudWorkers.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
+    wf.value = prevW;
+
     renderAll();
   } catch (e) {
     alert("Data load hotana adchan aali, internet check kara!");
@@ -251,7 +261,8 @@ function toggleEditMode() {
 
 async function updateCloudCell(node, key, field, value) {
   const numFields = ['mult', 'baseWage', 'earned', 'hafta', 'net', 'rate', 'total', 'petty'];
-  const parsedVal = numFields.includes(field) ? (parseFloat(value) || 0) : value;
+  const cleanVal = value.trim();
+  const parsedVal = numFields.includes(field) ? (parseFloat(cleanVal) || 0) : cleanVal;
   let patchData = { [field]: parsedVal };
 
   if (node === 'attendance') {
@@ -264,13 +275,14 @@ async function updateCloudCell(node, key, field, value) {
       patchData.net = item.net;
     }
   }
-  await fetch(`${DB_URL}/${node}/${key}.json`, { method: 'PATCH', body: JSON.stringify(patchData) });
+  await fetch(`${DB_URL}/${node}/${key}.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(patchData) });
 }
 
 async function updateWorkerCell(idx, field, value) {
   if (!cloudWorkers[idx]) return;
-  cloudWorkers[idx][field] = (field === 'wage') ? (parseFloat(value) || 0) : value;
-  await fetch(`${DB_URL}/workers/${idx}.json`, { method: 'PATCH', body: JSON.stringify({ [field]: cloudWorkers[idx][field] }) });
+  const cleanVal = value.trim();
+  cloudWorkers[idx][field] = (field === 'wage') ? (parseFloat(cleanVal) || 0) : cleanVal;
+  await fetch(`${DB_URL}/workers/${idx}.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify({ [field]: cloudWorkers[idx][field] }) });
 }
 
 function openBillModal(imgData, title) {
@@ -282,9 +294,11 @@ function openBillModal(imgData, title) {
 
 function renderAll() {
   const m = document.getElementById('monthFilter').value;
-  ['lbl_m_att', 'lbl_m_mat', 'lbl_m_rep'].forEach(id => document.getElementById(id).innerText = `Month: ${m}`);
+  const wFilter = document.getElementById('workerFilter').value;
+  const totalDaysInMonth = getDaysInMonth(m);
+  ['lbl_m_att', 'lbl_m_mat', 'lbl_m_rep'].forEach(id => document.getElementById(id).innerText = `Month: ${m} (${totalDaysInMonth} Days)`);
 
-  const att = cloudAtt.filter(r => (r.date || "").startsWith(m));
+  const att = cloudAtt.filter(r => (r.date || "").startsWith(m) && (!wFilter || r.name === wFilter));
   const mat = cloudMat.filter(r => (r.date || "").startsWith(m));
   const rep = cloudRep.filter(r => (r.date || "").startsWith(m));
 
@@ -296,12 +310,12 @@ function renderAll() {
   const totPetty = rep.reduce((s, r) => s + Number(r.petty || 0), 0);
 
   document.getElementById('kpiBar').innerHTML = `
+    <div class="kpi"><span>Mahinyache Divas</span><strong>${totalDaysInMonth} Days</strong></div>
     <div class="kpi"><span>Total Hajeri (Shifts)</span><strong>${totHajeri}</strong></div>
     <div class="kpi"><span>Total Pagar (Earned)</span><strong>₹${totEarned}</strong></div>
     <div class="kpi"><span>Hafta / Uchal</span><strong>₹${totHafta}</strong></div>
     <div class="kpi"><span>Net Payable</span><strong>₹${netPay}</strong></div>
-    <div class="kpi"><span>Material Kharch</span><strong>₹${totMat}</strong></div>
-    <div class="kpi"><span>Petty Cash</span><strong>₹${totPetty}</strong></div>
+    <div class="kpi"><span>Material + Petty</span><strong>₹${totMat + totPetty}</strong></div>
   `;
 
   const attCols = ['date','site','name','desig','outTime','mult','baseWage','earned','hafta','net','aadhaar','pan','uan','bank','acc','ifsc'];
@@ -353,7 +367,8 @@ function downloadTabPDF(elementId, title) {
 
 async function downloadStyledExcel(mode) {
   const m = document.getElementById('monthFilter').value;
-  const att = cloudAtt.filter(r => (r.date || "").startsWith(m));
+  const wFilter = document.getElementById('workerFilter').value;
+  const att = cloudAtt.filter(r => (r.date || "").startsWith(m) && (!wFilter || r.name === wFilter));
   const mat = cloudMat.filter(r => (r.date || "").startsWith(m));
   const rep = cloudRep.filter(r => (r.date || "").startsWith(m));
 
@@ -394,7 +409,7 @@ async function downloadStyledExcel(mode) {
   if (mode === 'ALL' || mode === 'ATT') {
     const wsAtt = setupStyledSheet(
       "Labour_Attendance",
-      "LABOUR ATTENDANCE, KYC & PAYROLL (6PM=1x | 8PM=1.5x | 9PM+=2x)",
+      "DAILY LABOUR ATTENDANCE, KYC & PAYROLL (6PM=1x | 8PM=1.5x | 9PM+=2x)",
       ["Date", "Site", "Worker Name", "Pad", "Out Time", "Hajeri (x)", "Base Wage (₹)", "Earned Pagar (₹)", "Hafta (₹)", "Net Payable (₹)", "Aadhaar No", "PAN No", "UAN No", "Bank Name", "Account No", "IFSC Code"],
       att.map((r, i) => {
         const rowNum = i + 3;
@@ -478,6 +493,8 @@ async function downloadStyledExcel(mode) {
 }
 
 if (sessionStorage.getItem('ae_client_auth') === '1') {
+  document.getElementById('clientLoginScreen').style.display = 'none';
+  document.getElementById('clientMainApp').style.display = 'block';
   fetchCloudData();
 }
 </script>

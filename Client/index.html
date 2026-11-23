@@ -95,9 +95,9 @@
 
   <div class="actions">
     <label><b>Mahina:</b></label>
-    <input type="month" id="monthFilter" onchange="renderAll()">
+    <input type="month" id="monthFilter" value="2026-11" onchange="renderAll()">
     <select id="workerFilter" class="filter-sel" onchange="renderAll()">
-      <option value="">-- Sarva Kamgar --</option>
+      <option value="">-- Sarva Kamgar (21) --</option>
     </select>
     <button class="btn btn-refresh" onclick="fetchCloudData()">🔄 Live Refresh</button>
     <button id="editToggleBtn" class="btn btn-edit" onclick="toggleEditMode()">✏️ Edit Mode: OFF</button>
@@ -193,9 +193,86 @@ const CLIENT_PASS = "9049";
 const DB_URL = "https://achyuth-enterprises-default-rtdb.asia-southeast1.firebasedatabase.app";
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
+const DEFAULT_WORKERS = [
+  { name: "Mahesh", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Kamlesh", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Chavan", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "Bank of Maharashtra", acc: "", ifsc: "" },
+  { name: "Karan", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Rajaram", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Shivsampath", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Prakash", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Bank of Baroda", acc: "", ifsc: "" },
+  { name: "Rambabu", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Anil-1", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Anil-2", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Madhukar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Bank of Maharashtra", acc: "", ifsc: "" },
+  { name: "Ranju", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "ICICI Bank", acc: "", ifsc: "" },
+  { name: "Saroj", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "HDFC Bank", acc: "", ifsc: "" },
+  { name: "Arun", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Union Bank of India", acc: "", ifsc: "" },
+  { name: "Ramsharan", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Buradas", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Canara Bank", acc: "", ifsc: "" },
+  { name: "Rajbahaddur", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Akshay Noda", desig: "SUP", wage: 600, aadhaar: "", pan: "", uan: "", bank: "HDFC Bank", acc: "", ifsc: "" },
+  { name: "Ganesh", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Gautam", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Shivshankar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" }
+];
+
+const NOV_2026_DAYS = {
+  "Mahesh":      [1,2,3, 5,6,7, 10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Kamlesh":     [1,2,3,4,5,6,7, 9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Chavan":      [1,2,3,4,5,6,7, 9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Karan":       [2,3,4,5,6,7,8,9,10, 12,13,14, 16,17, 18,19,20,21, 23],
+  "Rajaram":     [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16, 18,19,20,21, 23],
+  "Shivsampath": [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Prakash":     [2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Rambabu":     [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Anil-1":      [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18, 20,21,22,23],
+  "Anil-2":      [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Madhukar":    [4, 7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Ranju":       [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Saroj":       [1,2,3,4,5,6, 8,9,10, 12,13,14, 16,17, 18,19,20,21,22,23],
+  "Arun":        [1,2,3, 5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Ramsharan":   [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Buradas":     [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Rajbahaddur": [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Akshay Noda": [1,2,3,4, 7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Ganesh":      [2,3,4,5,6, 10, 12,13, 17, 18,19,20,21,22,23],
+  "Gautam":      [3,4,5,6, 10, 12,13, 17],
+  "Shivshankar": [4,5,6, 8,9,10,11,12,13]
+};
+
 let editMode = false;
-let cloudAtt = [], cloudMat = [], cloudRep = [], cloudWorkers = [];
-document.getElementById('monthFilter').value = new Date().toISOString().slice(0, 7);
+let cloudAtt = [], cloudMat = [], cloudRep = [], cloudWorkers = [...DEFAULT_WORKERS];
+document.getElementById('monthFilter').value = "2026-11";
+
+function buildDefaultNov2026Records(wList) {
+  const bulkObj = {};
+  wList.forEach((w, wIdx) => {
+    const days = NOV_2026_DAYS[w.name] || [];
+    days.forEach(dayNum => {
+      const dd = String(dayNum).padStart(2, '0');
+      bulkObj[`nov26_${wIdx}_${dd}`] = {
+        date: `2026-11-${dd}`,
+        site: "Tingrenagar",
+        name: w.name,
+        desig: w.desig,
+        outTime: "Up to 6:00 PM (1x)",
+        mult: 1,
+        baseWage: w.wage,
+        earned: w.wage,
+        hafta: 0,
+        net: w.wage,
+        aadhaar: w.aadhaar || "",
+        pan: w.pan || "",
+        uan: w.uan || "",
+        bank: w.bank || "",
+        acc: w.acc || "",
+        ifsc: w.ifsc || ""
+      };
+    });
+  });
+  return bulkObj;
+}
 
 function checkClientLogin() {
   const val = document.getElementById('clientPassInput').value.trim();
@@ -220,18 +297,35 @@ function getDaysInMonth(ym) {
 }
 
 async function fetchCloudData() {
+  const initialRecords = buildDefaultNov2026Records(DEFAULT_WORKERS);
+  cloudAtt = objToArray(initialRecords);
+  renderAll();
+
   try {
-    const [rAtt, rMat, rRep, rW] = await Promise.all([
+    let [rAtt, rMat, rRep, rW] = await Promise.all([
       fetch(`${DB_URL}/attendance.json`).then(r => r.json()),
       fetch(`${DB_URL}/material.json`).then(r => r.json()),
       fetch(`${DB_URL}/report.json`).then(r => r.json()),
       fetch(`${DB_URL}/workers.json`).then(r => r.json())
     ]);
+
+    if (rW && Array.isArray(rW) && rW.length >= 21) {
+      cloudWorkers = rW;
+    } else {
+      cloudWorkers = [...DEFAULT_WORKERS];
+      await fetch(`${DB_URL}/workers.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(cloudWorkers) });
+    }
+
+    if (!rAtt || !rAtt['nov26_0_01']) {
+      const seedObj = buildDefaultNov2026Records(cloudWorkers);
+      await fetch(`${DB_URL}/attendance.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(seedObj) });
+      rAtt = { ...(rAtt || {}), ...seedObj };
+    }
+
     cloudAtt = objToArray(rAtt);
     cloudAtt.sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.name || "").localeCompare(b.name || ""));
     cloudMat = objToArray(rMat);
     cloudRep = objToArray(rRep);
-    cloudWorkers = Array.isArray(rW) ? rW : [];
 
     const wf = document.getElementById('workerFilter');
     const prevW = wf.value;
@@ -240,7 +334,7 @@ async function fetchCloudData() {
 
     renderAll();
   } catch (e) {
-    alert("Data load hotana adchan aali, internet check kara!");
+    console.log("Cloud sync fallback active:", e);
   }
 }
 

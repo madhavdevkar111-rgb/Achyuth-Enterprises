@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Achyuth Enterprises - Admin Entry</title>
+  <title>Achyuth Enterprises - Live Admin</title>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { background: #f1f5f9; margin: 0; padding: 12px; color: #1e293b; }
     .container { max-width: 650px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
     .header { background: #1e3a8a; color: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
     .header h1 { margin: 0; font-size: 18px; }
-    .header p { margin: 2px 0 0; font-size: 12px; color: #cbd5e1; }
+    .header p { margin: 2px 0 0; font-size: 12px; color: #93c5fd; }
     .viewer-link { background: #f59e0b; color: #000; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
     .tabs { display: flex; background: #e2e8f0; padding: 4px; gap: 4px; overflow-x: auto; }
     .tab-btn { flex: 1; padding: 10px 8px; border: none; background: transparent; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
@@ -36,8 +36,8 @@
 <div class="container">
   <div class="header">
     <div>
-      <h1>Achyuth Enterprises</h1>
-      <p>L&T Pipeline Vendor • Admin Portal</p>
+      <h1>Achyuth Enterprises 🟢 Live</h1>
+      <p>L&T Pipeline Vendor • Cloud Sync Admin</p>
     </div>
     <a href="viewer.html" class="viewer-link">📊 Owner Sheet</a>
   </div>
@@ -78,9 +78,7 @@
       <div><label>Hafta / Uchal (Advance ₹)</label><input type="number" id="a_hafta" value="0" oninput="updateWagePreview()"></div>
     </div>
 
-    <div class="calc-badge" id="wagePreviewBox">
-      Hajeri: 1.0x | Aajcha Pagar: ₹600 | Net Payable: ₹600
-    </div>
+    <div class="calc-badge" id="wagePreviewBox">Hajeri: 1.0x | Aajcha Pagar: ₹600 | Net Payable: ₹600</div>
 
     <div class="grid-2">
       <div><label>Bank Name</label><select id="a_bank"></select></div>
@@ -90,11 +88,11 @@
     <label>IFSC Code</label>
     <input type="text" id="a_ifsc" placeholder="IFSC Code">
 
-    <button class="btn-primary" onclick="saveAttendance()">✅ Hajeri Save Kara</button>
+    <button class="btn-primary" onclick="saveAttendance()">✅ Hajeri Live Save Kara</button>
     <button class="btn-secondary" style="width:100%;" onclick="markAllBulk()">⚡ Sarva 18 Kamgaranchi Ekach Velchi Hajeri Save Kara</button>
   </div>
 
-  <!-- TAB 2: MATERIAL ENTRY + BILL PHOTO -->
+  <!-- TAB 2: MATERIAL + BILL PHOTO -->
   <div id="mat" class="content">
     <div class="grid-2">
       <div><label>Tarikh (Date)</label><input type="date" id="m_date"></div>
@@ -139,13 +137,11 @@
       <div><label>Bill No / Remark</label><input type="text" id="m_remark" placeholder="Bill No. / Tip"></div>
     </div>
 
-    <label>📸 Bill / Pavti Photo Upload Kara (Viewer la disel)</label>
+    <label>📸 Bill / Pavti Photo Upload Kara (Owner la Live disel)</label>
     <input type="file" id="m_billFile" accept="image/*" capture="environment" onchange="compressBillImage(this)">
-    <div class="preview-box" id="billPreviewBox">
-      <img id="billPreviewImg" src="" alt="Bill Preview">
-    </div>
+    <div class="preview-box" id="billPreviewBox"><img id="billPreviewImg" src="" alt="Bill"></div>
 
-    <button class="btn-primary" onclick="saveMaterial()">✅ Material + Bill Save Kara</button>
+    <button class="btn-primary" onclick="saveMaterial()">✅ Material + Bill Live Save Kara</button>
   </div>
 
   <!-- TAB 3: DAILY REPORT -->
@@ -167,12 +163,12 @@
     <label>Supervisor Note / Adchan</label>
     <input type="text" id="r_note" placeholder="Kahi vishesh mahiti">
 
-    <button class="btn-primary" onclick="saveReport()">✅ Daily Report Save Kara</button>
+    <button class="btn-primary" onclick="saveReport()">✅ Daily Report Live Save Kara</button>
   </div>
 
   <!-- TAB 4: BANK MASTER -->
   <div id="mst" class="content">
-    <p style="font-size:12px; color:#475569; margin-top:0;">Ekda ithe Bank, Account No ani IFSC save kela ki Hajeri tab madhe auto-fill hoil.</p>
+    <p style="font-size:12px; color:#475569; margin-top:0;">Ekda ithe Bank, Account No ani IFSC save kela ki sarva mobile var update hoil.</p>
     <div style="overflow-x:auto;">
       <table id="masterTable">
         <thead><tr><th>Naav</th><th>Pad</th><th>Base Wage</th><th>Bank</th><th>Account No</th><th>IFSC</th></tr></thead>
@@ -180,13 +176,15 @@
       </table>
     </div>
     <button class="btn-secondary" onclick="addNewWorkerRow()">+ Navin Kamgar Joda</button>
-    <button class="btn-primary" onclick="saveMasterList()">💾 Master Data Update Kara</button>
+    <button class="btn-primary" onclick="saveMasterList()">💾 Master Data Live Update Kara</button>
   </div>
 
   <div id="toast" class="toast"></div>
 </div>
 
 <script>
+const DB_URL = "https://achyuth-enterprises-default-rtdb.asia-southeast1.firebasedatabase.app";
+
 const BANKS = [
   "", "State Bank of India", "Bank of Maharashtra", "HDFC Bank",
   "ICICI Bank", "Bank of Baroda", "Union Bank of India",
@@ -222,7 +220,7 @@ const DEFAULT_WORKERS = [
   { name: "Akshay Noda", desig: "SUP", wage: 1100, bank: "HDFC Bank", acc: "", ifsc: "" }
 ];
 
-let workers = JSON.parse(localStorage.getItem('ae_workers')) || DEFAULT_WORKERS;
+let workers = [...DEFAULT_WORKERS];
 let currentBillBase64 = "";
 const today = new Date().toISOString().split('T')[0];
 ['a_date', 'm_date', 'r_date'].forEach(id => document.getElementById(id).value = today);
@@ -231,7 +229,7 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.innerText = msg;
   t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 2500);
+  setTimeout(() => t.style.display = 'none', 2800);
 }
 
 function openTab(id, btn) {
@@ -239,6 +237,19 @@ function openTab(id, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+}
+
+async function loadWorkersFromCloud() {
+  try {
+    const res = await fetch(`${DB_URL}/workers.json`);
+    const data = await res.json();
+    if (data && Array.isArray(data) && data.length > 0) {
+      workers = data;
+    } else {
+      await fetch(`${DB_URL}/workers.json`, { method: 'PUT', body: JSON.stringify(DEFAULT_WORKERS) });
+    }
+  } catch (e) { console.log("Using default workers"); }
+  initUI();
 }
 
 function initUI() {
@@ -265,11 +276,10 @@ function updateWagePreview() {
   const hafta = parseFloat(document.getElementById('a_hafta').value) || 0;
   const earned = Math.round(baseWage * mult);
   const net = earned - hafta;
-  document.getElementById('wagePreviewBox').innerText =
-    `Hajeri: ${mult}x | Aajcha Pagar: ₹${earned} | Net Payable: ₹${net}`;
+  document.getElementById('wagePreviewBox').innerText = `Hajeri: ${mult}x | Aajcha Pagar: ₹${earned} | Net Payable: ₹${net}`;
 }
 
-function saveAttendance() {
+async function saveAttendance() {
   const w = workers[document.getElementById('a_worker').value];
   const multVal = document.getElementById('a_outTime').value;
   const mult = parseFloat(multVal) || 0;
@@ -278,47 +288,42 @@ function saveAttendance() {
   const earned = Math.round(baseWage * mult);
   const net = earned - hafta;
 
-  const list = JSON.parse(localStorage.getItem('ae_attendance')) || [];
-  list.push({
+  const entry = {
     date: document.getElementById('a_date').value,
     site: document.getElementById('a_site').value,
-    name: w.name,
-    desig: w.desig,
+    name: w.name, desig: w.desig,
     outTime: OUT_TIME_LABELS[multVal],
-    mult: mult,
-    baseWage: baseWage,
-    earned: earned,
-    hafta: hafta,
-    net: net,
+    mult, baseWage, earned, hafta, net,
     bank: document.getElementById('a_bank').value,
     acc: document.getElementById('a_acc').value,
     ifsc: document.getElementById('a_ifsc').value
-  });
-  localStorage.setItem('ae_attendance', JSON.stringify(list));
+  };
+
+  showToast("⏳ Cloud var save hot aahe...");
+  await fetch(`${DB_URL}/attendance.json`, { method: 'POST', body: JSON.stringify(entry) });
   document.getElementById('a_hafta').value = 0;
   updateWagePreview();
-  showToast(`✅ ${w.name} (${mult}x = ₹${net}) save jhale!`);
+  showToast(`✅ ${w.name} (${mult}x = ₹${net}) Live Save jhale!`);
 }
 
-function markAllBulk() {
+async function markAllBulk() {
   const date = document.getElementById('a_date').value;
   const site = document.getElementById('a_site').value;
   const multVal = document.getElementById('a_outTime').value;
   const mult = parseFloat(multVal) || 0;
-  const list = JSON.parse(localStorage.getItem('ae_attendance')) || [];
 
-  workers.forEach(w => {
+  showToast("⏳ Sarva 18 kamgar save hot aahet...");
+  for (const w of workers) {
     const earned = Math.round(w.wage * mult);
-    list.push({
+    const entry = {
       date, site, name: w.name, desig: w.desig,
       outTime: OUT_TIME_LABELS[multVal],
-      mult: mult, baseWage: w.wage, earned: earned,
-      hafta: 0, net: earned,
+      mult, baseWage: w.wage, earned, hafta: 0, net: earned,
       bank: w.bank, acc: w.acc, ifsc: w.ifsc
-    });
-  });
-  localStorage.setItem('ae_attendance', JSON.stringify(list));
-  showToast(`⚡ Sarva ${workers.length} kamgaranchi ${mult}x hajeri save jhali!`);
+    };
+    await fetch(`${DB_URL}/attendance.json`, { method: 'POST', body: JSON.stringify(entry) });
+  }
+  showToast(`⚡ Sarva ${workers.length} kamgaranchi ${mult}x hajeri Live Save jhali!`);
 }
 
 function calcMatTotal() {
@@ -335,12 +340,12 @@ function compressBillImage(input) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      const maxW = 800;
+      const maxW = 700;
       const scale = Math.min(1, maxW / img.width);
       canvas.width = img.width * scale;
       canvas.height = img.height * scale;
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      currentBillBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      currentBillBase64 = canvas.toDataURL('image/jpeg', 0.65);
       document.getElementById('billPreviewImg').src = currentBillBase64;
       document.getElementById('billPreviewBox').style.display = 'block';
     };
@@ -349,9 +354,8 @@ function compressBillImage(input) {
   reader.readAsDataURL(file);
 }
 
-function saveMaterial() {
-  const list = JSON.parse(localStorage.getItem('ae_material')) || [];
-  list.push({
+async function saveMaterial() {
+  const entry = {
     date: document.getElementById('m_date').value,
     site: document.getElementById('m_site').value,
     supplier: document.getElementById('m_supplier').value,
@@ -362,28 +366,29 @@ function saveMaterial() {
     status: document.getElementById('m_status').value,
     remark: document.getElementById('m_remark').value,
     billImg: currentBillBase64
-  });
-  localStorage.setItem('ae_material', JSON.stringify(list));
+  };
+  showToast("⏳ Material + Bill upload hot aahe...");
+  await fetch(`${DB_URL}/material.json`, { method: 'POST', body: JSON.stringify(entry) });
   document.getElementById('m_item').value = "";
   document.getElementById('m_billFile').value = "";
   document.getElementById('billPreviewBox').style.display = 'none';
   currentBillBase64 = "";
-  showToast("✅ Material + Bill Photo save jhala!");
+  showToast("✅ Material + Bill Photo Live Save jhala!");
 }
 
-function saveReport() {
-  const list = JSON.parse(localStorage.getItem('ae_report')) || [];
-  list.push({
+async function saveReport() {
+  const entry = {
     date: document.getElementById('r_date').value,
     site: document.getElementById('r_site').value,
     work: document.getElementById('r_work').value,
     petty: parseFloat(document.getElementById('r_petty').value) || 0,
     req: document.getElementById('r_req').value,
     note: document.getElementById('r_note').value
-  });
-  localStorage.setItem('ae_report', JSON.stringify(list));
+  };
+  showToast("⏳ Report save hot aahe...");
+  await fetch(`${DB_URL}/report.json`, { method: 'POST', body: JSON.stringify(entry) });
   document.getElementById('r_work').value = "";
-  showToast("✅ Daily Report save jhala!");
+  showToast("✅ Daily Report Live Save jhala!");
 }
 
 function renderMasterTable() {
@@ -405,13 +410,13 @@ function addNewWorkerRow() {
   renderMasterTable();
 }
 
-function saveMasterList() {
-  localStorage.setItem('ae_workers', JSON.stringify(workers));
+async function saveMasterList() {
+  await fetch(`${DB_URL}/workers.json`, { method: 'PUT', body: JSON.stringify(workers) });
   initUI();
-  showToast("💾 Master Bank List update jhali!");
+  showToast("💾 Master Bank List Live Update jhali!");
 }
 
-initUI();
+loadWorkersFromCloud();
 </script>
 </body>
 </html>

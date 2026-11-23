@@ -3,420 +3,478 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Achyuth Enterprises - Live Admin</title>
+  <title>Achyuth Enterprises - Live Owner Sheet</title>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #f1f5f9; margin: 0; padding: 12px; color: #1e293b; }
-    .container { max-width: 650px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
-    .header { background: #1e3a8a; color: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .header h1 { margin: 0; font-size: 18px; }
-    .header p { margin: 2px 0 0; font-size: 12px; color: #93c5fd; }
-    .viewer-link { background: #f59e0b; color: #000; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
-    .tabs { display: flex; background: #e2e8f0; padding: 4px; gap: 4px; overflow-x: auto; }
-    .tab-btn { flex: 1; padding: 10px 8px; border: none; background: transparent; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
-    .tab-btn.active { background: #fff; color: #1e3a8a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .content { padding: 16px; display: none; }
-    .content.active { display: block; }
-    label { display: block; font-size: 13px; font-weight: 600; margin-top: 12px; color: #334155; }
-    input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; background: #fff; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .calc-badge { background: #eff6ff; border: 1px solid #93c5fd; color: #1e3a8a; padding: 10px; border-radius: 8px; margin-top: 12px; font-weight: bold; font-size: 14px; text-align: center; }
-    .btn-primary { width: 100%; background: #16a34a; color: #fff; border: none; padding: 13px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
-    .btn-secondary { background: #2563eb; color: #fff; border: none; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-    .toast { background: #dcfce7; color: #166534; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 12px; display: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-    th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
-    th { background: #f8fafc; }
-    td input, td select { padding: 6px; font-size: 13px; margin: 0; }
-    .preview-box { margin-top: 8px; display: none; text-align: center; }
-    .preview-box img { max-height: 140px; border-radius: 8px; border: 1px solid #cbd5e1; }
+    body { background: #e2e8f0; margin: 0; padding: 12px; color: #0f172a; }
+    .login-screen { position: fixed; inset: 0; background: #0f766e; display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
+    .login-box { background: #fff; padding: 24px; border-radius: 14px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.25); }
+    .login-box h2 { margin: 0 0 6px; color: #0f766e; }
+    .login-box p { margin: 0 0 16px; font-size: 13px; color: #64748b; }
+    .login-box input { width: 100%; padding: 12px; font-size: 18px; text-align: center; letter-spacing: 4px; border: 2px solid #cbd5e1; border-radius: 8px; margin-bottom: 12px; }
+    .login-box button { width: 100%; background: #1e3a8a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .err-msg { color: #dc2626; font-size: 13px; font-weight: bold; margin-top: 8px; display: none; }
+
+    .container { max-width: 1220px; margin: auto; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: none; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h1 { margin: 0; font-size: 20px; color: #1e3a8a; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+    input[type="month"] { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .btn { border: none; padding: 9px 13px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .btn-master { background: #15803d; color: #fff; }
+    .btn-excel { background: #16a34a; color: #fff; font-size: 12px; padding: 7px 12px; }
+    .btn-pdf { background: #dc2626; color: #fff; font-size: 12px; padding: 7px 12px; }
+    .btn-print { background: #475569; color: #fff; font-size: 12px; padding: 7px 12px; }
+    .btn-edit { background: #f59e0b; color: #000; }
+    .btn-edit.active { background: #dc2626; color: #fff; }
+    .btn-refresh { background: #0284c7; color: #fff; }
+    .btn-admin { background: #1e3a8a; color: #fff; text-decoration: none; }
+    .btn-bill { background: #0284c7; color: #fff; border: none; padding: 5px 9px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .kpi { background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 8px; }
+    .kpi span { font-size: 12px; color: #475569; display: block; }
+    .kpi strong { font-size: 18px; color: #1e3a8a; }
+    
+    .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .tab { padding: 9px 14px; border: none; background: #e2e8f0; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .tab.active { background: #1e3a8a; color: #fff; }
+    
+    .sheet-toolbar { background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .sheet-toolbar h3 { margin: 0; font-size: 15px; color: #1e3a8a; }
+    .tool-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+    th { background: #1e3a8a; color: #fff; }
+    tr:nth-child(even) { background: #f8fafc; }
+    td[contenteditable="true"] { background: #fef9c3; outline: 1px dashed #ca8a04; }
+    .sheet-box { display: none; }
+    .sheet-box.active { display: block; }
+    .table-wrap { overflow-x: auto; }
+    .print-header { display: none; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; padding: 15px; }
+    .modal-box { background: #fff; padding: 16px; border-radius: 12px; max-width: 550px; width: 100%; text-align: center; }
+    .modal-box img { max-width: 100%; max-height: 70vh; border-radius: 8px; margin-bottom: 12px; }
+
+    /* Print Styling: Fakt active sheet print hoil */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .container { box-shadow: none; padding: 0; max-width: 100%; }
+      .top-bar, .actions, .kpis, .tabs, .sheet-toolbar, .no-print { display: none !important; }
+      .sheet-box { display: none !important; }
+      .sheet-box.active { display: block !important; }
+      .print-header { display: block !important; text-align: center; margin-bottom: 12px; border-bottom: 2px solid #1e3a8a; padding-bottom: 6px; }
+      th { background: #1e3a8a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div>
-      <h1>Achyuth Enterprises 🟢 Live</h1>
-      <p>L&T Pipeline Vendor • Cloud Sync Admin</p>
-    </div>
-    <a href="../Client/" class="viewer-link">📊 Owner Sheet</a>
+
+<!-- CLIENT LOGIN SCREEN -->
+<div id="clientLoginScreen" class="login-screen">
+  <div class="login-box">
+    <h2>ACHYUTH ENTERPRISES</h2>
+    <p>Client / Owner Sheet Login • Password Taka</p>
+    <input type="password" id="clientPassInput" inputmode="numeric" placeholder="••••" onkeyup="if(event.key==='Enter') checkClientLogin()">
+    <button onclick="checkClientLogin()">🔓 Sheet Ughda</button>
+    <div id="clientLoginErr" class="err-msg">❌ Chukicha Password! Punha prayatna kara.</div>
   </div>
+</div>
+
+<div id="clientMainApp" class="container">
+  <div class="top-bar">
+    <div>
+      <h1>ACHYUTH ENTERPRISES — Live Owner Sheet</h1>
+      <small style="color:#64748b;">L&T Pipeline Project • 6 PM (1x) | 8 PM (1.5x) | 9 PM+ (2x)</small>
+    </div>
+    <a href="../Admin/" class="btn btn-admin">⬅ Admin Entry</a>
+  </div>
+
+  <div class="actions">
+    <label><b>Mahina Nivda:</b></label>
+    <input type="month" id="monthFilter" onchange="renderAll()">
+    <button class="btn btn-refresh" onclick="fetchCloudData()">🔄 Live Refresh</button>
+    <button id="editToggleBtn" class="btn btn-edit" onclick="toggleEditMode()">✏️ Edit Mode: OFF</button>
+    <button class="btn btn-master" onclick="downloadStyledExcel('ALL')">📊 Master Excel (All 4 Sheets)</button>
+  </div>
+
+  <div class="kpis" id="kpiBar"></div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="openTab('att', this)">👷 Labour Hajeri</button>
-    <button class="tab-btn" onclick="openTab('mat', this)">🧱 Material + Bill</button>
-    <button class="tab-btn" onclick="openTab('rep', this)">📋 Daily Report</button>
-    <button class="tab-btn" onclick="openTab('mst', this)">🏦 Bank Master</button>
+    <button class="tab active" onclick="switchSheet('s_att', this)">👷 Labour Attendance</button>
+    <button class="tab" onclick="switchSheet('s_mat', this)">🧱 Material & Bills</button>
+    <button class="tab" onclick="switchSheet('s_rep', this)">📋 Daily Site Report</button>
+    <button class="tab" onclick="switchSheet('s_mst', this)">🏦 Bank Master</button>
   </div>
 
-  <!-- TAB 1: LABOUR ATTENDANCE -->
-  <div id="att" class="content active">
-    <div class="grid-2">
-      <div><label>Tarikh (Date)</label><input type="date" id="a_date"></div>
-      <div><label>Site Location</label><input type="text" id="a_site" value="Tingrenagar"></div>
-    </div>
-
-    <label>Kamgarache Naav (Worker Name)</label>
-    <select id="a_worker" onchange="fillWorkerBank()"></select>
-
-    <div class="grid-2">
-      <div><label>Pad (Designation)</label><input type="text" id="a_desig" readonly style="background:#f8fafc;"></div>
-      <div>
-        <label>Kam Sutnyachi Vel (Out Time)</label>
-        <select id="a_outTime" onchange="updateWagePreview()">
-          <option value="1">Up to 6:00 PM (1.0x Hajeri)</option>
-          <option value="1.5">Up to 8:00 PM (1.5x Hajeri)</option>
-          <option value="2">After 9:00 PM (2.0x Double)</option>
-          <option value="0.5">Half Day (0.5x)</option>
-          <option value="0">Absent (0x)</option>
-        </select>
+  <!-- TAB 1: LABOUR -->
+  <div id="s_att" class="sheet-box active">
+    <div class="sheet-toolbar">
+      <h3>👷 Labour Attendance & Payroll</h3>
+      <div class="tool-btns">
+        <button class="btn btn-excel" onclick="downloadStyledExcel('ATT')">📥 Excel</button>
+        <button class="btn btn-pdf" onclick="downloadTabPDF('print_att', 'Labour_Attendance')">📄 PDF</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
       </div>
     </div>
-
-    <div class="grid-2">
-      <div><label>Base Roz / Pagar (₹)</label><input type="number" id="a_wage" value="600" oninput="updateWagePreview()"></div>
-      <div><label>Hafta / Uchal (Advance ₹)</label><input type="number" id="a_hafta" value="0" oninput="updateWagePreview()"></div>
+    <div id="print_att" class="table-wrap">
+      <div class="print-header"><h2 style="margin:0;color:#1e3a8a;">ACHYUTH ENTERPRISES — LABOUR ATTENDANCE SHEET</h2><small id="lbl_m_att"></small></div>
+      <table id="t_att"></table>
     </div>
-
-    <div class="calc-badge" id="wagePreviewBox">Hajeri: 1.0x | Aajcha Pagar: ₹600 | Net Payable: ₹600</div>
-
-    <div class="grid-2">
-      <div><label>Bank Name</label><select id="a_bank"></select></div>
-      <div><label>Account Number</label><input type="text" id="a_acc" placeholder="Account No"></div>
-    </div>
-
-    <label>IFSC Code</label>
-    <input type="text" id="a_ifsc" placeholder="IFSC Code">
-
-    <button class="btn-primary" onclick="saveAttendance()">✅ Hajeri Live Save Kara</button>
-    <button class="btn-secondary" style="width:100%;" onclick="markAllBulk()">⚡ Sarva 18 Kamgaranchi Ekach Velchi Hajeri Save Kara</button>
   </div>
 
-  <!-- TAB 2: MATERIAL + BILL PHOTO -->
-  <div id="mat" class="content">
-    <div class="grid-2">
-      <div><label>Tarikh (Date)</label><input type="date" id="m_date"></div>
-      <div><label>Site Location</label><input type="text" id="m_site" value="Tingrenagar"></div>
-    </div>
-
-    <label>Hardware / Supplier Naav</label>
-    <input type="text" id="m_supplier" placeholder="Ud. Mahalaxmi Hardware">
-
-    <label>Material Naav (Pipe, Cement, Reti, Khile...)</label>
-    <input type="text" id="m_item" placeholder="Ud. DI Pipe 300mm / Cement Goni">
-
-    <div class="grid-2">
-      <div><label>Nag / Vajan (Quantity)</label><input type="number" id="m_qty" value="1" oninput="calcMatTotal()"></div>
-      <div>
-        <label>Unit</label>
-        <select id="m_unit">
-          <option value="Nos">Nos (Nag)</option>
-          <option value="Bags">Bags (Goni)</option>
-          <option value="Brass">Brass</option>
-          <option value="Kg">Kg</option>
-          <option value="Meters">Meters</option>
-          <option value="Liters">Liters</option>
-        </select>
+  <!-- TAB 2: MATERIAL -->
+  <div id="s_mat" class="sheet-box">
+    <div class="sheet-toolbar">
+      <h3>🧱 Material & Hardware Supply</h3>
+      <div class="tool-btns">
+        <button class="btn btn-excel" onclick="downloadStyledExcel('MAT')">📥 Excel</button>
+        <button class="btn btn-pdf" onclick="downloadTabPDF('print_mat', 'Material_Sheet')">📄 PDF</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
       </div>
     </div>
-
-    <div class="grid-2">
-      <div><label>Dar (Rate ₹)</label><input type="number" id="m_rate" value="0" oninput="calcMatTotal()"></div>
-      <div><label>Ekun Bill (Total ₹)</label><input type="number" id="m_total" value="0"></div>
+    <div id="print_mat" class="table-wrap">
+      <div class="print-header"><h2 style="margin:0;color:#1e3a8a;">ACHYUTH ENTERPRISES — MATERIAL SUPPLY SHEET</h2><small id="lbl_m_mat"></small></div>
+      <table id="t_mat"></table>
     </div>
-
-    <div class="grid-2">
-      <div>
-        <label>Payment Status</label>
-        <select id="m_status">
-          <option value="Credit (Udhar)">Credit (Udhar)</option>
-          <option value="Cash Paid">Cash Paid</option>
-          <option value="UPI / Online">UPI / Online</option>
-        </select>
-      </div>
-      <div><label>Bill No / Remark</label><input type="text" id="m_remark" placeholder="Bill No. / Tip"></div>
-    </div>
-
-    <label>📸 Bill / Pavti Photo Upload Kara (Owner la Live disel)</label>
-    <input type="file" id="m_billFile" accept="image/*" capture="environment" onchange="compressBillImage(this)">
-    <div class="preview-box" id="billPreviewBox"><img id="billPreviewImg" src="" alt="Bill"></div>
-
-    <button class="btn-primary" onclick="saveMaterial()">✅ Material + Bill Live Save Kara</button>
   </div>
 
   <!-- TAB 3: DAILY REPORT -->
-  <div id="rep" class="content">
-    <div class="grid-2">
-      <div><label>Tarikh (Date)</label><input type="date" id="r_date"></div>
-      <div><label>Site Location</label><input type="text" id="r_site" value="Tingrenagar"></div>
+  <div id="s_rep" class="sheet-box">
+    <div class="sheet-toolbar">
+      <h3>📋 Daily Site Progress Report (DPR)</h3>
+      <div class="tool-btns">
+        <button class="btn btn-excel" onclick="downloadStyledExcel('REP')">📥 Excel</button>
+        <button class="btn btn-pdf" onclick="downloadTabPDF('print_rep', 'Daily_Report')">📄 PDF</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
+      </div>
     </div>
-
-    <label>Aaj Site var Kay Kam Jhale? (Work Progress)</label>
-    <textarea id="r_work" rows="3" placeholder="Ud. Pipeline excavation & jointing, First Aid TBT completed..."></textarea>
-
-    <label>Kirkol Site Kharch (Chaha-Pani / Bhade ₹)</label>
-    <input type="number" id="r_petty" value="0">
-
-    <label>Udyasathi Kay Material / Labour Hवे? (Tomorrow Req)</label>
-    <textarea id="r_req" rows="2" placeholder="Ud. 20 goni cement ani 2 fitter"></textarea>
-
-    <label>Supervisor Note / Adchan</label>
-    <input type="text" id="r_note" placeholder="Kahi vishesh mahiti">
-
-    <button class="btn-primary" onclick="saveReport()">✅ Daily Report Live Save Kara</button>
+    <div id="print_rep" class="table-wrap">
+      <div class="print-header"><h2 style="margin:0;color:#1e3a8a;">ACHYUTH ENTERPRISES — DAILY SITE REPORT</h2><small id="lbl_m_rep"></small></div>
+      <table id="t_rep"></table>
+    </div>
   </div>
 
   <!-- TAB 4: BANK MASTER -->
-  <div id="mst" class="content">
-    <p style="font-size:12px; color:#475569; margin-top:0;">Ekda ithe Bank, Account No ani IFSC save kela ki sarva mobile var update hoil.</p>
-    <div style="overflow-x:auto;">
-      <table id="masterTable">
-        <thead><tr><th>Naav</th><th>Pad</th><th>Base Wage</th><th>Bank</th><th>Account No</th><th>IFSC</th></tr></thead>
-        <tbody></tbody>
-      </table>
+  <div id="s_mst" class="sheet-box">
+    <div class="sheet-toolbar">
+      <h3>🏦 Worker & Bank Master List</h3>
+      <div class="tool-btns">
+        <button class="btn btn-excel" onclick="downloadStyledExcel('MST')">📥 Excel</button>
+        <button class="btn btn-pdf" onclick="downloadTabPDF('print_mst', 'Bank_Master')">📄 PDF</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
+      </div>
     </div>
-    <button class="btn-secondary" onclick="addNewWorkerRow()">+ Navin Kamgar Joda</button>
-    <button class="btn-primary" onclick="saveMasterList()">💾 Master Data Live Update Kara</button>
+    <div id="print_mst" class="table-wrap">
+      <div class="print-header"><h2 style="margin:0;color:#1e3a8a;">ACHYUTH ENTERPRISES — WORKER BANK MASTER</h2></div>
+      <table id="t_mst"></table>
+    </div>
   </div>
+</div>
 
-  <div id="toast" class="toast"></div>
+<div id="billModal" class="modal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <h3 id="billModalTitle" style="margin-top:0; color:#1e3a8a;">Material Bill</h3>
+    <img id="billModalImg" src="" alt="Bill">
+    <br>
+    <a id="billDownloadLink" href="#" download="Achyuth_Bill.jpg" class="btn btn-master" style="text-decoration:none;">⬇️ Bill Photo Download</a>
+    <button class="btn btn-edit" onclick="document.getElementById('billModal').style.display='none'">✖ Band Kara</button>
+  </div>
 </div>
 
 <script>
-const DB_URL = "https://achyuth-enterprises-default-rtdb.asia-southeast1.firebasedatabase.app";
+const CLIENT_PASS = "9049";
 
-const BANKS = [
-  "", "State Bank of India", "Bank of Maharashtra", "HDFC Bank",
-  "ICICI Bank", "Bank of Baroda", "Union Bank of India",
-  "Axis Bank", "Canara Bank", "Punjab National Bank"
-];
-
-const OUT_TIME_LABELS = {
-  "1": "Up to 6:00 PM (1x)",
-  "1.5": "Up to 8:00 PM (1.5x)",
-  "2": "After 9:00 PM (2x)",
-  "0.5": "Half Day (0.5x)",
-  "0": "Absent (0x)"
-};
-
-const DEFAULT_WORKERS = [
-  { name: "Mahesh", desig: "F", wage: 850, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Kamlesh", desig: "F", wage: 850, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Chavan", desig: "F", wage: 850, bank: "Bank of Maharashtra", acc: "", ifsc: "" },
-  { name: "Karan", desig: "F", wage: 850, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Madhukar", desig: "L", wage: 600, bank: "Bank of Maharashtra", acc: "", ifsc: "" },
-  { name: "Anil 1", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Anil 2", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Arun", desig: "L", wage: 600, bank: "Union Bank of India", acc: "", ifsc: "" },
-  { name: "Rambabu", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Ramsharan", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Prakash", desig: "L", wage: 600, bank: "Bank of Baroda", acc: "", ifsc: "" },
-  { name: "Rajbahaddur", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Buradas", desig: "L", wage: 600, bank: "Canara Bank", acc: "", ifsc: "" },
-  { name: "Shivsampath", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Rajaram", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Saroj", desig: "Helper", wage: 550, bank: "HDFC Bank", acc: "", ifsc: "" },
-  { name: "Ranju", desig: "Helper", wage: 550, bank: "ICICI Bank", acc: "", ifsc: "" },
-  { name: "Akshay Noda", desig: "SUP", wage: 1100, bank: "HDFC Bank", acc: "", ifsc: "" }
-];
-
-let workers = [...DEFAULT_WORKERS];
-let currentBillBase64 = "";
-const today = new Date().toISOString().split('T')[0];
-['a_date', 'm_date', 'r_date'].forEach(id => document.getElementById(id).value = today);
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.innerText = msg;
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 2800);
+function checkClientLogin() {
+  const val = document.getElementById('clientPassInput').value.trim();
+  if (val === CLIENT_PASS) {
+    sessionStorage.setItem('ae_client_auth', '1');
+    document.getElementById('clientLoginScreen').style.display = 'none';
+    document.getElementById('clientMainApp').style.display = 'block';
+    fetchCloudData();
+  } else {
+    document.getElementById('clientLoginErr').style.display = 'block';
+  }
 }
 
-function openTab(id, btn) {
-  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+if (sessionStorage.getItem('ae_client_auth') === '1') {
+  document.getElementById('clientLoginScreen').style.display = 'none';
+  document.getElementById('clientMainApp').style.display = 'block';
+}
+
+const DB_URL = "https://achyuth-enterprises-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+let editMode = false;
+let cloudAtt = [], cloudMat = [], cloudRep = [], cloudWorkers = [];
+document.getElementById('monthFilter').value = new Date().toISOString().slice(0, 7);
+
+function objToArray(obj) {
+  if (!obj) return [];
+  return Object.keys(obj).map(key => ({ _key: key, ...obj[key] }));
+}
+
+async function fetchCloudData() {
+  try {
+    const [rAtt, rMat, rRep, rW] = await Promise.all([
+      fetch(`${DB_URL}/attendance.json`).then(r => r.json()),
+      fetch(`${DB_URL}/material.json`).then(r => r.json()),
+      fetch(`${DB_URL}/report.json`).then(r => r.json()),
+      fetch(`${DB_URL}/workers.json`).then(r => r.json())
+    ]);
+    cloudAtt = objToArray(rAtt);
+    cloudMat = objToArray(rMat);
+    cloudRep = objToArray(rRep);
+    cloudWorkers = Array.isArray(rW) ? rW : [];
+    renderAll();
+  } catch (e) {
+    alert("Data load hotana adchan aali, internet check kara!");
+  }
+}
+
+function switchSheet(id, btn) {
+  document.querySelectorAll('.sheet-box').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
 }
 
-async function loadWorkersFromCloud() {
-  try {
-    const res = await fetch(`${DB_URL}/workers.json`);
-    const data = await res.json();
-    if (data && Array.isArray(data) && data.length > 0) {
-      workers = data;
-    } else {
-      await fetch(`${DB_URL}/workers.json`, { method: 'PUT', body: JSON.stringify(DEFAULT_WORKERS) });
+function toggleEditMode() {
+  editMode = !editMode;
+  const btn = document.getElementById('editToggleBtn');
+  btn.innerText = editMode ? "💾 Save & Lock Editing" : "✏️ Edit Mode: OFF";
+  btn.classList.toggle('active', editMode);
+  renderAll();
+}
+
+async function updateCloudCell(node, key, field, value) {
+  const numFields = ['mult', 'baseWage', 'earned', 'hafta', 'net', 'rate', 'total', 'petty'];
+  const parsedVal = numFields.includes(field) ? (parseFloat(value) || 0) : value;
+  let patchData = { [field]: parsedVal };
+
+  if (node === 'attendance') {
+    const item = cloudAtt.find(x => x._key === key);
+    if (item) {
+      item[field] = parsedVal;
+      item.earned = Math.round((item.baseWage || 0) * (item.mult || 0));
+      item.net = item.earned - (item.hafta || 0);
+      patchData.earned = item.earned;
+      patchData.net = item.net;
     }
-  } catch (e) { console.log("Using default workers"); }
-  initUI();
-}
-
-function initUI() {
-  document.getElementById('a_worker').innerHTML = workers.map((w, i) => `<option value="${i}">${w.name} (${w.desig})</option>`).join('');
-  document.getElementById('a_bank').innerHTML = BANKS.map(b => `<option value="${b}">${b || '-- Bank Nivda --'}</option>`).join('');
-  fillWorkerBank();
-  renderMasterTable();
-}
-
-function fillWorkerBank() {
-  const w = workers[document.getElementById('a_worker').value];
-  if (!w) return;
-  document.getElementById('a_desig').value = w.desig;
-  document.getElementById('a_wage').value = w.wage;
-  document.getElementById('a_bank').value = w.bank || "";
-  document.getElementById('a_acc').value = w.acc || "";
-  document.getElementById('a_ifsc').value = w.ifsc || "";
-  updateWagePreview();
-}
-
-function updateWagePreview() {
-  const mult = parseFloat(document.getElementById('a_outTime').value) || 0;
-  const baseWage = parseFloat(document.getElementById('a_wage').value) || 0;
-  const hafta = parseFloat(document.getElementById('a_hafta').value) || 0;
-  const earned = Math.round(baseWage * mult);
-  const net = earned - hafta;
-  document.getElementById('wagePreviewBox').innerText = `Hajeri: ${mult}x | Aajcha Pagar: ₹${earned} | Net Payable: ₹${net}`;
-}
-
-async function saveAttendance() {
-  const w = workers[document.getElementById('a_worker').value];
-  const multVal = document.getElementById('a_outTime').value;
-  const mult = parseFloat(multVal) || 0;
-  const baseWage = parseFloat(document.getElementById('a_wage').value) || 0;
-  const hafta = parseFloat(document.getElementById('a_hafta').value) || 0;
-  const earned = Math.round(baseWage * mult);
-  const net = earned - hafta;
-
-  const entry = {
-    date: document.getElementById('a_date').value,
-    site: document.getElementById('a_site').value,
-    name: w.name, desig: w.desig,
-    outTime: OUT_TIME_LABELS[multVal],
-    mult, baseWage, earned, hafta, net,
-    bank: document.getElementById('a_bank').value,
-    acc: document.getElementById('a_acc').value,
-    ifsc: document.getElementById('a_ifsc').value
-  };
-
-  showToast("⏳ Cloud var save hot aahe...");
-  await fetch(`${DB_URL}/attendance.json`, { method: 'POST', body: JSON.stringify(entry) });
-  document.getElementById('a_hafta').value = 0;
-  updateWagePreview();
-  showToast(`✅ ${w.name} (${mult}x = ₹${net}) Live Save jhale!`);
-}
-
-async function markAllBulk() {
-  const date = document.getElementById('a_date').value;
-  const site = document.getElementById('a_site').value;
-  const multVal = document.getElementById('a_outTime').value;
-  const mult = parseFloat(multVal) || 0;
-
-  showToast("⏳ Sarva 18 kamgar save hot aahet...");
-  for (const w of workers) {
-    const earned = Math.round(w.wage * mult);
-    const entry = {
-      date, site, name: w.name, desig: w.desig,
-      outTime: OUT_TIME_LABELS[multVal],
-      mult, baseWage: w.wage, earned, hafta: 0, net: earned,
-      bank: w.bank, acc: w.acc, ifsc: w.ifsc
-    };
-    await fetch(`${DB_URL}/attendance.json`, { method: 'POST', body: JSON.stringify(entry) });
   }
-  showToast(`⚡ Sarva ${workers.length} kamgaranchi ${mult}x hajeri Live Save jhali!`);
+  await fetch(`${DB_URL}/${node}/${key}.json`, { method: 'PATCH', body: JSON.stringify(patchData) });
 }
 
-function calcMatTotal() {
-  const q = parseFloat(document.getElementById('m_qty').value) || 0;
-  const r = parseFloat(document.getElementById('m_rate').value) || 0;
-  document.getElementById('m_total').value = q * r;
+function openBillModal(imgData, title) {
+  document.getElementById('billModalTitle').innerText = title;
+  document.getElementById('billModalImg').src = imgData;
+  document.getElementById('billDownloadLink').href = imgData;
+  document.getElementById('billModal').style.display = 'flex';
 }
 
-function compressBillImage(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const maxW = 700;
-      const scale = Math.min(1, maxW / img.width);
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      currentBillBase64 = canvas.toDataURL('image/jpeg', 0.65);
-      document.getElementById('billPreviewImg').src = currentBillBase64;
-      document.getElementById('billPreviewBox').style.display = 'block';
-    };
-    img.src = e.target.result;
+function renderAll() {
+  const m = document.getElementById('monthFilter').value;
+  ['lbl_m_att', 'lbl_m_mat', 'lbl_m_rep'].forEach(id => document.getElementById(id).innerText = `Month: ${m}`);
+
+  const att = cloudAtt.filter(r => (r.date || "").startsWith(m));
+  const mat = cloudMat.filter(r => (r.date || "").startsWith(m));
+  const rep = cloudRep.filter(r => (r.date || "").startsWith(m));
+
+  const totHajeri = att.reduce((s, r) => s + Number(r.mult || 0), 0);
+  const totEarned = att.reduce((s, r) => s + Number(r.earned || 0), 0);
+  const totHafta = att.reduce((s, r) => s + Number(r.hafta || 0), 0);
+  const netPay = att.reduce((s, r) => s + Number(r.net || 0), 0);
+  const totMat = mat.reduce((s, r) => s + Number(r.total || 0), 0);
+  const totPetty = rep.reduce((s, r) => s + Number(r.petty || 0), 0);
+
+  document.getElementById('kpiBar').innerHTML = `
+    <div class="kpi"><span>Total Hajeri (Shifts)</span><strong>${totHajeri}</strong></div>
+    <div class="kpi"><span>Total Pagar (Earned)</span><strong>₹${totEarned}</strong></div>
+    <div class="kpi"><span>Hafta / Uchal</span><strong>₹${totHafta}</strong></div>
+    <div class="kpi"><span>Net Payable</span><strong>₹${netPay}</strong></div>
+    <div class="kpi"><span>Material Kharch</span><strong>₹${totMat}</strong></div>
+    <div class="kpi"><span>Petty Cash</span><strong>₹${totPetty}</strong></div>
+  `;
+
+  const attCols = ['date','site','name','desig','outTime','mult','baseWage','earned','hafta','net','bank','acc','ifsc'];
+  document.getElementById('t_att').innerHTML = `
+    <thead><tr><th>Date</th><th>Site</th><th>Name</th><th>Pad</th><th>Out Time</th><th>Hajeri (x)</th><th>Base Wage</th><th>Earned ₹</th><th>Hafta</th><th>Net Pay ₹</th><th>Bank</th><th>Acc No</th><th>IFSC</th></tr></thead>
+    <tbody>${att.map(r => `<tr>${attCols.map(c => `<td contenteditable="${editMode}" onblur="updateCloudCell('attendance','${r._key}','${c}',this.innerText)">${r[c] ?? ''}</td>`).join('')}</tr>`).join('')}</tbody>
+  `;
+
+  const matCols = ['date','site','supplier','item','qty','rate','total','status','remark'];
+  document.getElementById('t_mat').innerHTML = `
+    <thead><tr><th>Date</th><th>Site</th><th>Supplier</th><th>Material</th><th>Qty</th><th>Rate</th><th>Total ₹</th><th>Status</th><th>Remark</th><th class="no-print">Bill Photo</th></tr></thead>
+    <tbody>${mat.map(r => `<tr>
+      ${matCols.map(c => `<td contenteditable="${editMode}" onblur="updateCloudCell('material','${r._key}','${c}',this.innerText)">${r[c] ?? ''}</td>`).join('')}
+      <td class="no-print">${r.billImg ? `<button class="btn-bill" onclick="openBillModal('${r.billImg}', '${r.item} - ${r.date}')">🧾 View Bill</button>` : '<span style="color:#94a3b8">No Bill</span>'}</td>
+    </tr>`).join('')}</tbody>
+  `;
+
+  const repCols = ['date','site','work','petty','req','note'];
+  document.getElementById('t_rep').innerHTML = `
+    <thead><tr><th>Date</th><th>Site</th><th>Work Done Today</th><th>Petty Cash ₹</th><th>Tomorrow Req</th><th>Note</th></tr></thead>
+    <tbody>${rep.map(r => `<tr>${repCols.map(c => `<td contenteditable="${editMode}" onblur="updateCloudCell('report','${r._key}','${c}',this.innerText)">${r[c] ?? ''}</td>`).join('')}</tr>`).join('')}</tbody>
+  `;
+
+  document.getElementById('t_mst').innerHTML = `
+    <thead><tr><th>Sr</th><th>Worker Name</th><th>Designation</th><th>Base Wage ₹</th><th>Bank Name</th><th>Account Number</th><th>IFSC Code</th></tr></thead>
+    <tbody>${cloudWorkers.map((w, idx) => `<tr><td>${idx+1}</td><td>${w.name||''}</td><td>${w.desig||''}</td><td>${w.wage||0}</td><td>${w.bank||''}</td><td>${w.acc||''}</td><td>${w.ifsc||''}</td></tr>`).join('')}</tbody>
+  `;
+}
+
+// PDF Download per Tab
+function downloadTabPDF(elementId, title) {
+  const m = document.getElementById('monthFilter').value;
+  const el = document.getElementById(elementId);
+  const header = el.querySelector('.print-header');
+  if (header) header.style.display = 'block';
+
+  const opt = {
+    margin: 8,
+    filename: `Achyuth_Enterprises_${title}_${m}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
   };
-  reader.readAsDataURL(file);
+
+  html2pdf().set(opt).from(el).save().then(() => {
+    if (header) header.style.display = 'none';
+  });
 }
 
-async function saveMaterial() {
-  const entry = {
-    date: document.getElementById('m_date').value,
-    site: document.getElementById('m_site').value,
-    supplier: document.getElementById('m_supplier').value,
-    item: document.getElementById('m_item').value,
-    qty: `${document.getElementById('m_qty').value} ${document.getElementById('m_unit').value}`,
-    rate: parseFloat(document.getElementById('m_rate').value) || 0,
-    total: parseFloat(document.getElementById('m_total').value) || 0,
-    status: document.getElementById('m_status').value,
-    remark: document.getElementById('m_remark').value,
-    billImg: currentBillBase64
+// Excel Download (Master + Individual Tabs)
+async function downloadStyledExcel(mode) {
+  const m = document.getElementById('monthFilter').value;
+  const att = cloudAtt.filter(r => (r.date || "").startsWith(m));
+  const mat = cloudMat.filter(r => (r.date || "").startsWith(m));
+  const rep = cloudRep.filter(r => (r.date || "").startsWith(m));
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Achyuth Enterprises";
+
+  function setupStyledSheet(sheetName, titleText, headers, rowsData, colWidths) {
+    const ws = wb.addWorksheet(sheetName);
+    ws.mergeCells(1, 1, 1, headers.length);
+    const titleCell = ws.getCell(1, 1);
+    titleCell.value = `ACHYUTH ENTERPRISES — ${titleText} (${m})`;
+    titleCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+    titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    ws.getRow(1).height = 28;
+
+    const headerRow = ws.addRow(headers);
+    headerRow.height = 22;
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F766E' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = { top:{style:'thin'}, left:{style:'thin'}, bottom:{style:'thin'}, right:{style:'thin'} };
+    });
+
+    rowsData.forEach((r, idx) => {
+      const row = ws.addRow(r);
+      row.eachCell(cell => {
+        cell.border = { top:{style:'thin'}, left:{style:'thin'}, bottom:{style:'thin'}, right:{style:'thin'} };
+        if (idx % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+      });
+    });
+
+    colWidths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
+    return ws;
+  }
+
+  if (mode === 'ALL' || mode === 'ATT') {
+    const wsAtt = setupStyledSheet(
+      "Labour_Attendance",
+      "LABOUR ATTENDANCE & PAYROLL (6PM=1x | 8PM=1.5x | 9PM+=2x)",
+      ["Date", "Site", "Worker Name", "Designation", "Out Time", "Hajeri (x)", "Base Wage (₹)", "Earned Pagar (₹)", "Hafta (₹)", "Net Payable (₹)", "Bank Name", "Account Number", "IFSC Code"],
+      att.map((r, i) => {
+        const rowNum = i + 3;
+        return [
+          r.date, r.site, r.name, r.desig, r.outTime, r.mult, r.baseWage,
+          { formula: `ROUND(F${rowNum}*G${rowNum},0)`, result: r.earned },
+          r.hafta,
+          { formula: `H${rowNum}-I${rowNum}`, result: r.net },
+          r.bank, r.acc, r.ifsc
+        ];
+      }),
+      [13, 15, 20, 12, 22, 11, 14, 16, 13, 16, 22, 20, 15]
+    );
+    for (let r = 3; r <= 60; r++) {
+      wsAtt.getCell(`E${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Up to 6:00 PM (1x),Up to 8:00 PM (1.5x),After 9:00 PM (2x),Half Day (0.5x),Absent (0x)"'] };
+      wsAtt.getCell(`F${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"1,1.5,2,0.5,0"'] };
+      wsAtt.getCell(`K${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"State Bank of India,Bank of Maharashtra,HDFC Bank,ICICI Bank,Bank of Baroda,Union Bank of India,Axis Bank,Canara Bank,Punjab National Bank"'] };
+    }
+    const attLast = att.length + 2;
+    const attTotRow = wsAtt.addRow(["", "", "TOTAL", "", "", { formula: `SUM(F3:F${attLast})` }, "", { formula: `SUM(H3:H${attLast})` }, { formula: `SUM(I3:I${attLast})` }, { formula: `SUM(J3:J${attLast})` }, "", "", ""]);
+    attTotRow.eachCell(c => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } }; });
+  }
+
+  if (mode === 'ALL' || mode === 'MAT') {
+    const wsMat = setupStyledSheet(
+      "Material_Sheet",
+      "MATERIAL & HARDWARE SUPPLY SHEET",
+      ["Date", "Site", "Supplier / Hardware", "Material Name", "Qty & Unit", "Rate (₹)", "Total Amount (₹)", "Payment Status", "Bill / Remark", "Bill Attached"],
+      mat.map(r => [r.date, r.site, r.supplier, r.item, r.qty, r.rate, r.total, r.status, r.remark, r.billImg ? "Yes (Uploaded)" : "No"]),
+      [13, 15, 22, 24, 14, 12, 16, 16, 20, 15]
+    );
+    for (let r = 3; r <= 60; r++) {
+      wsMat.getCell(`H${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Credit (Udhar),Cash Paid,UPI / Online"'] };
+    }
+    const matLast = mat.length + 2;
+    const matTotRow = wsMat.addRow(["", "", "", "TOTAL MATERIAL COST", "", "", { formula: `SUM(G3:G${matLast})` }, "", "", ""]);
+    matTotRow.eachCell(c => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCFCE7' } }; });
+  }
+
+  if (mode === 'ALL' || mode === 'REP') {
+    const wsRep = setupStyledSheet(
+      "Daily_Report",
+      "DAILY SITE PROGRESS REPORT (DPR)",
+      ["Date", "Site Location", "Work Done Today", "Petty Cash (₹)", "Tomorrow Requirement", "Supervisor Note"],
+      rep.map(r => [r.date, r.site, r.work, r.petty, r.req, r.note]),
+      [13, 16, 38, 15, 30, 25]
+    );
+    const repLast = rep.length + 2;
+    const repTotRow = wsRep.addRow(["", "", "TOTAL PETTY CASH", { formula: `SUM(D3:D${repLast})` }, "", ""]);
+    repTotRow.eachCell(c => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } }; });
+  }
+
+  if (mode === 'ALL' || mode === 'MST') {
+    const wsMst = setupStyledSheet(
+      "Worker_Bank_Master",
+      "WORKER & BANK MASTER DIRECTORY",
+      ["Worker Name", "Designation", "Default Wage (₹)", "Bank Name", "Account Number", "IFSC Code"],
+      cloudWorkers.map(w => [w.name, w.desig, w.wage, w.bank, w.acc, w.ifsc]),
+      [22, 14, 16, 24, 22, 16]
+    );
+    for (let r = 3; r <= 60; r++) {
+      wsMst.getCell(`D${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"State Bank of India,Bank of Maharashtra,HDFC Bank,ICICI Bank,Bank of Baroda,Union Bank of India,Axis Bank,Canara Bank,Punjab National Bank"'] };
+    }
+  }
+
+  const fileNames = {
+    ALL: `Achyuth_Enterprises_Master_Report_${m}.xlsx`,
+    ATT: `Achyuth_Enterprises_Labour_${m}.xlsx`,
+    MAT: `Achyuth_Enterprises_Material_${m}.xlsx`,
+    REP: `Achyuth_Enterprises_Daily_Report_${m}.xlsx`,
+    MST: `Achyuth_Enterprises_Bank_Master.xlsx`
   };
-  showToast("⏳ Material + Bill upload hot aahe...");
-  await fetch(`${DB_URL}/material.json`, { method: 'POST', body: JSON.stringify(entry) });
-  document.getElementById('m_item').value = "";
-  document.getElementById('m_billFile').value = "";
-  document.getElementById('billPreviewBox').style.display = 'none';
-  currentBillBase64 = "";
-  showToast("✅ Material + Bill Photo Live Save jhala!");
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = fileNames[mode];
+  link.click();
 }
 
-async function saveReport() {
-  const entry = {
-    date: document.getElementById('r_date').value,
-    site: document.getElementById('r_site').value,
-    work: document.getElementById('r_work').value,
-    petty: parseFloat(document.getElementById('r_petty').value) || 0,
-    req: document.getElementById('r_req').value,
-    note: document.getElementById('r_note').value
-  };
-  showToast("⏳ Report save hot aahe...");
-  await fetch(`${DB_URL}/report.json`, { method: 'POST', body: JSON.stringify(entry) });
-  document.getElementById('r_work').value = "";
-  showToast("✅ Daily Report Live Save jhala!");
+if (sessionStorage.getItem('ae_client_auth') === '1') {
+  fetchCloudData();
 }
-
-function renderMasterTable() {
-  const tbody = document.querySelector('#masterTable tbody');
-  tbody.innerHTML = workers.map((w, i) => `
-    <tr>
-      <td><input value="${w.name}" onchange="workers[${i}].name=this.value"></td>
-      <td><input value="${w.desig}" style="width:55px" onchange="workers[${i}].desig=this.value"></td>
-      <td><input type="number" value="${w.wage}" style="width:65px" onchange="workers[${i}].wage=Number(this.value)"></td>
-      <td><select onchange="workers[${i}].bank=this.value">${BANKS.map(b => `<option ${w.bank===b?'selected':''}>${b}</option>`).join('')}</select></td>
-      <td><input value="${w.acc}" placeholder="Acc No" onchange="workers[${i}].acc=this.value"></td>
-      <td><input value="${w.ifsc}" placeholder="IFSC" onchange="workers[${i}].ifsc=this.value"></td>
-    </tr>
-  `).join('');
-}
-
-function addNewWorkerRow() {
-  workers.push({ name: "Navin Kamgar", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" });
-  renderMasterTable();
-}
-
-async function saveMasterList() {
-  await fetch(`${DB_URL}/workers.json`, { method: 'PUT', body: JSON.stringify(workers) });
-  initUI();
-  showToast("💾 Master Bank List Live Update jhali!");
-}
-
-loadWorkersFromCloud();
 </script>
 </body>
 </html>

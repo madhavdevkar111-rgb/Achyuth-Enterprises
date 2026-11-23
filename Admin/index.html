@@ -15,19 +15,18 @@
     .login-box button { width: 100%; background: #16a34a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
     .err-msg { color: #dc2626; font-size: 13px; font-weight: bold; margin-top: 8px; display: none; }
 
-    .container { max-width: 680px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; display: none; }
+    .container { max-width: 750px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; display: none; }
     .header { background: #1e3a8a; color: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
     .header h1 { margin: 0; font-size: 18px; }
     .header p { margin: 2px 0 0; font-size: 12px; color: #93c5fd; }
     .viewer-link { background: #f59e0b; color: #000; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
     .tabs { display: flex; background: #e2e8f0; padding: 4px; gap: 4px; overflow-x: auto; }
-    .tab-btn { flex: 1; padding: 10px 8px; border: none; background: transparent; font-weight: 600; font-size: 12.5px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+    .tab-btn { flex: 1; padding: 10px 8px; border: none; background: transparent; font-weight: 600; font-size: 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
     .tab-btn.active { background: #fff; color: #1e3a8a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .content { padding: 16px; display: none; }
     .content.active { display: block; }
     label { display: block; font-size: 13px; font-weight: 600; margin-top: 11px; color: #334155; }
     input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; }
-    input[readonly] { background: #f8fafc; color: #334155; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .calc-badge { background: #eff6ff; border: 1px solid #93c5fd; color: #1e3a8a; padding: 10px; border-radius: 8px; margin-top: 12px; font-weight: bold; font-size: 14px; text-align: center; }
@@ -35,11 +34,13 @@
     .kyc-box-title { font-size: 12px; font-weight: bold; color: #0f766e; margin-bottom: 4px; }
     .btn-primary { width: 100%; background: #16a34a; color: #fff; border: none; padding: 13px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
     .btn-secondary { background: #2563eb; color: #fff; border: none; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn-warn { background: #d97706; color: #fff; border: none; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn-del { background: #dc2626; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
     .toast { background: #dcfce7; color: #166534; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 12px; display: none; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
     th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
     th { background: #f8fafc; white-space: nowrap; }
-    td input, td select { padding: 5px; font-size: 12px; margin: 0; min-width: 95px; }
+    td input, td select { padding: 5px; font-size: 12px; margin: 0; min-width: 90px; }
     .preview-box { margin-top: 8px; display: none; text-align: center; }
     .preview-box img { max-height: 140px; border-radius: 8px; border: 1px solid #cbd5e1; }
   </style>
@@ -60,20 +61,21 @@
   <div class="header">
     <div>
       <h1>Achyuth Enterprises 🟢 Live</h1>
-      <p>L&T Pipeline Vendor • Admin Portal</p>
+      <p>Fitter: ₹700 | Labour: ₹600 • Admin Portal</p>
     </div>
     <a href="../Client/" class="viewer-link">📊 Owner Sheet</a>
   </div>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="openTab('att', this)">👷 Hajeri</button>
+    <button class="tab-btn" onclick="openTab('editAtt', this); loadAttendanceEditor();">✏️ Hajeri Edit</button>
     <button class="tab-btn" onclick="openTab('enr', this)">🆕 New Enrollment</button>
     <button class="tab-btn" onclick="openTab('mat', this)">🧱 Material + Bill</button>
     <button class="tab-btn" onclick="openTab('rep', this)">📋 Daily Report</button>
-    <button class="tab-btn" onclick="openTab('mst', this)">🏦 Master List</button>
+    <button class="tab-btn" onclick="openTab('mst', this)">🏦 Master Edit</button>
   </div>
 
-  <!-- TAB 1: LABOUR ATTENDANCE (AUTO-FILL ALL KYC & BANK) -->
+  <!-- TAB 1: LABOUR ATTENDANCE -->
   <div id="att" class="content active">
     <div class="grid-2">
       <div><label>Tarikh (Date)</label><input type="date" id="a_date"></div>
@@ -84,7 +86,14 @@
     <select id="a_worker" onchange="fillWorkerBank()"></select>
 
     <div class="grid-2">
-      <div><label>Pad (Designation)</label><input type="text" id="a_desig" readonly></div>
+      <div>
+        <label>Pad (Designation)</label>
+        <select id="a_desig" onchange="onAttendDesigChange()">
+          <option value="F">F (Fitter - ₹700)</option>
+          <option value="L">L (Labour - ₹600)</option>
+          <option value="SUP">SUP (Supervisor - ₹600)</option>
+        </select>
+      </div>
       <div>
         <label>Kam Sutnyachi Vel (Out Time)</label>
         <select id="a_outTime" onchange="updateWagePreview()">
@@ -98,15 +107,14 @@
     </div>
 
     <div class="grid-2">
-      <div><label>Base Roz / Pagar (₹)</label><input type="number" id="a_wage" value="600" oninput="updateWagePreview()"></div>
+      <div><label>Base Roz / Pagar (₹)</label><input type="number" id="a_wage" value="700" oninput="updateWagePreview()"></div>
       <div><label>Hafta / Uchal (Advance ₹)</label><input type="number" id="a_hafta" value="0" oninput="updateWagePreview()"></div>
     </div>
 
-    <div class="calc-badge" id="wagePreviewBox">Hajeri: 1.0x | Aajcha Pagar: ₹600 | Net Payable: ₹600</div>
+    <div class="calc-badge" id="wagePreviewBox">Hajeri: 1.0x | Aajcha Pagar: ₹700 | Net Payable: ₹700</div>
 
-    <!-- AUTO-FILLED KYC & BANK DETAILS -->
     <div class="kyc-box">
-      <div class="kyc-box-title">🪪 Auto-Filled KYC & Bank Details</div>
+      <div class="kyc-box-title">🪪 Auto-Filled KYC & Bank Details (Edit pan karu shakta)</div>
       <div class="grid-3">
         <div><label style="margin-top:4px;">Aadhaar No</label><input type="text" id="a_aadhaar" placeholder="Aadhaar"></div>
         <div><label style="margin-top:4px;">PAN No</label><input type="text" id="a_pan" placeholder="PAN"></div>
@@ -120,23 +128,47 @@
     </div>
 
     <button class="btn-primary" onclick="saveAttendance()">✅ Hajeri Live Save Kara</button>
-    <button class="btn-secondary" style="width:100%;" onclick="markAllBulk()">⚡ Sarva Kamgaranchi Ekach Velchi Hajeri Save Kara</button>
+    <button class="btn-secondary" style="width:100%;" onclick="markAllBulk()">⚡ Sarva 21 Kamgaranchi Ekach Velchi Hajeri Save Kara</button>
+    <button class="btn-warn" style="width:100%;" onclick="syncNotebookNov2026()">📒 Vahitil 1 te 23 Nov 2026 Hajeri Cloud Var Load Kara</button>
   </div>
 
-  <!-- TAB 2: NEW WORKER ENROLLMENT -->
+  <!-- TAB 2: EDIT / DELETE EXISTING ATTENDANCE -->
+  <div id="editAtt" class="content">
+    <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">✏️ Juni Hajeri Edit / Delete Kara</h3>
+    <div class="grid-2" style="margin-bottom:8px;">
+      <div>
+        <label style="margin-top:0;">Tarikh Filter (Date)</label>
+        <input type="date" id="ea_dateFilter" onchange="renderAttendanceEditor()">
+      </div>
+      <div>
+        <label style="margin-top:0;">Kamgar Filter</label>
+        <input type="text" id="ea_nameFilter" placeholder="Naav type kara..." oninput="renderAttendanceEditor()">
+      </div>
+    </div>
+    <button class="btn-secondary" style="margin-top:0; margin-bottom:8px;" onclick="document.getElementById('ea_dateFilter').value=''; renderAttendanceEditor();">Sarva Tarikha Dakhva</button>
+    <div style="overflow-x:auto; max-height: 450px;">
+      <table id="editAttTable">
+        <thead>
+          <tr><th>Date</th><th>Naav</th><th>Pad</th><th>Out Time</th><th>Hajeri(x)</th><th>Base ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Action</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: NEW WORKER ENROLLMENT -->
   <div id="enr" class="content">
     <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🆕 Navin Kamgar Nondani (New Enrollment)</h3>
-    <p style="margin:0 0 10px; font-size:12px; color:#64748b;">Ithe ekda mahiti bharli ki Hajeri, Master List, Client Sheet ani Excel madhe saglikade automatic disel.</p>
+    <p style="margin:0 0 10px; font-size:12px; color:#64748b;">Ithe ekda mahiti bharli ki pudhe saglikade automatic disel.</p>
 
     <div class="grid-2">
       <div><label>Kamgarache Purna Naav *</label><input type="text" id="e_name" placeholder="Ud. Rameshwar Kale"></div>
       <div>
         <label>Pad (Designation) *</label>
         <select id="e_desig" onchange="setDefaultWageByDesig()">
-          <option value="L">L (Labour - ₹600)</option>
-          <option value="F">F (Fitter - ₹850)</option>
-          <option value="Helper">Helper (₹550)</option>
-          <option value="SUP">SUP (Supervisor - ₹1100)</option>
+          <option value="F">F (Fitter - ₹700)</option>
+          <option value="L" selected>L (Labour - ₹600)</option>
+          <option value="SUP">SUP (Supervisor - ₹600)</option>
         </select>
       </div>
     </div>
@@ -161,7 +193,7 @@
     <button class="btn-primary" onclick="enrollNewWorker()">➕ Navin Kamgar Live Save Kara</button>
   </div>
 
-  <!-- TAB 3: MATERIAL + BILL PHOTO -->
+  <!-- TAB 4: MATERIAL + BILL PHOTO -->
   <div id="mat" class="content">
     <div class="grid-2">
       <div><label>Tarikh (Date)</label><input type="date" id="m_date"></div>
@@ -213,7 +245,7 @@
     <button class="btn-primary" onclick="saveMaterial()">✅ Material + Bill Live Save Kara</button>
   </div>
 
-  <!-- TAB 4: DAILY REPORT -->
+  <!-- TAB 5: DAILY REPORT -->
   <div id="rep" class="content">
     <div class="grid-2">
       <div><label>Tarikh (Date)</label><input type="date" id="r_date"></div>
@@ -235,22 +267,23 @@
     <button class="btn-primary" onclick="saveReport()">✅ Daily Report Live Save Kara</button>
   </div>
 
-  <!-- TAB 5: MASTER KYC & BANK LIST -->
+  <!-- TAB 6: MASTER LIST EDIT (JUNE WORKERS NAAM/BANK/KYC EDIT) -->
   <div id="mst" class="content">
-    <p style="font-size:12px; color:#475569; margin-top:0;">Ithe sarva kamgaranche Aadhaar, PAN, UAN ani Bank details edit karun Live Update karu shakta.</p>
+    <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🏦 June / Navin Kamgarache Naav, Pagar & Account Edit</h3>
+    <p style="font-size:12px; color:#475569; margin-top:0;">Ithe konatyahi kamgarache Naav, Pad (F=700, L=600), Aadhaar, PAN, UAN ani Bank Account edit karun khali Save dabba.</p>
     <div style="overflow-x:auto;">
       <table id="masterTable">
         <thead>
           <tr>
-            <th>Naav</th><th>Pad</th><th>Wage</th>
+            <th>Sr</th><th>Kamgarache Naav</th><th>Pad</th><th>Wage ₹</th>
             <th>Aadhaar No</th><th>PAN No</th><th>UAN No</th>
-            <th>Bank</th><th>Account No</th><th>IFSC</th>
+            <th>Bank</th><th>Account No</th><th>IFSC</th><th>Del</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
-    <button class="btn-primary" onclick="saveMasterList()">💾 Master KYC & Bank List Update Kara</button>
+    <button class="btn-primary" onclick="saveMasterList()">💾 Sarva Badal Live Save Kara</button>
   </div>
 
   <div id="toast" class="toast"></div>
@@ -292,28 +325,58 @@ const OUT_TIME_LABELS = {
   "0": "Absent (0x)"
 };
 
+// 21 Workers from Notebook Register (Fitter = 700, Labour = 600)
 const DEFAULT_WORKERS = [
-  { name: "Mahesh", desig: "F", wage: 850, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Kamlesh", desig: "F", wage: 850, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Chavan", desig: "F", wage: 850, aadhaar: "", pan: "", uan: "", bank: "Bank of Maharashtra", acc: "", ifsc: "" },
-  { name: "Karan", desig: "F", wage: 850, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Madhukar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Bank of Maharashtra", acc: "", ifsc: "" },
-  { name: "Anil 1", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Anil 2", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Arun", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Union Bank of India", acc: "", ifsc: "" },
-  { name: "Rambabu", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Ramsharan", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Prakash", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Bank of Baroda", acc: "", ifsc: "" },
-  { name: "Rajbahaddur", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Buradas", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Canara Bank", acc: "", ifsc: "" },
-  { name: "Shivsampath", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Mahesh", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Kamlesh", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Chavan", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "Bank of Maharashtra", acc: "", ifsc: "" },
+  { name: "Karan", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
   { name: "Rajaram", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
-  { name: "Saroj", desig: "Helper", wage: 550, aadhaar: "", pan: "", uan: "", bank: "HDFC Bank", acc: "", ifsc: "" },
-  { name: "Ranju", desig: "Helper", wage: 550, aadhaar: "", pan: "", uan: "", bank: "ICICI Bank", acc: "", ifsc: "" },
-  { name: "Akshay Noda", desig: "SUP", wage: 1100, aadhaar: "", pan: "", uan: "", bank: "HDFC Bank", acc: "", ifsc: "" }
+  { name: "Shivsampath", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Prakash", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Bank of Baroda", acc: "", ifsc: "" },
+  { name: "Rambabu", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Anil-1", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Anil-2", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Madhukar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Bank of Maharashtra", acc: "", ifsc: "" },
+  { name: "Ranju", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "ICICI Bank", acc: "", ifsc: "" },
+  { name: "Saroj", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "HDFC Bank", acc: "", ifsc: "" },
+  { name: "Arun", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Union Bank of India", acc: "", ifsc: "" },
+  { name: "Ramsharan", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Buradas", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "Canara Bank", acc: "", ifsc: "" },
+  { name: "Rajbahaddur", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Akshay Noda", desig: "SUP", wage: 600, aadhaar: "", pan: "", uan: "", bank: "HDFC Bank", acc: "", ifsc: "" },
+  { name: "Ganesh", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Gautam", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Shivshankar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" }
 ];
 
+// Exact Present (P) Dates from Notebook Register (Nov 2026: 1-14, 16-17, blank col, 18-23)
+const NOTEBOOK_NOV_2026 = {
+  "Mahesh":      [1,2,3, 5,6,7, 10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Kamlesh":     [1,2,3,4,5,6,7, 9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Chavan":      [1,2,3,4,5,6,7, 9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Karan":       [2,3,4,5,6,7,8,9,10, 12,13,14, 16,17, 18,19,20,21, 23],
+  "Rajaram":     [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16, 18,19,20,21, 23],
+  "Shivsampath": [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Prakash":     [2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Rambabu":     [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Anil-1":      [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18, 20,21,22,23],
+  "Anil-2":      [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Madhukar":    [4, 7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Ranju":       [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Saroj":       [1,2,3,4,5,6, 8,9,10, 12,13,14, 16,17, 18,19,20,21,22,23],
+  "Arun":        [1,2,3, 5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Ramsharan":   [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Buradas":     [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Rajbahaddur": [1,2,3,4,5,6,7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Akshay Noda": [1,2,3,4, 7,8,9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
+  "Ganesh":      [2,3,4,5,6, 10, 12,13, 17, 18,19,20,21,22,23],
+  "Gautam":      [3,4,5,6, 10, 12,13, 17],
+  "Shivshankar": [4,5,6, 8,9,10,11,12,13]
+};
+
 let workers = [...DEFAULT_WORKERS];
+let cloudAttList = [];
 let currentBillBase64 = "";
 const today = new Date().toISOString().split('T')[0];
 ['a_date', 'm_date', 'r_date'].forEach(id => document.getElementById(id).value = today);
@@ -322,7 +385,7 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.innerText = msg;
   t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 2800);
+  setTimeout(() => t.style.display = 'none', 3000);
 }
 
 function openTab(id, btn) {
@@ -347,7 +410,7 @@ async function loadWorkersFromCloud() {
 
 function initUI() {
   const bankOpts = BANKS.map(b => `<option value="${b}">${b || '-- Bank Nivda --'}</option>`).join('');
-  document.getElementById('a_worker').innerHTML = workers.map((w, i) => `<option value="${i}">${w.name} (${w.desig})</option>`).join('');
+  document.getElementById('a_worker').innerHTML = workers.map((w, i) => `<option value="${i}">${i+1}. ${w.name} (${w.desig} - ₹${w.wage})</option>`).join('');
   document.getElementById('a_bank').innerHTML = bankOpts;
   document.getElementById('e_bank').innerHTML = bankOpts;
   fillWorkerBank();
@@ -357,8 +420,8 @@ function initUI() {
 function fillWorkerBank() {
   const w = workers[document.getElementById('a_worker').value];
   if (!w) return;
-  document.getElementById('a_desig').value = w.desig || "";
-  document.getElementById('a_wage').value = w.wage || 0;
+  document.getElementById('a_desig').value = w.desig || "L";
+  document.getElementById('a_wage').value = w.wage || (w.desig === 'F' ? 700 : 600);
   document.getElementById('a_aadhaar').value = w.aadhaar || "";
   document.getElementById('a_pan').value = w.pan || "";
   document.getElementById('a_uan').value = w.uan || "";
@@ -368,10 +431,15 @@ function fillWorkerBank() {
   updateWagePreview();
 }
 
+function onAttendDesigChange() {
+  const d = document.getElementById('a_desig').value;
+  document.getElementById('a_wage').value = (d === 'F') ? 700 : 600;
+  updateWagePreview();
+}
+
 function setDefaultWageByDesig() {
   const d = document.getElementById('e_desig').value;
-  const map = { F: 850, L: 600, Helper: 550, SUP: 1100 };
-  document.getElementById('e_wage').value = map[d] || 600;
+  document.getElementById('e_wage').value = (d === 'F') ? 700 : 600;
 }
 
 async function enrollNewWorker() {
@@ -399,7 +467,7 @@ async function enrollNewWorker() {
   initUI();
   document.getElementById('a_worker').value = workers.length - 1;
   fillWorkerBank();
-  showToast(`🎉 ${name} chi Enrollment purna jhali! Aata sarva mahiti auto-fill hoil.`);
+  showToast(`🎉 ${name} chi Enrollment purna jhali!`);
 }
 
 function updateWagePreview() {
@@ -423,7 +491,8 @@ async function saveAttendance() {
   const entry = {
     date: document.getElementById('a_date').value,
     site: document.getElementById('a_site').value,
-    name: w.name, desig: w.desig,
+    name: w.name,
+    desig: document.getElementById('a_desig').value,
     outTime: OUT_TIME_LABELS[multVal],
     mult, baseWage, earned, hafta, net,
     aadhaar: document.getElementById('a_aadhaar').value,
@@ -460,6 +529,119 @@ async function markAllBulk() {
     await fetch(`${DB_URL}/attendance.json`, { method: 'POST', body: JSON.stringify(entry) });
   }
   showToast(`⚡ Sarva ${workers.length} kamgaranchi ${mult}x hajeri Live Save jhali!`);
+}
+
+// Sync 1 to 23 Nov 2026 Notebook Register Data to Cloud
+async function syncNotebookNov2026() {
+  if (!confirm("Vahitil 1 te 23 Nov 2026 chi sarva 21 kamgaranchi hajeri cloud var load karaychi ka?")) return;
+  showToast("⏳ Nov 2026 register load hot aahe (kahi seconds thamba)...");
+
+  const bulkObj = {};
+  let count = 0;
+  workers.forEach((w, wIdx) => {
+    const days = NOTEBOOK_NOV_2026[w.name] || [];
+    days.forEach(dayNum => {
+      const dd = String(dayNum).padStart(2, '0');
+      const dateStr = `2026-11-${dd}`;
+      const key = `nov26_${wIdx}_${dd}`;
+      bulkObj[key] = {
+        date: dateStr,
+        site: "Tingrenagar",
+        name: w.name,
+        desig: w.desig,
+        outTime: "Up to 6:00 PM (1x)",
+        mult: 1,
+        baseWage: w.wage,
+        earned: w.wage,
+        hafta: 0,
+        net: w.wage,
+        aadhaar: w.aadhaar || "",
+        pan: w.pan || "",
+        uan: w.uan || "",
+        bank: w.bank || "",
+        acc: w.acc || "",
+        ifsc: w.ifsc || ""
+      };
+      count++;
+    });
+  });
+
+  await fetch(`${DB_URL}/attendance.json`, { method: 'PATCH', body: JSON.stringify(bulkObj) });
+  showToast(`✅ Vahitil ${count} hajeri nondi (1-23 Nov 2026) यशस्वीरित्या load jhalya!`);
+}
+
+// Attendance Editor Functions
+async function loadAttendanceEditor() {
+  const res = await fetch(`${DB_URL}/attendance.json`);
+  const obj = await res.json();
+  cloudAttList = obj ? Object.keys(obj).map(k => ({ _key: k, ...obj[k] })) : [];
+  cloudAttList.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  renderAttendanceEditor();
+}
+
+function renderAttendanceEditor() {
+  const dF = document.getElementById('ea_dateFilter').value;
+  const nF = document.getElementById('ea_nameFilter').value.toLowerCase();
+  const filtered = cloudAttList.filter(r => (!dF || r.date === dF) && (!nF || (r.name || "").toLowerCase().includes(nF)));
+
+  const tbody = document.querySelector('#editAttTable tbody');
+  tbody.innerHTML = filtered.slice(0, 150).map(r => `
+    <tr>
+      <td><input type="date" value="${r.date||''}" onchange="patchAtt('${r._key}','date',this.value)"></td>
+      <td><input value="${r.name||''}" onchange="patchAtt('${r._key}','name',this.value)"></td>
+      <td><input value="${r.desig||''}" style="min-width:45px" onchange="patchAtt('${r._key}','desig',this.value)"></td>
+      <td>
+        <select onchange="patchAttMult('${r._key}',this.value)">
+          <option value="1" ${r.mult==1?'selected':''}>6 PM (1x)</option>
+          <option value="1.5" ${r.mult==1.5?'selected':''}>8 PM (1.5x)</option>
+          <option value="2" ${r.mult==2?'selected':''}>9 PM+ (2x)</option>
+          <option value="0.5" ${r.mult==0.5?'selected':''}>Half (0.5x)</option>
+          <option value="0" ${r.mult==0?'selected':''}>Absent (0x)</option>
+        </select>
+      </td>
+      <td>${r.mult}x</td>
+      <td><input type="number" value="${r.baseWage||0}" style="min-width:65px" onchange="patchAttNum('${r._key}','baseWage',this.value)"></td>
+      <td><input type="number" value="${r.hafta||0}" style="min-width:65px" onchange="patchAttNum('${r._key}','hafta',this.value)"></td>
+      <td><b>₹${r.net||0}</b></td>
+      <td><button class="btn-del" onclick="deleteAtt('${r._key}')">🗑️ Del</button></td>
+    </tr>
+  `).join('');
+}
+
+async function patchAtt(key, field, val) {
+  await fetch(`${DB_URL}/attendance/${key}.json`, { method: 'PATCH', body: JSON.stringify({ [field]: val }) });
+  showToast("✅ Update jhale!");
+}
+
+async function patchAttMult(key, multStr) {
+  const item = cloudAttList.find(x => x._key === key);
+  if (!item) return;
+  const mult = parseFloat(multStr) || 0;
+  const earned = Math.round((item.baseWage || 0) * mult);
+  const net = earned - (item.hafta || 0);
+  item.mult = mult; item.earned = earned; item.net = net; item.outTime = OUT_TIME_LABELS[multStr];
+  await fetch(`${DB_URL}/attendance/${key}.json`, { method: 'PATCH', body: JSON.stringify({ mult, outTime: item.outTime, earned, net }) });
+  renderAttendanceEditor();
+  showToast("✅ Hajeri & Pagar update jhale!");
+}
+
+async function patchAttNum(key, field, valStr) {
+  const item = cloudAttList.find(x => x._key === key);
+  if (!item) return;
+  item[field] = parseFloat(valStr) || 0;
+  item.earned = Math.round((item.baseWage || 0) * (item.mult || 0));
+  item.net = item.earned - (item.hafta || 0);
+  await fetch(`${DB_URL}/attendance/${key}.json`, { method: 'PATCH', body: JSON.stringify({ [field]: item[field], earned: item.earned, net: item.net }) });
+  renderAttendanceEditor();
+  showToast("✅ Hisob update jhala!");
+}
+
+async function deleteAtt(key) {
+  if (!confirm("Hi hajeri delete karaychi ka?")) return;
+  await fetch(`${DB_URL}/attendance/${key}.json`, { method: 'DELETE' });
+  cloudAttList = cloudAttList.filter(x => x._key !== key);
+  renderAttendanceEditor();
+  showToast("🗑️ Delete jhale!");
 }
 
 function calcMatTotal() {
@@ -531,23 +713,37 @@ function renderMasterTable() {
   const tbody = document.querySelector('#masterTable tbody');
   tbody.innerHTML = workers.map((w, i) => `
     <tr>
+      <td>${i+1}</td>
       <td><input value="${w.name||''}" onchange="workers[${i}].name=this.value"></td>
-      <td><input value="${w.desig||''}" style="min-width:50px" onchange="workers[${i}].desig=this.value"></td>
-      <td><input type="number" value="${w.wage||0}" style="min-width:65px" onchange="workers[${i}].wage=Number(this.value)"></td>
+      <td>
+        <select style="min-width:65px" onchange="workers[${i}].desig=this.value; workers[${i}].wage=(this.value==='F'?700:600); renderMasterTable();">
+          <option value="F" ${w.desig==='F'?'selected':''}>F (700)</option>
+          <option value="L" ${w.desig==='L'?'selected':''}>L (600)</option>
+          <option value="SUP" ${w.desig==='SUP'?'selected':''}>SUP (600)</option>
+        </select>
+      </td>
+      <td><input type="number" value="${w.wage||600}" style="min-width:65px" onchange="workers[${i}].wage=Number(this.value)"></td>
       <td><input value="${w.aadhaar||''}" placeholder="Aadhaar" onchange="workers[${i}].aadhaar=this.value"></td>
       <td><input value="${w.pan||''}" placeholder="PAN" onchange="workers[${i}].pan=this.value.toUpperCase()"></td>
       <td><input value="${w.uan||''}" placeholder="UAN" onchange="workers[${i}].uan=this.value"></td>
       <td><select onchange="workers[${i}].bank=this.value">${BANKS.map(b => `<option ${w.bank===b?'selected':''}>${b}</option>`).join('')}</select></td>
       <td><input value="${w.acc||''}" placeholder="Acc No" onchange="workers[${i}].acc=this.value"></td>
       <td><input value="${w.ifsc||''}" placeholder="IFSC" onchange="workers[${i}].ifsc=this.value.toUpperCase()"></td>
+      <td><button class="btn-del" onclick="removeWorker(${i})">✖</button></td>
     </tr>
   `).join('');
+}
+
+function removeWorker(idx) {
+  if (!confirm("Ha kamgar master list madhun kadhaycha ka?")) return;
+  workers.splice(idx, 1);
+  renderMasterTable();
 }
 
 async function saveMasterList() {
   await fetch(`${DB_URL}/workers.json`, { method: 'PUT', body: JSON.stringify(workers) });
   initUI();
-  showToast("💾 Master KYC & Bank List Live Update jhali!");
+  showToast("💾 Sarva Kamgaranche Naav, KYC & Bank Live Update jhale!");
 }
 
 if (sessionStorage.getItem('ae_admin_auth') === '1') {

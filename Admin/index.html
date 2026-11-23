@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Achyuth Enterprises - Admin Entry</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #f1f5f9; margin: 0; padding: 12px; color: #1e293b; }
+    .container { max-width: 650px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
+    .header { background: #1e3a8a; color: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { margin: 0; font-size: 18px; }
+    .header p { margin: 2px 0 0; font-size: 12px; color: #cbd5e1; }
+    .viewer-link { background: #f59e0b; color: #000; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+    .tabs { display: flex; background: #e2e8f0; padding: 4px; gap: 4px; overflow-x: auto; }
+    .tab-btn { flex: 1; padding: 10px 8px; border: none; background: transparent; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+    .tab-btn.active { background: #fff; color: #1e3a8a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .content { padding: 16px; display: none; }
+    .content.active { display: block; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-top: 12px; color: #334155; }
+    input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; background: #fff; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .calc-badge { background: #eff6ff; border: 1px solid #93c5fd; color: #1e3a8a; padding: 10px; border-radius: 8px; margin-top: 12px; font-weight: bold; font-size: 14px; text-align: center; }
+    .btn-primary { width: 100%; background: #16a34a; color: #fff; border: none; padding: 13px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
+    .btn-secondary { background: #2563eb; color: #fff; border: none; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .toast { background: #dcfce7; color: #166534; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 12px; display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
+    th { background: #f8fafc; }
+    td input, td select { padding: 6px; font-size: 13px; margin: 0; }
+    .preview-box { margin-top: 8px; display: none; text-align: center; }
+    .preview-box img { max-height: 140px; border-radius: 8px; border: 1px solid #cbd5e1; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>Achyuth Enterprises</h1>
+      <p>L&T Pipeline Vendor • Admin Portal</p>
+    </div>
+    <a href="viewer.html" class="viewer-link">📊 Owner Sheet</a>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="openTab('att', this)">👷 Labour Hajeri</button>
+    <button class="tab-btn" onclick="openTab('mat', this)">🧱 Material + Bill</button>
+    <button class="tab-btn" onclick="openTab('rep', this)">📋 Daily Report</button>
+    <button class="tab-btn" onclick="openTab('mst', this)">🏦 Bank Master</button>
+  </div>
+
+  <!-- TAB 1: LABOUR ATTENDANCE -->
+  <div id="att" class="content active">
+    <div class="grid-2">
+      <div><label>Tarikh (Date)</label><input type="date" id="a_date"></div>
+      <div><label>Site Location</label><input type="text" id="a_site" value="Tingrenagar"></div>
+    </div>
+
+    <label>Kamgarache Naav (Worker Name)</label>
+    <select id="a_worker" onchange="fillWorkerBank()"></select>
+
+    <div class="grid-2">
+      <div><label>Pad (Designation)</label><input type="text" id="a_desig" readonly style="background:#f8fafc;"></div>
+      <div>
+        <label>Kam Sutnyachi Vel (Out Time)</label>
+        <select id="a_outTime" onchange="updateWagePreview()">
+          <option value="1">Up to 6:00 PM (1.0x Hajeri)</option>
+          <option value="1.5">Up to 8:00 PM (1.5x Hajeri)</option>
+          <option value="2">After 9:00 PM (2.0x Double)</option>
+          <option value="0.5">Half Day (0.5x)</option>
+          <option value="0">Absent (0x)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div><label>Base Roz / Pagar (₹)</label><input type="number" id="a_wage" value="600" oninput="updateWagePreview()"></div>
+      <div><label>Hafta / Uchal (Advance ₹)</label><input type="number" id="a_hafta" value="0" oninput="updateWagePreview()"></div>
+    </div>
+
+    <div class="calc-badge" id="wagePreviewBox">
+      Hajeri: 1.0x | Aajcha Pagar: ₹600 | Net Payable: ₹600
+    </div>
+
+    <div class="grid-2">
+      <div><label>Bank Name</label><select id="a_bank"></select></div>
+      <div><label>Account Number</label><input type="text" id="a_acc" placeholder="Account No"></div>
+    </div>
+
+    <label>IFSC Code</label>
+    <input type="text" id="a_ifsc" placeholder="IFSC Code">
+
+    <button class="btn-primary" onclick="saveAttendance()">✅ Hajeri Save Kara</button>
+    <button class="btn-secondary" style="width:100%;" onclick="markAllBulk()">⚡ Sarva 18 Kamgaranchi Ekach Velchi Hajeri Save Kara</button>
+  </div>
+
+  <!-- TAB 2: MATERIAL ENTRY + BILL PHOTO -->
+  <div id="mat" class="content">
+    <div class="grid-2">
+      <div><label>Tarikh (Date)</label><input type="date" id="m_date"></div>
+      <div><label>Site Location</label><input type="text" id="m_site" value="Tingrenagar"></div>
+    </div>
+
+    <label>Hardware / Supplier Naav</label>
+    <input type="text" id="m_supplier" placeholder="Ud. Mahalaxmi Hardware">
+
+    <label>Material Naav (Pipe, Cement, Reti, Khile...)</label>
+    <input type="text" id="m_item" placeholder="Ud. DI Pipe 300mm / Cement Goni">
+
+    <div class="grid-2">
+      <div><label>Nag / Vajan (Quantity)</label><input type="number" id="m_qty" value="1" oninput="calcMatTotal()"></div>
+      <div>
+        <label>Unit</label>
+        <select id="m_unit">
+          <option value="Nos">Nos (Nag)</option>
+          <option value="Bags">Bags (Goni)</option>
+          <option value="Brass">Brass</option>
+          <option value="Kg">Kg</option>
+          <option value="Meters">Meters</option>
+          <option value="Liters">Liters</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div><label>Dar (Rate ₹)</label><input type="number" id="m_rate" value="0" oninput="calcMatTotal()"></div>
+      <div><label>Ekun Bill (Total ₹)</label><input type="number" id="m_total" value="0"></div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label>Payment Status</label>
+        <select id="m_status">
+          <option value="Credit (Udhar)">Credit (Udhar)</option>
+          <option value="Cash Paid">Cash Paid</option>
+          <option value="UPI / Online">UPI / Online</option>
+        </select>
+      </div>
+      <div><label>Bill No / Remark</label><input type="text" id="m_remark" placeholder="Bill No. / Tip"></div>
+    </div>
+
+    <label>📸 Bill / Pavti Photo Upload Kara (Viewer la disel)</label>
+    <input type="file" id="m_billFile" accept="image/*" capture="environment" onchange="compressBillImage(this)">
+    <div class="preview-box" id="billPreviewBox">
+      <img id="billPreviewImg" src="" alt="Bill Preview">
+    </div>
+
+    <button class="btn-primary" onclick="saveMaterial()">✅ Material + Bill Save Kara</button>
+  </div>
+
+  <!-- TAB 3: DAILY REPORT -->
+  <div id="rep" class="content">
+    <div class="grid-2">
+      <div><label>Tarikh (Date)</label><input type="date" id="r_date"></div>
+      <div><label>Site Location</label><input type="text" id="r_site" value="Tingrenagar"></div>
+    </div>
+
+    <label>Aaj Site var Kay Kam Jhale? (Work Progress)</label>
+    <textarea id="r_work" rows="3" placeholder="Ud. Pipeline excavation & jointing, First Aid TBT completed..."></textarea>
+
+    <label>Kirkol Site Kharch (Chaha-Pani / Bhade ₹)</label>
+    <input type="number" id="r_petty" value="0">
+
+    <label>Udyasathi Kay Material / Labour Hवे? (Tomorrow Req)</label>
+    <textarea id="r_req" rows="2" placeholder="Ud. 20 goni cement ani 2 fitter"></textarea>
+
+    <label>Supervisor Note / Adchan</label>
+    <input type="text" id="r_note" placeholder="Kahi vishesh mahiti">
+
+    <button class="btn-primary" onclick="saveReport()">✅ Daily Report Save Kara</button>
+  </div>
+
+  <!-- TAB 4: BANK MASTER -->
+  <div id="mst" class="content">
+    <p style="font-size:12px; color:#475569; margin-top:0;">Ekda ithe Bank, Account No ani IFSC save kela ki Hajeri tab madhe auto-fill hoil.</p>
+    <div style="overflow-x:auto;">
+      <table id="masterTable">
+        <thead><tr><th>Naav</th><th>Pad</th><th>Base Wage</th><th>Bank</th><th>Account No</th><th>IFSC</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <button class="btn-secondary" onclick="addNewWorkerRow()">+ Navin Kamgar Joda</button>
+    <button class="btn-primary" onclick="saveMasterList()">💾 Master Data Update Kara</button>
+  </div>
+
+  <div id="toast" class="toast"></div>
+</div>
+
+<script>
+const BANKS = [
+  "", "State Bank of India", "Bank of Maharashtra", "HDFC Bank",
+  "ICICI Bank", "Bank of Baroda", "Union Bank of India",
+  "Axis Bank", "Canara Bank", "Punjab National Bank"
+];
+
+const OUT_TIME_LABELS = {
+  "1": "Up to 6:00 PM (1x)",
+  "1.5": "Up to 8:00 PM (1.5x)",
+  "2": "After 9:00 PM (2x)",
+  "0.5": "Half Day (0.5x)",
+  "0": "Absent (0x)"
+};
+
+const DEFAULT_WORKERS = [
+  { name: "Mahesh", desig: "F", wage: 850, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Kamlesh", desig: "F", wage: 850, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Chavan", desig: "F", wage: 850, bank: "Bank of Maharashtra", acc: "", ifsc: "" },
+  { name: "Karan", desig: "F", wage: 850, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Madhukar", desig: "L", wage: 600, bank: "Bank of Maharashtra", acc: "", ifsc: "" },
+  { name: "Anil 1", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Anil 2", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Arun", desig: "L", wage: 600, bank: "Union Bank of India", acc: "", ifsc: "" },
+  { name: "Rambabu", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Ramsharan", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Prakash", desig: "L", wage: 600, bank: "Bank of Baroda", acc: "", ifsc: "" },
+  { name: "Rajbahaddur", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Buradas", desig: "L", wage: 600, bank: "Canara Bank", acc: "", ifsc: "" },
+  { name: "Shivsampath", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Rajaram", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" },
+  { name: "Saroj", desig: "Helper", wage: 550, bank: "HDFC Bank", acc: "", ifsc: "" },
+  { name: "Ranju", desig: "Helper", wage: 550, bank: "ICICI Bank", acc: "", ifsc: "" },
+  { name: "Akshay Noda", desig: "SUP", wage: 1100, bank: "HDFC Bank", acc: "", ifsc: "" }
+];
+
+let workers = JSON.parse(localStorage.getItem('ae_workers')) || DEFAULT_WORKERS;
+let currentBillBase64 = "";
+const today = new Date().toISOString().split('T')[0];
+['a_date', 'm_date', 'r_date'].forEach(id => document.getElementById(id).value = today);
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+function openTab(id, btn) {
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function initUI() {
+  document.getElementById('a_worker').innerHTML = workers.map((w, i) => `<option value="${i}">${w.name} (${w.desig})</option>`).join('');
+  document.getElementById('a_bank').innerHTML = BANKS.map(b => `<option value="${b}">${b || '-- Bank Nivda --'}</option>`).join('');
+  fillWorkerBank();
+  renderMasterTable();
+}
+
+function fillWorkerBank() {
+  const w = workers[document.getElementById('a_worker').value];
+  if (!w) return;
+  document.getElementById('a_desig').value = w.desig;
+  document.getElementById('a_wage').value = w.wage;
+  document.getElementById('a_bank').value = w.bank || "";
+  document.getElementById('a_acc').value = w.acc || "";
+  document.getElementById('a_ifsc').value = w.ifsc || "";
+  updateWagePreview();
+}
+
+function updateWagePreview() {
+  const mult = parseFloat(document.getElementById('a_outTime').value) || 0;
+  const baseWage = parseFloat(document.getElementById('a_wage').value) || 0;
+  const hafta = parseFloat(document.getElementById('a_hafta').value) || 0;
+  const earned = Math.round(baseWage * mult);
+  const net = earned - hafta;
+  document.getElementById('wagePreviewBox').innerText =
+    `Hajeri: ${mult}x | Aajcha Pagar: ₹${earned} | Net Payable: ₹${net}`;
+}
+
+function saveAttendance() {
+  const w = workers[document.getElementById('a_worker').value];
+  const multVal = document.getElementById('a_outTime').value;
+  const mult = parseFloat(multVal) || 0;
+  const baseWage = parseFloat(document.getElementById('a_wage').value) || 0;
+  const hafta = parseFloat(document.getElementById('a_hafta').value) || 0;
+  const earned = Math.round(baseWage * mult);
+  const net = earned - hafta;
+
+  const list = JSON.parse(localStorage.getItem('ae_attendance')) || [];
+  list.push({
+    date: document.getElementById('a_date').value,
+    site: document.getElementById('a_site').value,
+    name: w.name,
+    desig: w.desig,
+    outTime: OUT_TIME_LABELS[multVal],
+    mult: mult,
+    baseWage: baseWage,
+    earned: earned,
+    hafta: hafta,
+    net: net,
+    bank: document.getElementById('a_bank').value,
+    acc: document.getElementById('a_acc').value,
+    ifsc: document.getElementById('a_ifsc').value
+  });
+  localStorage.setItem('ae_attendance', JSON.stringify(list));
+  document.getElementById('a_hafta').value = 0;
+  updateWagePreview();
+  showToast(`✅ ${w.name} (${mult}x = ₹${net}) save jhale!`);
+}
+
+function markAllBulk() {
+  const date = document.getElementById('a_date').value;
+  const site = document.getElementById('a_site').value;
+  const multVal = document.getElementById('a_outTime').value;
+  const mult = parseFloat(multVal) || 0;
+  const list = JSON.parse(localStorage.getItem('ae_attendance')) || [];
+
+  workers.forEach(w => {
+    const earned = Math.round(w.wage * mult);
+    list.push({
+      date, site, name: w.name, desig: w.desig,
+      outTime: OUT_TIME_LABELS[multVal],
+      mult: mult, baseWage: w.wage, earned: earned,
+      hafta: 0, net: earned,
+      bank: w.bank, acc: w.acc, ifsc: w.ifsc
+    });
+  });
+  localStorage.setItem('ae_attendance', JSON.stringify(list));
+  showToast(`⚡ Sarva ${workers.length} kamgaranchi ${mult}x hajeri save jhali!`);
+}
+
+function calcMatTotal() {
+  const q = parseFloat(document.getElementById('m_qty').value) || 0;
+  const r = parseFloat(document.getElementById('m_rate').value) || 0;
+  document.getElementById('m_total').value = q * r;
+}
+
+function compressBillImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const maxW = 800;
+      const scale = Math.min(1, maxW / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      currentBillBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('billPreviewImg').src = currentBillBase64;
+      document.getElementById('billPreviewBox').style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveMaterial() {
+  const list = JSON.parse(localStorage.getItem('ae_material')) || [];
+  list.push({
+    date: document.getElementById('m_date').value,
+    site: document.getElementById('m_site').value,
+    supplier: document.getElementById('m_supplier').value,
+    item: document.getElementById('m_item').value,
+    qty: `${document.getElementById('m_qty').value} ${document.getElementById('m_unit').value}`,
+    rate: parseFloat(document.getElementById('m_rate').value) || 0,
+    total: parseFloat(document.getElementById('m_total').value) || 0,
+    status: document.getElementById('m_status').value,
+    remark: document.getElementById('m_remark').value,
+    billImg: currentBillBase64
+  });
+  localStorage.setItem('ae_material', JSON.stringify(list));
+  document.getElementById('m_item').value = "";
+  document.getElementById('m_billFile').value = "";
+  document.getElementById('billPreviewBox').style.display = 'none';
+  currentBillBase64 = "";
+  showToast("✅ Material + Bill Photo save jhala!");
+}
+
+function saveReport() {
+  const list = JSON.parse(localStorage.getItem('ae_report')) || [];
+  list.push({
+    date: document.getElementById('r_date').value,
+    site: document.getElementById('r_site').value,
+    work: document.getElementById('r_work').value,
+    petty: parseFloat(document.getElementById('r_petty').value) || 0,
+    req: document.getElementById('r_req').value,
+    note: document.getElementById('r_note').value
+  });
+  localStorage.setItem('ae_report', JSON.stringify(list));
+  document.getElementById('r_work').value = "";
+  showToast("✅ Daily Report save jhala!");
+}
+
+function renderMasterTable() {
+  const tbody = document.querySelector('#masterTable tbody');
+  tbody.innerHTML = workers.map((w, i) => `
+    <tr>
+      <td><input value="${w.name}" onchange="workers[${i}].name=this.value"></td>
+      <td><input value="${w.desig}" style="width:55px" onchange="workers[${i}].desig=this.value"></td>
+      <td><input type="number" value="${w.wage}" style="width:65px" onchange="workers[${i}].wage=Number(this.value)"></td>
+      <td><select onchange="workers[${i}].bank=this.value">${BANKS.map(b => `<option ${w.bank===b?'selected':''}>${b}</option>`).join('')}</select></td>
+      <td><input value="${w.acc}" placeholder="Acc No" onchange="workers[${i}].acc=this.value"></td>
+      <td><input value="${w.ifsc}" placeholder="IFSC" onchange="workers[${i}].ifsc=this.value"></td>
+    </tr>
+  `).join('');
+}
+
+function addNewWorkerRow() {
+  workers.push({ name: "Navin Kamgar", desig: "L", wage: 600, bank: "State Bank of India", acc: "", ifsc: "" });
+  renderMasterTable();
+}
+
+function saveMasterList() {
+  localStorage.setItem('ae_workers', JSON.stringify(workers));
+  initUI();
+  showToast("💾 Master Bank List update jhali!");
+}
+
+initUI();
+</script>
+</body>
+</html>

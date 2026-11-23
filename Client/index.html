@@ -17,7 +17,7 @@
     .login-box button { width: 100%; background: #1e3a8a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
     .err-msg { color: #dc2626; font-size: 13px; font-weight: bold; margin-top: 8px; display: none; }
 
-    .container { max-width: 1320px; margin: auto; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: none; }
+    .container { max-width: 1340px; margin: auto; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: none; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
     h1 { margin: 0; font-size: 20px; color: #1e3a8a; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
@@ -87,7 +87,7 @@
   <div class="top-bar">
     <div>
       <h1>ACHYUTH ENTERPRISES — Live Owner Sheet</h1>
-      <small style="color:#64748b;">L&T Pipeline Project • 6 PM (1x) | 8 PM (1.5x) | 9 PM+ (2x)</small>
+      <small style="color:#64748b;">Fitter: ₹700 | Labour: ₹600 • 6 PM (1x) | 8 PM (1.5x) | 9 PM+ (2x)</small>
     </div>
     <a href="../Admin/" class="btn btn-admin">⬅ Admin Entry</a>
   </div>
@@ -224,6 +224,7 @@ async function fetchCloudData() {
       fetch(`${DB_URL}/workers.json`).then(r => r.json())
     ]);
     cloudAtt = objToArray(rAtt);
+    cloudAtt.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
     cloudMat = objToArray(rMat);
     cloudRep = objToArray(rRep);
     cloudWorkers = Array.isArray(rW) ? rW : [];
@@ -264,6 +265,12 @@ async function updateCloudCell(node, key, field, value) {
     }
   }
   await fetch(`${DB_URL}/${node}/${key}.json`, { method: 'PATCH', body: JSON.stringify(patchData) });
+}
+
+async function updateWorkerCell(idx, field, value) {
+  if (!cloudWorkers[idx]) return;
+  cloudWorkers[idx][field] = (field === 'wage') ? (parseFloat(value) || 0) : value;
+  await fetch(`${DB_URL}/workers/${idx}.json`, { method: 'PATCH', body: JSON.stringify({ [field]: cloudWorkers[idx][field] }) });
 }
 
 function openBillModal(imgData, title) {
@@ -318,9 +325,10 @@ function renderAll() {
     <tbody>${rep.map(r => `<tr>${repCols.map(c => `<td contenteditable="${editMode}" onblur="updateCloudCell('report','${r._key}','${c}',this.innerText)">${r[c] ?? ''}</td>`).join('')}</tr>`).join('')}</tbody>
   `;
 
+  const mstCols = ['name','desig','wage','aadhaar','pan','uan','bank','acc','ifsc'];
   document.getElementById('t_mst').innerHTML = `
     <thead><tr><th>Sr</th><th>Worker Name</th><th>Pad</th><th>Base Wage ₹</th><th>Aadhaar No</th><th>PAN No</th><th>UAN No</th><th>Bank Name</th><th>Account Number</th><th>IFSC Code</th></tr></thead>
-    <tbody>${cloudWorkers.map((w, idx) => `<tr><td>${idx+1}</td><td>${w.name||''}</td><td>${w.desig||''}</td><td>${w.wage||0}</td><td>${w.aadhaar||''}</td><td>${w.pan||''}</td><td>${w.uan||''}</td><td>${w.bank||''}</td><td>${w.acc||''}</td><td>${w.ifsc||''}</td></tr>`).join('')}</tbody>
+    <tbody>${cloudWorkers.map((w, idx) => `<tr><td>${idx+1}</td>${mstCols.map(c => `<td contenteditable="${editMode}" onblur="updateWorkerCell(${idx},'${c}',this.innerText)">${w[c] ?? ''}</td>`).join('')}</tr>`).join('')}</tbody>
   `;
 }
 

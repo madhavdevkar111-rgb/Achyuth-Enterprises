@@ -131,7 +131,7 @@
     <button class="btn-secondary" style="width:100%;" onclick="markAllBulk()">⚡ Sarva Kamgaranchi Ekach Velchi Hajeri Save Kara</button>
   </div>
 
-  <!-- TAB 2: EDIT / DELETE EXISTING ATTENDANCE (FIXED) -->
+  <!-- TAB 2: EDIT / DELETE EXISTING ATTENDANCE -->
   <div id="editAtt" class="content">
     <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">✏️ Juni Hajeri Edit / Delete Kara</h3>
     <div id="editAttStatus" class="status-pill">Data load hot aahe...</div>
@@ -415,7 +415,7 @@ async function initCloudSync() {
 
     const aRes = await fetch(`${DB_URL}/attendance.json`);
     const aData = await aRes.json();
-    const hasSeed = aData && Object.keys(aData).some(k => k.startsWith('nov26_'));
+    const hasSeed = aData && aData['nov26_0_01'];
     if (!hasSeed) {
       const bulkObj = {};
       workers.forEach((w, wIdx) => {
@@ -578,7 +578,6 @@ async function markAllBulk() {
   showToast(`⚡ Sarva ${workers.length} kamgaranchi ${mult}x hajeri Live Save jhali!`);
 }
 
-// FIXED ATTENDANCE EDITOR
 async function loadAttendanceEditor() {
   const statusEl = document.getElementById('editAttStatus');
   statusEl.innerText = "⏳ Cloud madhun hajeri load hot aahe...";

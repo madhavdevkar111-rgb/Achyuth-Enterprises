@@ -34,7 +34,6 @@
     .kyc-box-title { font-size: 12px; font-weight: bold; color: #0f766e; margin-bottom: 4px; }
     .btn-primary { width: 100%; background: #16a34a; color: #fff; border: none; padding: 13px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
     .btn-secondary { background: #2563eb; color: #fff; border: none; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-    .btn-warn { background: #d97706; color: #fff; border: none; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
     .btn-del { background: #dc2626; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
     .toast { background: #dcfce7; color: #166534; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 12px; display: none; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
@@ -128,8 +127,7 @@
     </div>
 
     <button class="btn-primary" onclick="saveAttendance()">✅ Hajeri Live Save Kara</button>
-    <button class="btn-secondary" style="width:100%;" onclick="markAllBulk()">⚡ Sarva 21 Kamgaranchi Ekach Velchi Hajeri Save Kara</button>
-    <button class="btn-warn" style="width:100%;" onclick="syncNotebookNov2026()">📒 Vahitil 1 te 23 Nov 2026 Hajeri Cloud Var Load Kara</button>
+    <button class="btn-secondary" style="width:100%;" onclick="markAllBulk()">⚡ Sarva Kamgaranchi Ekach Velchi Hajeri Save Kara</button>
   </div>
 
   <!-- TAB 2: EDIT / DELETE EXISTING ATTENDANCE -->
@@ -267,7 +265,7 @@
     <button class="btn-primary" onclick="saveReport()">✅ Daily Report Live Save Kara</button>
   </div>
 
-  <!-- TAB 6: MASTER LIST EDIT (JUNE WORKERS NAAM/BANK/KYC EDIT) -->
+  <!-- TAB 6: MASTER LIST EDIT -->
   <div id="mst" class="content">
     <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🏦 June / Navin Kamgarache Naav, Pagar & Account Edit</h3>
     <p style="font-size:12px; color:#475569; margin-top:0;">Ithe konatyahi kamgarache Naav, Pad (F=700, L=600), Aadhaar, PAN, UAN ani Bank Account edit karun khali Save dabba.</p>
@@ -298,7 +296,7 @@ function checkAdminLogin() {
     sessionStorage.setItem('ae_admin_auth', '1');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
-    loadWorkersFromCloud();
+    initCloudSync();
   } else {
     document.getElementById('loginErr').style.display = 'block';
   }
@@ -325,7 +323,7 @@ const OUT_TIME_LABELS = {
   "0": "Absent (0x)"
 };
 
-// 21 Workers from Notebook Register (Fitter = 700, Labour = 600)
+// 21 Workers (Fitter = 700, Labour = 600)
 const DEFAULT_WORKERS = [
   { name: "Mahesh", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
   { name: "Kamlesh", desig: "F", wage: 700, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" },
@@ -350,8 +348,8 @@ const DEFAULT_WORKERS = [
   { name: "Shivshankar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "State Bank of India", acc: "", ifsc: "" }
 ];
 
-// Exact Present (P) Dates from Notebook Register (Nov 2026: 1-14, 16-17, blank col, 18-23)
-const NOTEBOOK_NOV_2026 = {
+// Daily Attendance records for Nov 2026 (1-23 Nov) directly in daily attendance format
+const NOV_2026_DAYS = {
   "Mahesh":      [1,2,3, 5,6,7, 10,11,12,13,14, 16,17, 18,19,20,21,22,23],
   "Kamlesh":     [1,2,3,4,5,6,7, 9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
   "Chavan":      [1,2,3,4,5,6,7, 9,10,11,12,13,14, 16,17, 18,19,20,21,22,23],
@@ -385,7 +383,7 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.innerText = msg;
   t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
+  setTimeout(() => t.style.display = 'none', 2800);
 }
 
 function openTab(id, btn) {
@@ -395,16 +393,51 @@ function openTab(id, btn) {
   btn.classList.add('active');
 }
 
-async function loadWorkersFromCloud() {
+async function initCloudSync() {
   try {
-    const res = await fetch(`${DB_URL}/workers.json`);
-    const data = await res.json();
-    if (data && Array.isArray(data) && data.length > 0) {
-      workers = data;
+    // 1. Sync Workers List (upgrade to 21 workers & 700/600 rates if old 18-worker list exists)
+    const wRes = await fetch(`${DB_URL}/workers.json`);
+    const wData = await wRes.json();
+    if (wData && Array.isArray(wData) && wData.length >= 21) {
+      workers = wData;
     } else {
       await fetch(`${DB_URL}/workers.json`, { method: 'PUT', body: JSON.stringify(DEFAULT_WORKERS) });
+      workers = [...DEFAULT_WORKERS];
     }
-  } catch (e) { console.log("Using default workers"); }
+
+    // 2. Auto-seed Nov 1-23 daily attendance into standard attendance list once if not yet seeded
+    const aRes = await fetch(`${DB_URL}/attendance.json`);
+    const aData = await aRes.json();
+    const hasSeed = aData && Object.keys(aData).some(k => k.startsWith('nov26_'));
+    if (!hasSeed) {
+      const bulkObj = {};
+      workers.forEach((w, wIdx) => {
+        const days = NOV_2026_DAYS[w.name] || [];
+        days.forEach(dayNum => {
+          const dd = String(dayNum).padStart(2, '0');
+          bulkObj[`nov26_${wIdx}_${dd}`] = {
+            date: `2026-11-${dd}`,
+            site: "Tingrenagar",
+            name: w.name,
+            desig: w.desig,
+            outTime: "Up to 6:00 PM (1x)",
+            mult: 1,
+            baseWage: w.wage,
+            earned: w.wage,
+            hafta: 0,
+            net: w.wage,
+            aadhaar: w.aadhaar || "",
+            pan: w.pan || "",
+            uan: w.uan || "",
+            bank: w.bank || "",
+            acc: w.acc || "",
+            ifsc: w.ifsc || ""
+          };
+        });
+      });
+      await fetch(`${DB_URL}/attendance.json`, { method: 'PATCH', body: JSON.stringify(bulkObj) });
+    }
+  } catch (e) { console.log("Sync check:", e); }
   initUI();
 }
 
@@ -531,46 +564,6 @@ async function markAllBulk() {
   showToast(`⚡ Sarva ${workers.length} kamgaranchi ${mult}x hajeri Live Save jhali!`);
 }
 
-// Sync 1 to 23 Nov 2026 Notebook Register Data to Cloud
-async function syncNotebookNov2026() {
-  if (!confirm("Vahitil 1 te 23 Nov 2026 chi sarva 21 kamgaranchi hajeri cloud var load karaychi ka?")) return;
-  showToast("⏳ Nov 2026 register load hot aahe (kahi seconds thamba)...");
-
-  const bulkObj = {};
-  let count = 0;
-  workers.forEach((w, wIdx) => {
-    const days = NOTEBOOK_NOV_2026[w.name] || [];
-    days.forEach(dayNum => {
-      const dd = String(dayNum).padStart(2, '0');
-      const dateStr = `2026-11-${dd}`;
-      const key = `nov26_${wIdx}_${dd}`;
-      bulkObj[key] = {
-        date: dateStr,
-        site: "Tingrenagar",
-        name: w.name,
-        desig: w.desig,
-        outTime: "Up to 6:00 PM (1x)",
-        mult: 1,
-        baseWage: w.wage,
-        earned: w.wage,
-        hafta: 0,
-        net: w.wage,
-        aadhaar: w.aadhaar || "",
-        pan: w.pan || "",
-        uan: w.uan || "",
-        bank: w.bank || "",
-        acc: w.acc || "",
-        ifsc: w.ifsc || ""
-      };
-      count++;
-    });
-  });
-
-  await fetch(`${DB_URL}/attendance.json`, { method: 'PATCH', body: JSON.stringify(bulkObj) });
-  showToast(`✅ Vahitil ${count} hajeri nondi (1-23 Nov 2026) यशस्वीरित्या load jhalya!`);
-}
-
-// Attendance Editor Functions
 async function loadAttendanceEditor() {
   const res = await fetch(`${DB_URL}/attendance.json`);
   const obj = await res.json();
@@ -747,7 +740,7 @@ async function saveMasterList() {
 }
 
 if (sessionStorage.getItem('ae_admin_auth') === '1') {
-  loadWorkersFromCloud();
+  initCloudSync();
 }
 </script>
 </body>

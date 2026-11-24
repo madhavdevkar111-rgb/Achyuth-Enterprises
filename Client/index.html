@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Achyuth Enterprises - Master Attendance Sheet</title>
+  <title>Achyuth Enterprises - Live Owner Sheet</title>
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -20,6 +20,7 @@
     .container { max-width: 100%; margin: auto; background: #fff; border-radius: 12px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: none; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
     h1 { margin: 0; font-size: 19px; color: #1e3a8a; }
+    .live-dot { display: inline-block; background: #dcfce7; color: #166534; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold; margin-left: 6px; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
     input[type="month"], select.filter-sel { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: #fff; }
     .btn { border: none; padding: 9px 13px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
@@ -31,7 +32,8 @@
     .btn-edit.active { background: #dc2626; color: #fff; }
     .btn-refresh { background: #0284c7; color: #fff; }
     .btn-admin { background: #1e3a8a; color: #fff; text-decoration: none; }
-    .btn-bill { background: #0284c7; color: #fff; border: none; padding: 5px 9px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-bill { background: #0284c7; color: #fff; border: none; padding: 5px 9px; border-radius: 5px; cursor: pointer; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-del { background: #dc2626; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
     
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-bottom: 12px; }
     .kpi { background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 8px; }
@@ -50,7 +52,7 @@
     th, td { border: 1px solid #cbd5e1; padding: 6px 7px; text-align: left; white-space: nowrap; }
     th { background: #1e3a8a; color: #fff; position: sticky; top: 0; z-index: 2; }
     tr:nth-child(even) { background: #f8fafc; }
-    td select.tbl-sel { padding: 4px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; min-width: 120px; }
+    td select.tbl-sel, td input.tbl-inp { padding: 4px 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; min-width: 125px; }
     
     .sticky-col-1 { position: sticky; left: 0; background: #f1f5f9; z-index: 1; font-weight: bold; }
     .sticky-col-2 { position: sticky; left: 32px; background: #f8fafc; z-index: 1; font-weight: bold; color: #1e3a8a; border-right: 2px solid #94a3b8; }
@@ -61,6 +63,11 @@
     .day-ot { background: #fef08a !important; color: #854d0e; }
     .day-a { color: #cbd5e1; }
     .tot-cell { background: #dbeafe !important; font-weight: bold; color: #1e3a8a; text-align: right; }
+    .grand-tot-row td { background: #1e3a8a !important; color: #fff !important; font-weight: bold; font-size: 13px; }
+    .bill-subtotal-row { background: #fef3c7 !important; font-weight: bold; color: #92400e; }
+    .badge-m { background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+    .badge-d { background: #e0f2fe; color: #075985; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+    .thumb-img { height: 32px; width: 32px; object-fit: cover; border-radius: 4px; border: 1px solid #94a3b8; vertical-align: middle; cursor: pointer; margin-right: 2px; }
 
     td[contenteditable="true"] { background: #fef9c3 !important; outline: 1px dashed #ca8a04; color: #000 !important; }
     .sheet-box { display: none; }
@@ -68,19 +75,25 @@
     .table-wrap { overflow-x: auto; max-height: 620px; border: 1px solid #cbd5e1; border-radius: 6px; }
     .print-header { display: none; }
 
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; padding: 15px; }
-    .modal-box { background: #fff; padding: 16px; border-radius: 12px; max-width: 550px; width: 100%; text-align: center; }
-    .modal-box img { max-width: 100%; max-height: 70vh; border-radius: 8px; margin-bottom: 12px; }
+    .client-add-box { background: #f0fdf4; border: 1px solid #86efac; padding: 12px; border-radius: 8px; margin-bottom: 12px; display: none; }
+    .client-add-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; align-items: end; }
+    .client-add-grid input, .client-add-grid select { width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
+    .modal-box { background: #fff; padding: 16px; border-radius: 12px; max-width: 720px; width: 100%; text-align: center; max-height: 90vh; overflow-y: auto; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+    .gallery-card { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; background: #f8fafc; }
+    .gallery-card img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 6px; margin-bottom: 8px; }
 
     @media print {
       body { background: #fff; padding: 0; }
       .container { box-shadow: none; padding: 0; max-width: 100%; }
-      .top-bar, .actions, .kpis, .tabs, .sheet-toolbar, .no-print { display: none !important; }
+      .top-bar, .actions, .kpis, .tabs, .sheet-toolbar, .client-add-box, .no-print { display: none !important; }
       .sheet-box { display: none !important; }
       .sheet-box.active { display: block !important; }
       .table-wrap { max-height: none; overflow: visible; border: none; }
       .print-header { display: block !important; text-align: center; margin-bottom: 10px; border-bottom: 2px solid #1e3a8a; padding-bottom: 6px; }
-      th { background: #1e3a8a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      th, .grand-tot-row td { background: #1e3a8a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -89,9 +102,9 @@
 <div id="clientLoginScreen" class="login-screen">
   <div class="login-box">
     <h2>ACHYUTH ENTERPRISES</h2>
-    <p>Client / Owner Master Sheet • Password Taka</p>
+    <p>Client / Owner Live Sheet • Password Taka</p>
     <input type="password" id="clientPassInput" inputmode="numeric" placeholder="••••" onkeyup="if(event.key==='Enter') checkClientLogin()">
-    <button onclick="checkClientLogin()">🔓 Master Sheet Ughda</button>
+    <button onclick="checkClientLogin()">🔓 Live Sheet Ughda</button>
     <div id="clientLoginErr" class="err-msg">❌ Chukicha Password! Punha prayatna kara.</div>
   </div>
 </div>
@@ -99,8 +112,8 @@
 <div id="clientMainApp" class="container">
   <div class="top-bar">
     <div>
-      <h1>ACHYUTH ENTERPRISES — Master Card & Payroll Sheet</h1>
-      <small style="color:#64748b;">Fitter (F): ₹700 | Labour (L): ₹600 • Bank & IFSC Dropdowns Active</small>
+      <h1>ACHYUTH ENTERPRISES — Live Owner Sheet <span class="live-dot" id="liveSyncBadge">🟢 Live Auto-Sync</span></h1>
+      <small style="color:#64748b;">Unified Master Attendance + Multi-Photo Material Bills + Daily Site Reports</small>
     </div>
     <a href="../Admin/" class="btn btn-admin">⬅ Admin Entry</a>
   </div>
@@ -111,26 +124,26 @@
     <select id="workerFilter" class="filter-sel" onchange="renderAll()">
       <option value="">-- Sarva Kamgar (38) --</option>
     </select>
-    <button class="btn btn-refresh" onclick="fetchCloudData()">🔄 Live Refresh</button>
+    <button class="btn btn-refresh" onclick="fetchCloudData(true)">🔄 Live Refresh</button>
     <button id="editToggleBtn" class="btn btn-edit" onclick="toggleEditMode()">✏️ Edit Mode: OFF</button>
-    <button class="btn btn-master" onclick="downloadStyledExcel('ALL')">📊 Master Excel (All 4 Sheets + Dropdowns)</button>
+    <button class="btn btn-master" onclick="downloadStyledExcel('ALL')">📊 Master Excel (All 4 Sheets)</button>
   </div>
 
   <div class="kpis" id="kpiBar"></div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchSheet('s_att', this)">📋 Master Card (Day-by-Day Muster Roll)</button>
-    <button class="tab" onclick="switchSheet('s_mat', this)">🧱 Material & Bills</button>
-    <button class="tab" onclick="switchSheet('s_rep', this)">📝 Daily Site Report</button>
+    <button class="tab active" onclick="switchSheet('s_att', this)">📋 Master Attendance Card</button>
+    <button class="tab" onclick="switchSheet('s_mat', this)" id="tabBtnMat">🧱 Material & Bills (0)</button>
+    <button class="tab" onclick="switchSheet('s_rep', this)" id="tabBtnRep">📝 Daily Site Report (0)</button>
     <button class="tab" onclick="switchSheet('s_mst', this)">🪪 KYC & Bank Master</button>
   </div>
 
   <!-- TAB 1: HORIZONTAL MASTER CARD -->
   <div id="s_att" class="sheet-box active">
     <div class="sheet-toolbar">
-      <h3>📋 Worker-Wise Master Attendance Card (1 to 31 Days + Payout + Bank & IFSC Dropdown)</h3>
+      <h3>📋 Worker-Wise Master Attendance Card (Grand Total & Direct Advance Edit)</h3>
       <div class="tool-btns">
-        <button class="btn btn-excel" onclick="downloadStyledExcel('ATT')">📥 Master Card Excel</button>
+        <button class="btn btn-excel" onclick="downloadStyledExcel('ATT')">📥 Excel</button>
         <button class="btn btn-pdf" onclick="downloadTabPDF('print_att', 'Master_Attendance_Card')">📄 PDF</button>
         <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
       </div>
@@ -141,16 +154,34 @@
     </div>
   </div>
 
-  <!-- TAB 2: MATERIAL -->
+  <!-- TAB 2: MATERIAL & BILLS -->
   <div id="s_mat" class="sheet-box">
     <div class="sheet-toolbar">
-      <h3>🧱 Material & Hardware Supply</h3>
+      <h3>🧱 Hardware Material & Bills (Bill-Wise Total + Multiple Bill Photos + Client Edit)</h3>
       <div class="tool-btns">
-        <button class="btn btn-excel" onclick="downloadStyledExcel('MAT')">📥 Excel</button>
+        <button class="btn btn-excel" onclick="downloadStyledExcel('MAT')">📥 Material Excel</button>
         <button class="btn btn-pdf" onclick="downloadTabPDF('print_mat', 'Material_Sheet')">📄 PDF</button>
         <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
       </div>
     </div>
+
+    <div id="clientAddMatBox" class="client-add-box">
+      <strong style="font-size:13px; color:#166534; display:block; margin-bottom:8px;">➕ Navin Vastu / Multiple Bill Photos Joda (Client Direct Entry):</strong>
+      <div class="client-add-grid">
+        <div><small>Date</small><input type="date" id="cm_date"></div>
+        <div><small>Bill No</small><input type="text" id="cm_billNo" placeholder="Bill #"></div>
+        <div><small>Site</small><input type="text" id="cm_site" value="Tingrenagar"></div>
+        <div><small>Supplier</small><input type="text" id="cm_supplier" placeholder="Supplier Name"></div>
+        <div><small>Vastu (Item)</small><input type="text" id="cm_item" placeholder="Sutali / Hathoda..."></div>
+        <div><small>Qty</small><input type="number" step="any" id="cm_qty" value="1"></div>
+        <div><small>Unit</small><select id="cm_unit"><option>Nos</option><option>Kg</option><option>Bags</option><option>Brass</option><option>Meters</option><option>Box</option><option>Set</option></select></div>
+        <div><small>Rate ₹</small><input type="number" step="any" id="cm_rate" value="0"></div>
+        <div><small>Status</small><select id="cm_status"><option>Credit (Udhar)</option><option>Cash Paid</option><option>UPI / Online</option></select></div>
+        <div><small>Multiple Bill Photos</small><input type="file" id="cm_photos" accept="image/*" multiple></div>
+        <div><button class="btn btn-master" style="width:100%;" onclick="clientAddMaterialRow()">✅ Save Vastu + Photos</button></div>
+      </div>
+    </div>
+
     <div id="print_mat" class="table-wrap">
       <div class="print-header"><h2 style="margin:0;color:#1e3a8a;">ACHYUTH ENTERPRISES — MATERIAL SUPPLY SHEET</h2><small id="lbl_m_mat"></small></div>
       <table id="t_mat"></table>
@@ -162,7 +193,7 @@
     <div class="sheet-toolbar">
       <h3>📝 Daily Site Progress Report (DPR)</h3>
       <div class="tool-btns">
-        <button class="btn btn-excel" onclick="downloadStyledExcel('REP')">📥 Excel</button>
+        <button class="btn btn-excel" onclick="downloadStyledExcel('REP')">📥 Report Excel</button>
         <button class="btn btn-pdf" onclick="downloadTabPDF('print_rep', 'Daily_Report')">📄 PDF</button>
         <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
       </div>
@@ -176,9 +207,9 @@
   <!-- TAB 4: KYC & BANK MASTER -->
   <div id="s_mst" class="sheet-box">
     <div class="sheet-toolbar">
-      <h3>🪪 Worker KYC (Aadhaar / PAN / UAN) & Bank Dropdown Master</h3>
+      <h3>🪪 Worker KYC (Aadhaar / PAN / UAN), Salary Mode & Bank Master</h3>
       <div class="tool-btns">
-        <button class="btn btn-excel" onclick="downloadStyledExcel('MST')">📥 Excel</button>
+        <button class="btn btn-excel" onclick="downloadStyledExcel('MST')">📥 Master Excel</button>
         <button class="btn btn-pdf" onclick="downloadTabPDF('print_mst', 'KYC_Bank_Master')">📄 PDF</button>
         <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
       </div>
@@ -190,13 +221,18 @@
   </div>
 </div>
 
+<!-- MULTI-PHOTO BILL GALLERY MODAL -->
 <div id="billModal" class="modal" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal-box">
-    <h3 id="billModalTitle" style="margin-top:0; color:#1e3a8a;">Material Bill</h3>
-    <img id="billModalImg" src="" alt="Bill">
-    <br>
-    <a id="billDownloadLink" href="#" download="Achyuth_Bill.jpg" class="btn btn-master" style="text-decoration:none;">⬇️ Bill Photo Download</a>
-    <button class="btn btn-edit" onclick="document.getElementById('billModal').style.display='none'">✖ Band Kara</button>
+    <h3 id="billModalTitle" style="margin-top:0; color:#1e3a8a;">Material Bill Photos</h3>
+    <div id="billGalleryContainer" class="gallery-grid"></div>
+    <div style="margin-top:12px; border-top:1px solid #e2e8f0; padding-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+      <label class="btn btn-excel" style="cursor:pointer; margin:0;">
+        ➕ Ajun Bill Photos Joda
+        <input type="file" accept="image/*" multiple style="display:none;" onchange="appendPhotosToExistingBill(this)">
+      </label>
+      <button class="btn btn-edit" onclick="document.getElementById('billModal').style.display='none'">✖ Band Kara</button>
+    </div>
   </div>
 </div>
 
@@ -212,10 +248,10 @@ const BANKS = [
   "Indian Bank", "Central Bank of India", "Kotak Mahindra Bank", "Yes Bank", "IDBI Bank"
 ];
 
-const BANK_IFSC_MAP = {
-  "State Bank of India": ["SBIN0000454", "SBIN0004151", "SBIN0011697", "SBIN0006319", "SBIN0001881", "SBIN0013280"],
-  "Bank of Maharashtra": ["MAHB0000001", "MAHB0000041", "MAHB0000321", "MAHB0001150", "MAHB0001388"],
-  "HDFC Bank": ["HDFC0000007", "HDFC0000104", "HDFC0000427", "HDFC0001791", "HDFC0002405"],
+let BANK_IFSC_MAP = {
+  "State Bank of India": ["SBIN0000454", "SBIN0004151", "SBIN0011697", "SBIN0006319", "SBIN0001881", "SBIN0013280", "SBIN0008962", "SBIN0014887"],
+  "Bank of Maharashtra": ["MAHB0000001", "MAHB0000041", "MAHB0000321", "MAHB0001150", "MAHB0001388", "MAHB0000849"],
+  "HDFC Bank": ["HDFC0000007", "HDFC0000104", "HDFC0000427", "HDFC0001791", "HDFC0002405", "HDFC0000818"],
   "ICICI Bank": ["ICIC0000005", "ICIC0000338", "ICIC0001114", "ICIC0002387", "ICIC0003462"],
   "Bank of Baroda": ["BARB0POONAC", "BARB0VIMPUN", "BARB0KOTHRU", "BARB0HADAPS", "BARB0CAMPUN"],
   "Union Bank of India": ["UBIN0532142", "UBIN0556891", "UBIN0810452", "UBIN0901245"],
@@ -229,60 +265,83 @@ const BANK_IFSC_MAP = {
   "IDBI Bank": ["IBKL0000007", "IBKL0000491"]
 };
 
-const ALL_IFSC_LIST = Object.values(BANK_IFSC_MAP).flat();
+const LEGACY_NAME_MAP = {
+  "Mahesh": "MAHESH Prasad",
+  "Kamlesh": "Kamlesh kumar",
+  "Chavan": "Ganesh Babarao Chavan",
+  "Karan": "KARAN WAGHMARE",
+  "Rajaram": "RAJARAM",
+  "Shivsampath": "shiva Sampat",
+  "Prakash": "Prakash Kaknu Lohbande",
+  "Anil-1": "Anil Kairal Kumar",
+  "Anil-2": "Anil Kumar",
+  "Saroj": "Saroj Kumar",
+  "Arun": "ARUN PAWAR",
+  "Ramsharan": "Ramsaran",
+  "Buradas": "BHURA DAS",
+  "Rajbahaddur": "Rajbahadur",
+  "Akshay Noda": "AKSHAT NOOLA",
+  "Ganesh": "GANESH PANCHAL",
+  "Gautam": "Goutam Mahadu Sonkambie",
+  "Shivshankar": "SHIVSHANKAR 1"
+};
 
-function getIfscOptionsHtml(bankName, selectedIfsc) {
-  const list = (bankName && BANK_IFSC_MAP[bankName]) ? BANK_IFSC_MAP[bankName] : ALL_IFSC_LIST;
-  const opts = [`<option value="">-- Select IFSC --</option>`];
-  list.forEach(code => {
-    opts.push(`<option value="${code}" ${selectedIfsc === code ? 'selected' : ''}>${code}</option>`);
-  });
-  if (selectedIfsc && !list.includes(selectedIfsc)) {
-    opts.push(`<option value="${selectedIfsc}" selected>${selectedIfsc}</option>`);
-  }
-  return opts.join('');
+function normalizeWorkerName(n) {
+  return LEGACY_NAME_MAP[n] || n;
 }
 
-// Blank banks by default until explicitly selected from dropdown
+function registerCustomIfsc(bankName, ifscCode) {
+  if (!bankName || !ifscCode) return;
+  const code = ifscCode.trim().toUpperCase();
+  if (!code) return;
+  if (!BANK_IFSC_MAP[bankName]) BANK_IFSC_MAP[bankName] = [];
+  if (!BANK_IFSC_MAP[bankName].includes(code)) BANK_IFSC_MAP[bankName].push(code);
+}
+
+function getIfscDatalistHtml(bankName) {
+  if (!bankName) return "";
+  return (BANK_IFSC_MAP[bankName] || []).map(code => `<option value="${code}">`).join('');
+}
+
 const DEFAULT_WORKERS = [
-  { name: "MAHESH Prasad", desig: "F", wage: 700, aadhaar: "", pan: "HGIPM3561F", uan: "101182284638", bank: "", acc: "", ifsc: "" },
-  { name: "Kamlesh kumar", desig: "F", wage: 700, aadhaar: "", pan: "PDPPK4183M", uan: "102278024420", bank: "", acc: "", ifsc: "" },
-  { name: "Ganesh Babarao Chavan", desig: "F", wage: 700, aadhaar: "", pan: "CZZPR7631A", uan: "101812331674", bank: "", acc: "", ifsc: "" },
-  { name: "KARAN WAGHMARE", desig: "F", wage: 700, aadhaar: "", pan: "AGQPW5162K", uan: "102176386430", bank: "", acc: "", ifsc: "" },
-  { name: "RAJARAM", desig: "L", wage: 600, aadhaar: "", pan: "ETHPK9165G", uan: "102313705823", bank: "", acc: "", ifsc: "" },
-  { name: "shiva Sampat", desig: "L", wage: 600, aadhaar: "", pan: "NAKPS7043L", uan: "101525564216", bank: "", acc: "", ifsc: "" },
-  { name: "Prakash Kaknu Lohbande", desig: "L", wage: 600, aadhaar: "", pan: "ARRPL8656R", uan: "102366652551", bank: "", acc: "", ifsc: "" },
-  { name: "Rambabu", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "101384244919", bank: "", acc: "", ifsc: "" },
-  { name: "Anil Kairal Kumar", desig: "L", wage: 600, aadhaar: "", pan: "FOBPK9744D", uan: "102365742961", bank: "", acc: "", ifsc: "" },
-  { name: "Anil Kumar", desig: "L", wage: 600, aadhaar: "", pan: "GQGPA7627R", uan: "102005923181", bank: "", acc: "", ifsc: "" },
-  { name: "Madhukar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "Ranju", desig: "L", wage: 600, aadhaar: "", pan: "GYPPK8448R", uan: "101883739562", bank: "", acc: "", ifsc: "" },
-  { name: "Saroj Kumar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "101156907651", bank: "", acc: "", ifsc: "" },
-  { name: "ARUN PAWAR", desig: "L", wage: 600, aadhaar: "", pan: "GWBPP8871D", uan: "101813281503", bank: "", acc: "", ifsc: "" },
-  { name: "Ramsaran", desig: "L", wage: 600, aadhaar: "", pan: "IGWPR0808D", uan: "101771300361", bank: "", acc: "", ifsc: "" },
-  { name: "BHURA DAS", desig: "L", wage: 600, aadhaar: "", pan: "ITVPB3743R", uan: "101262052097", bank: "", acc: "", ifsc: "" },
-  { name: "Rajbahadur", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "AKSHAT NOOLA", desig: "SUP", wage: 600, aadhaar: "", pan: "AZNPN5255C", uan: "101167456771", bank: "", acc: "", ifsc: "" },
-  { name: "GANESH PANCHAL", desig: "L", wage: 600, aadhaar: "", pan: "BSQPP9856G", uan: "101351093094", bank: "", acc: "", ifsc: "" },
-  { name: "Goutam Mahadu Sonkambie", desig: "L", wage: 600, aadhaar: "", pan: "HZFPS1603Q", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "SHIVSHANKAR 1", desig: "L", wage: 600, aadhaar: "", pan: "ATKPL1805H", uan: "101636698182", bank: "", acc: "", ifsc: "" },
-  { name: "SHIV SHANKAR 2", desig: "L", wage: 600, aadhaar: "", pan: "RNFPS0101H", uan: "101279976073", bank: "", acc: "", ifsc: "" },
-  { name: "INDRAJEET", desig: "L", wage: 600, aadhaar: "", pan: "AEMPY8394R", uan: "102000654645", bank: "", acc: "", ifsc: "" },
-  { name: "BALAJI NAGORAO BANSODE", desig: "L", wage: 600, aadhaar: "", pan: "ITSPB3830C", uan: "102313500450", bank: "", acc: "", ifsc: "" },
-  { name: "MAHENDRA KUMAR", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "102214134204", bank: "", acc: "", ifsc: "" },
-  { name: "RAKESH", desig: "L", wage: 600, aadhaar: "", pan: "ESNPR1355C", uan: "102313705269", bank: "", acc: "", ifsc: "" },
-  { name: "DINESH", desig: "L", wage: 600, aadhaar: "", pan: "HTFPR4686Q", uan: "101354867387", bank: "", acc: "", ifsc: "" },
-  { name: "CHHOTTE LAL", desig: "L", wage: 600, aadhaar: "", pan: "FZYPD9855E", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "LAMLESH KUMAR", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "101490934804", bank: "", acc: "", ifsc: "" },
-  { name: "UDAYRAJ", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "LAVKUSH", desig: "L", wage: 600, aadhaar: "", pan: "BBIPL4662H", uan: "101409896515", bank: "", acc: "", ifsc: "" },
-  { name: "sudhir kumar", desig: "L", wage: 600, aadhaar: "", pan: "QPXPK3923J", uan: "102283573996", bank: "", acc: "", ifsc: "" },
-  { name: "jitendra", desig: "L", wage: 600, aadhaar: "", pan: "DJFPJ5559A", uan: "101706055391", bank: "", acc: "", ifsc: "" },
-  { name: "Kalyan", desig: "L", wage: 600, aadhaar: "", pan: "OBIPK4989P", uan: "101849312909", bank: "", acc: "", ifsc: "" },
-  { name: "Chunbad", desig: "L", wage: 600, aadhaar: "", pan: "DIJPC7172Q", uan: "102365736286", bank: "", acc: "", ifsc: "" },
-  { name: "Ashish kumar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "102365732681", bank: "", acc: "", ifsc: "" },
-  { name: "Anurag kumar", desig: "L", wage: 600, aadhaar: "", pan: "RAAPK9734A", uan: "102366654082", bank: "", acc: "", ifsc: "" },
-  { name: "Lekhram", desig: "L", wage: 600, aadhaar: "", pan: "BPXPL2289D", uan: "101197446064", bank: "", acc: "", ifsc: "" }
+  { name: "MAHESH Prasad", desig: "F", payType: "Daily", wage: 700, aadhaar: "", pan: "HGIPM3561F", uan: "101182284638", bank: "", acc: "", ifsc: "" },
+  { name: "Kamlesh kumar", desig: "F", payType: "Daily", wage: 700, aadhaar: "", pan: "PDPPK4183M", uan: "102278024420", bank: "", acc: "", ifsc: "" },
+  { name: "Ganesh Babarao Chavan", desig: "F", payType: "Daily", wage: 700, aadhaar: "", pan: "CZZPR7631A", uan: "101812331674", bank: "", acc: "", ifsc: "" },
+  { name: "KARAN WAGHMARE", desig: "F", payType: "Daily", wage: 700, aadhaar: "", pan: "AGQPW5162K", uan: "102176386430", bank: "", acc: "", ifsc: "" },
+  { name: "RAJARAM", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ETHPK9165G", uan: "102313705823", bank: "", acc: "", ifsc: "" },
+  { name: "shiva Sampat", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "NAKPS7043L", uan: "101525564216", bank: "", acc: "", ifsc: "" },
+  { name: "Prakash Kaknu Lohbande", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ARRPL8656R", uan: "102366652551", bank: "", acc: "", ifsc: "" },
+  { name: "Rambabu", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "101384244919", bank: "", acc: "", ifsc: "" },
+  { name: "Anil Kairal Kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "FOBPK9744D", uan: "102365742961", bank: "", acc: "", ifsc: "" },
+  { name: "Anil Kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "GQGPA7627R", uan: "102005923181", bank: "", acc: "", ifsc: "" },
+  { name: "Madhukar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "Ranju", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "GYPPK8448R", uan: "101883739562", bank: "", acc: "", ifsc: "" },
+  { name: "Saroj Kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "101156907651", bank: "", acc: "", ifsc: "" },
+  { name: "ARUN PAWAR", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "GWBPP8871D", uan: "101813281503", bank: "", acc: "", ifsc: "" },
+  { name: "Ramsaran", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "IGWPR0808D", uan: "101771300361", bank: "", acc: "", ifsc: "" },
+  { name: "BHURA DAS", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ITVPB3743R", uan: "101262052097", bank: "", acc: "", ifsc: "" },
+  { name: "Rajbahadur", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "AKSHAT NOOLA", desig: "SUP", payType: "Daily", wage: 600, aadhaar: "", pan: "AZNPN5255C", uan: "101167456771", bank: "", acc: "", ifsc: "" },
+  { name: "GANESH PANCHAL", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "BSQPP9856G", uan: "101351093094", bank: "", acc: "", ifsc: "" },
+  { name: "Goutam Mahadu Sonkambie", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "HZFPS1603Q", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "SHIVSHANKAR 1", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ATKPL1805H", uan: "101636698182", bank: "", acc: "", ifsc: "" },
+  { name: "SHIV SHANKAR 2", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "RNFPS0101H", uan: "101279976073", bank: "", acc: "", ifsc: "" },
+  { name: "INDRAJEET", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "AEMPY8394R", uan: "102000654645", bank: "", acc: "", ifsc: "" },
+  { name: "BALAJI NAGORAO BANSODE", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ITSPB3830C", uan: "102313500450", bank: "", acc: "", ifsc: "" },
+  { name: "MAHENDRA KUMAR", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "102214134204", bank: "", acc: "", ifsc: "" },
+  { name: "RAKESH", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ESNPR1355C", uan: "102313705269", bank: "", acc: "", ifsc: "" },
+  { name: "DINESH", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "HTFPR4686Q", uan: "101354867387", bank: "", acc: "", ifsc: "" },
+  { name: "CHHOTTE LAL", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "FZYPD9855E", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "LAMLESH KUMAR", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "101490934804", bank: "", acc: "", ifsc: "" },
+  { name: "UDAYRAJ", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "LAVKUSH", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "BBIPL4662H", uan: "101409896515", bank: "", acc: "", ifsc: "" },
+  { name: "sudhir kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "QPXPK3923J", uan: "102283573996", bank: "", acc: "", ifsc: "" },
+  { name: "jitendra", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "DJFPJ5559A", uan: "101706055391", bank: "", acc: "", ifsc: "" },
+  { name: "Kalyan", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "OBIPK4989P", uan: "101849312909", bank: "", acc: "", ifsc: "" },
+  { name: "Chunbad", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "DIJPC7172Q", uan: "102365736286", bank: "", acc: "", ifsc: "" },
+  { name: "Ashish kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "102365732681", bank: "", acc: "", ifsc: "" },
+  { name: "Anurag kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "RAAPK9734A", uan: "102366654082", bank: "", acc: "", ifsc: "" },
+  { name: "Lekhram", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "BPXPL2289D", uan: "101197446064", bank: "", acc: "", ifsc: "" }
 ];
 
 const NOV_2026_DAYS_BY_IDX = [
@@ -311,25 +370,29 @@ const NOV_2026_DAYS_BY_IDX = [
 
 let editMode = false;
 let cloudAtt = [], cloudMat = [], cloudRep = [], cloudWorkers = [...DEFAULT_WORKERS];
+let activeBillTargetKey = "";
 document.getElementById('monthFilter').value = "2026-11";
+document.getElementById('cm_date').value = new Date().toISOString().split('T')[0];
 
 function buildDefaultNov2026Records(wList) {
   const bulkObj = {};
   NOV_2026_DAYS_BY_IDX.forEach((days, wIdx) => {
     const w = wList[wIdx];
     if (!w) return;
+    const earned = (w.payType === "Monthly") ? Math.round(Number(w.wage) / 30) : Number(w.wage);
     days.forEach(dayNum => {
       const dd = String(dayNum).padStart(2, '0');
       bulkObj[`nov26_${wIdx}_${dd}`] = {
         date: `2026-11-${dd}`,
         name: w.name,
         desig: w.desig,
+        payType: w.payType || "Daily",
         outTime: "Up to 6:00 PM (1x)",
         mult: 1,
-        baseWage: w.wage,
-        earned: w.wage,
+        baseWage: Number(w.wage),
+        earned,
         hafta: 0,
-        net: w.wage,
+        net: earned,
         aadhaar: w.aadhaar || "",
         pan: w.pan || "",
         uan: w.uan || "",
@@ -348,7 +411,7 @@ function checkClientLogin() {
     sessionStorage.setItem('ae_client_auth', '1');
     document.getElementById('clientLoginScreen').style.display = 'none';
     document.getElementById('clientMainApp').style.display = 'block';
-    fetchCloudData();
+    fetchCloudData(false);
   } else {
     document.getElementById('clientLoginErr').style.display = 'block';
   }
@@ -364,36 +427,53 @@ function getDaysInMonth(ym) {
   return new Date(y, m, 0).getDate();
 }
 
-async function fetchCloudData() {
-  const initialRecords = buildDefaultNov2026Records(DEFAULT_WORKERS);
-  cloudAtt = objToArray(initialRecords);
-  renderAll();
+async function fetchCloudData(isManual = false) {
+  if (cloudAtt.length === 0) {
+    cloudAtt = objToArray(buildDefaultNov2026Records(DEFAULT_WORKERS));
+    renderAll();
+  }
+
+  const badge = document.getElementById('liveSyncBadge');
+  if (badge) badge.innerText = "🔄 Syncing...";
 
   try {
-    let [rAtt, rMat, rRep, rW] = await Promise.all([
-      fetch(`${DB_URL}/attendance.json`).then(r => r.json()),
-      fetch(`${DB_URL}/material.json`).then(r => r.json()),
-      fetch(`${DB_URL}/report.json`).then(r => r.json()),
-      fetch(`${DB_URL}/workers.json`).then(r => r.json())
+    const nocache = `?t=${Date.now()}`;
+    let [rAtt, rMat, rRep, rW, isInit] = await Promise.all([
+      fetch(`${DB_URL}/attendance.json${nocache}`).then(r => r.json()),
+      fetch(`${DB_URL}/material.json${nocache}`).then(r => r.json()),
+      fetch(`${DB_URL}/report.json${nocache}`).then(r => r.json()),
+      fetch(`${DB_URL}/workers.json${nocache}`).then(r => r.json()),
+      fetch(`${DB_URL}/meta/workers_initialized.json${nocache}`).then(r => r.json())
     ]);
 
-    if (rW && Array.isArray(rW) && rW.length >= 38) {
-      cloudWorkers = rW.map(w => (!w.acc && !w.bankManuallySet) ? { ...w, bank: "", ifsc: "" } : w);
+    if (rW && Array.isArray(rW) && rW.length > 0 && (isInit === true || rW.length >= 38)) {
+      cloudWorkers = rW.map(w => ({
+        payType: "Daily",
+        ...((!w.acc && !w.bankManuallySet) ? { ...w, bank: "", ifsc: "" } : w)
+      }));
+      cloudWorkers.forEach(w => registerCustomIfsc(w.bank, w.ifsc));
+      if (!isInit) {
+        await fetch(`${DB_URL}/meta/workers_initialized.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(true) });
+      }
     } else {
       cloudWorkers = [...DEFAULT_WORKERS];
       await fetch(`${DB_URL}/workers.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(cloudWorkers) });
+      await fetch(`${DB_URL}/meta/workers_initialized.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(true) });
     }
 
-    const needsCleanBank = rAtt && rAtt['nov26_0_01'] && rAtt['nov26_0_01'].bank && !rAtt['nov26_0_01'].acc;
-    if (!rAtt || !rAtt['nov26_0_01'] || needsCleanBank) {
+    if (!rAtt || !rAtt['nov26_0_01']) {
       const seedObj = buildDefaultNov2026Records(cloudWorkers);
       await fetch(`${DB_URL}/attendance.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(seedObj) });
       rAtt = { ...(rAtt || {}), ...seedObj };
     }
 
-    cloudAtt = objToArray(rAtt);
-    cloudMat = objToArray(rMat);
-    cloudRep = objToArray(rRep);
+    cloudAtt = objToArray(rAtt).map(rec => ({
+      ...rec,
+      name: normalizeWorkerName(rec.name)
+    }));
+
+    cloudMat = objToArray(rMat).sort((a, b) => (b.date || "").localeCompare(a.date || "") || (a.billGroupId || "").localeCompare(b.billGroupId || ""));
+    cloudRep = objToArray(rRep).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
 
     const wf = document.getElementById('workerFilter');
     const prevW = wf.value;
@@ -401,10 +481,17 @@ async function fetchCloudData() {
     wf.value = prevW;
 
     renderAll();
+    if (badge) badge.innerText = `🟢 Live Synced (${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})})`;
   } catch (e) {
-    console.log("Cloud sync fallback active:", e);
+    if (badge) badge.innerText = "⚠️ Offline / Retrying";
   }
 }
+
+setInterval(() => {
+  if (sessionStorage.getItem('ae_client_auth') === '1' && !editMode) {
+    fetchCloudData(false);
+  }
+}, 10000);
 
 function switchSheet(id, btn) {
   document.querySelectorAll('.sheet-box').forEach(b => b.classList.remove('active'));
@@ -418,6 +505,7 @@ function toggleEditMode() {
   const btn = document.getElementById('editToggleBtn');
   btn.innerText = editMode ? "💾 Save & Lock Editing" : "✏️ Edit Mode: OFF";
   btn.classList.toggle('active', editMode);
+  document.getElementById('clientAddMatBox').style.display = editMode ? "block" : "none";
   renderAll();
 }
 
@@ -427,12 +515,14 @@ function buildMasterMatrixRows(ym, wFilter) {
 
   const workerMap = new Map();
   cloudWorkers.forEach((w, idx) => {
-    workerMap.set(w.name, { ...w, _wIdx: idx });
+    workerMap.set(w.name, { payType: "Daily", ...w, _wIdx: idx });
   });
   monthAtt.forEach(r => {
-    if (r.name && !workerMap.has(r.name)) {
-      workerMap.set(r.name, {
-        name: r.name, desig: r.desig || "L", wage: Number(r.baseWage) || 600,
+    const cleanName = normalizeWorkerName(r.name);
+    if (cleanName && !workerMap.has(cleanName)) {
+      workerMap.set(cleanName, {
+        name: cleanName, desig: r.desig || "L", payType: r.payType || "Daily",
+        wage: Number(r.baseWage) || 600,
         aadhaar: r.aadhaar || "", pan: r.pan || "", uan: r.uan || "",
         bank: r.bank || "", acc: r.acc || "", ifsc: r.ifsc || "", _wIdx: -1
       });
@@ -445,24 +535,29 @@ function buildMasterMatrixRows(ym, wFilter) {
   return list.map((w, rowIdx) => {
     const dayMap = {};
     let totalDays = 0;
-    let totalEarned = 0;
     let totalHafta = 0;
 
     monthAtt.forEach(r => {
-      if (r.name === w.name) {
+      if (normalizeWorkerName(r.name) === w.name) {
         const dNum = parseInt((r.date || "").split('-')[2], 10);
         if (dNum >= 1 && dNum <= daysCount) {
           dayMap[dNum] = r;
           totalDays += Number(r.mult || 0);
-          totalEarned += Number(r.earned || 0);
           totalHafta += Number(r.hafta || 0);
         }
       }
     });
 
+    const isMonthly = (w.payType === "Monthly");
+    const baseAmount = Number(w.wage) || 0;
+    const perDayRate = isMonthly ? (baseAmount / daysCount) : baseAmount;
+    const totalEarned = Math.round(totalDays * perDayRate);
+
     return {
       sr: rowIdx + 1,
       worker: w,
+      isMonthly,
+      perDayRate,
       dayMap,
       totalDays,
       totalEarned,
@@ -470,6 +565,38 @@ function buildMasterMatrixRows(ym, wFilter) {
       netPayable: totalEarned - totalHafta
     };
   });
+}
+
+// Update total monthly advance for a worker directly from Master Card in Edit Mode
+async function updateWorkerMonthlyAdvance(workerName, ym, rawText) {
+  const newTotalHafta = Math.max(0, parseFloat(rawText.replace(/[₹,\s]/g, '')) || 0);
+  const workerMonthRecs = cloudAtt.filter(r => normalizeWorkerName(r.name) === workerName && (r.date || "").startsWith(ym));
+  const patchObj = {};
+
+  if (workerMonthRecs.length > 0) {
+    // Store total advance on the first record of the month and reset others to 0 so total matches exact amount
+    workerMonthRecs.forEach((rec, i) => {
+      const h = (i === 0) ? newTotalHafta : 0;
+      rec.hafta = h;
+      rec.net = (Number(rec.earned) || 0) - h;
+      patchObj[rec._key] = { hafta: h, net: rec.net };
+    });
+    await fetch(`${DB_URL}/attendance.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(patchObj) });
+  } else {
+    // Create a 0-shift advance record if worker had no attendance rows yet
+    const w = cloudWorkers.find(x => x.name === workerName) || { name: workerName, desig: "L", payType: "Daily", wage: 600 };
+    const newRec = {
+      date: `${ym}-01`, name: w.name, desig: w.desig, payType: w.payType || "Daily",
+      outTime: "Absent (0x)", mult: 0, baseWage: Number(w.wage), earned: 0,
+      hafta: newTotalHafta, net: -newTotalHafta,
+      aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
+      bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
+    };
+    const res = await fetch(`${DB_URL}/attendance.json`, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(newRec) });
+    const data = await res.json();
+    cloudAtt.push({ _key: data.name, ...newRec });
+  }
+  renderAll();
 }
 
 async function updateMatrixDayCell(workerName, dateStr, rawText) {
@@ -482,30 +609,42 @@ async function updateMatrixDayCell(workerName, dateStr, rawText) {
   else if (val === "" || val === "A" || val === "0" || val === "-") mult = 0;
   else mult = parseFloat(val) || 0;
 
-  const w = cloudWorkers.find(x => x.name === workerName) || { name: workerName, desig: "L", wage: 600 };
-  const existing = cloudAtt.find(r => r.name === workerName && r.date === dateStr);
+  const w = cloudWorkers.find(x => x.name === workerName) || { name: workerName, desig: "L", payType: "Daily", wage: 600 };
+  const existing = cloudAtt.find(r => normalizeWorkerName(r.name) === workerName && r.date === dateStr);
+  const daysCount = getDaysInMonth(dateStr.slice(0, 7));
+  const effRate = (w.payType === "Monthly") ? ((Number(w.wage) || 0) / daysCount) : (Number(w.wage) || 600);
 
   if (mult === 0) {
     if (existing) {
-      await fetch(`${DB_URL}/attendance/${existing._key}.json`, { method: 'DELETE' });
-      cloudAtt = cloudAtt.filter(x => x._key !== existing._key);
+      if (Number(existing.hafta) > 0) {
+        existing.mult = 0; existing.earned = 0; existing.net = -Number(existing.hafta);
+        await fetch(`${DB_URL}/attendance/${existing._key}.json`, {
+          method: 'PATCH', headers: JSON_HEADERS,
+          body: JSON.stringify({ mult: 0, outTime: "Absent (0x)", earned: 0, net: existing.net })
+        });
+      } else {
+        await fetch(`${DB_URL}/attendance/${existing._key}.json`, { method: 'DELETE' });
+        cloudAtt = cloudAtt.filter(x => x._key !== existing._key);
+      }
     }
   } else {
     const outLabel = mult === 1.5 ? "Up to 8:00 PM (1.5x)" : (mult === 2 ? "After 9:00 PM (2x)" : (mult === 0.5 ? "Half Day (0.5x)" : "Up to 6:00 PM (1x)"));
-    const earned = Math.round((Number(w.wage) || 600) * mult);
+    const earned = Math.round(effRate * mult);
     if (existing) {
+      existing.name = w.name;
       existing.mult = mult;
       existing.outTime = outLabel;
+      existing.baseWage = Number(w.wage);
       existing.earned = earned;
       existing.net = earned - (Number(existing.hafta) || 0);
       await fetch(`${DB_URL}/attendance/${existing._key}.json`, {
         method: 'PATCH', headers: JSON_HEADERS,
-        body: JSON.stringify({ mult, outTime: outLabel, earned, net: existing.net })
+        body: JSON.stringify({ name: w.name, mult, outTime: outLabel, baseWage: existing.baseWage, earned, net: existing.net })
       });
     } else {
       const newRec = {
-        date: dateStr, name: w.name, desig: w.desig, outTime: outLabel,
-        mult, baseWage: w.wage, earned, hafta: 0, net: earned,
+        date: dateStr, name: w.name, desig: w.desig, payType: w.payType || "Daily", outTime: outLabel,
+        mult, baseWage: Number(w.wage), earned, hafta: 0, net: earned,
         aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
         bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
       };
@@ -514,6 +653,102 @@ async function updateMatrixDayCell(workerName, dateStr, rawText) {
       cloudAtt.push({ _key: data.name, ...newRec });
     }
   }
+  renderAll();
+}
+
+function getPhotosForRecord(r) {
+  if (Array.isArray(r.billImgs) && r.billImgs.length > 0) return r.billImgs;
+  if (r.billImg) return [r.billImg];
+  return [];
+}
+
+async function clientAddMaterialRow() {
+  const item = document.getElementById('cm_item').value.trim();
+  if (!item) { alert("Vastu (Material) che naav taka!"); return; }
+
+  const date = document.getElementById('cm_date').value;
+  const billNo = document.getElementById('cm_billNo').value.trim() || "-";
+  const site = document.getElementById('cm_site').value.trim() || "Tingrenagar";
+  const supplier = document.getElementById('cm_supplier').value.trim() || "-";
+  const qtyNum = parseFloat(document.getElementById('cm_qty').value) || 0;
+  const unit = document.getElementById('cm_unit').value;
+  const rate = parseFloat(document.getElementById('cm_rate').value) || 0;
+  const total = Math.round(qtyNum * rate);
+  const status = document.getElementById('cm_status').value;
+
+  const files = Array.from(document.getElementById('cm_photos').files || []);
+  const compressedList = await Promise.all(files.map(file => new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxW = 550;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.55));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  })));
+
+  const rec = {
+    billGroupId: `bill_${date}_${billNo}_${supplier}`,
+    billNo, date, site, supplier, item,
+    qtyNum, unit, qty: `${qtyNum} ${unit}`,
+    rate, total, status, remark: "",
+    billImgs: compressedList,
+    billImg: compressedList[0] || ""
+  };
+
+  const res = await fetch(`${DB_URL}/material.json`, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(rec) });
+  const data = await res.json();
+  cloudMat.unshift({ _key: data.name, ...rec });
+
+  document.getElementById('cm_item').value = "";
+  document.getElementById('cm_rate').value = 0;
+  document.getElementById('cm_photos').value = "";
+  renderAll();
+}
+
+async function updateMaterialCell(key, field, value) {
+  const item = cloudMat.find(x => x._key === key);
+  if (!item) return;
+  const numFields = ['qtyNum', 'rate', 'total'];
+  const cleanVal = value.trim();
+  const parsedVal = numFields.includes(field) ? (parseFloat(cleanVal) || 0) : cleanVal;
+  item[field] = parsedVal;
+
+  if (field === 'qtyNum' || field === 'unit' || field === 'rate') {
+    const q = Number(item.qtyNum) || parseFloat(item.qty) || 0;
+    const u = item.unit || (String(item.qty || "").replace(/[0-9.\s]/g, '') || "Nos");
+    const r = Number(item.rate) || 0;
+    item.qtyNum = q;
+    item.unit = u;
+    item.qty = `${q} ${u}`;
+    item.total = Math.round(q * r);
+  }
+
+  await fetch(`${DB_URL}/material/${key}.json`, {
+    method: 'PATCH', headers: JSON_HEADERS,
+    body: JSON.stringify({
+      date: item.date, site: item.site, billNo: item.billNo || "-",
+      supplier: item.supplier, item: item.item,
+      qtyNum: item.qtyNum, unit: item.unit, qty: item.qty,
+      rate: item.rate, total: item.total, status: item.status, remark: item.remark
+    })
+  });
+  renderAll();
+}
+
+async function deleteCloudRow(node, key) {
+  if (!confirm("Hi nond delete karaychi ka?")) return;
+  await fetch(`${DB_URL}/${node}/${key}.json`, { method: 'DELETE' });
+  if (node === 'material') cloudMat = cloudMat.filter(x => x._key !== key);
+  if (node === 'report') cloudRep = cloudRep.filter(x => x._key !== key);
   renderAll();
 }
 
@@ -526,35 +761,54 @@ async function updateCloudCell(node, key, field, value) {
 
 async function updateWorkerCell(idx, field, value) {
   if (idx < 0 || !cloudWorkers[idx]) return;
-  const cleanVal = value.trim();
+  let cleanVal = value.trim();
+  if (field === 'ifsc' || field === 'pan') cleanVal = cleanVal.toUpperCase();
   cloudWorkers[idx][field] = (field === 'wage') ? (parseFloat(cleanVal) || 0) : cleanVal;
+
+  if (field === 'payType') {
+    if (cleanVal === 'Monthly' && cloudWorkers[idx].wage < 2000) cloudWorkers[idx].wage = 18000;
+    if (cleanVal === 'Daily' && cloudWorkers[idx].wage >= 2000) cloudWorkers[idx].wage = (cloudWorkers[idx].desig === 'F' ? 700 : 600);
+  }
   if (field === 'bank') {
     cloudWorkers[idx].ifsc = "";
     cloudWorkers[idx].bankManuallySet = Boolean(cleanVal);
   }
-  if (field === 'ifsc' || field === 'acc') {
-    cloudWorkers[idx].bankManuallySet = Boolean(cloudWorkers[idx].bank || cloudWorkers[idx].ifsc || cloudWorkers[idx].acc);
+  if (field === 'ifsc') {
+    registerCustomIfsc(cloudWorkers[idx].bank, cleanVal);
+    cloudWorkers[idx].bankManuallySet = Boolean(cloudWorkers[idx].bank || cleanVal || cloudWorkers[idx].acc);
+  }
+  if (field === 'acc') {
+    cloudWorkers[idx].bankManuallySet = Boolean(cloudWorkers[idx].bank || cloudWorkers[idx].ifsc || cleanVal);
   }
 
   await fetch(`${DB_URL}/workers/${idx}.json`, {
     method: 'PATCH', headers: JSON_HEADERS,
     body: JSON.stringify({
       [field]: cloudWorkers[idx][field],
+      wage: cloudWorkers[idx].wage,
       ifsc: cloudWorkers[idx].ifsc || "",
       bankManuallySet: cloudWorkers[idx].bankManuallySet || false
     })
   });
 
-  // Cascade bank/IFSC/KYC changes to worker's attendance records
   const w = cloudWorkers[idx];
   const patchAll = {};
   cloudAtt.forEach(rec => {
-    if (rec.name === w.name) {
-      rec[field] = cloudWorkers[idx][field];
-      if (field === 'bank') rec.ifsc = "";
+    if (normalizeWorkerName(rec.name) === w.name) {
+      const earned = (w.payType === "Monthly")
+        ? Math.round(((Number(w.wage) || 0) / getDaysInMonth((rec.date || "2026-11").slice(0, 7))) * (Number(rec.mult) || 0))
+        : Math.round((Number(w.wage) || 0) * (Number(rec.mult) || 0));
+      const net = earned - (Number(rec.hafta) || 0);
+      rec.name = w.name;
+      rec.payType = w.payType || "Daily";
+      rec.baseWage = Number(w.wage);
+      rec.earned = earned;
+      rec.net = net;
       patchAll[rec._key] = {
-        [field]: cloudWorkers[idx][field],
-        ifsc: w.ifsc || ""
+        name: w.name, desig: w.desig, payType: rec.payType,
+        baseWage: rec.baseWage, earned, net,
+        aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
+        bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
       };
     }
   });
@@ -564,11 +818,82 @@ async function updateWorkerCell(idx, field, value) {
   renderAll();
 }
 
-function openBillModal(imgData, title) {
-  document.getElementById('billModalTitle').innerText = title;
-  document.getElementById('billModalImg').src = imgData;
-  document.getElementById('billDownloadLink').href = imgData;
+function openBillGallery(matKey) {
+  activeBillTargetKey = matKey;
+  const rec = cloudMat.find(x => x._key === matKey);
+  if (!rec) return;
+  document.getElementById('billModalTitle').innerText = `${rec.supplier || 'Bill'} • ${rec.item || ''} (${rec.date})`;
+  renderBillGalleryContent(rec);
   document.getElementById('billModal').style.display = 'flex';
+}
+
+function renderBillGalleryContent(rec) {
+  const photos = getPhotosForRecord(rec);
+  const box = document.getElementById('billGalleryContainer');
+  if (photos.length === 0) {
+    box.innerHTML = `<p style="color:#64748b; grid-column:1/-1;">Ya bilache ajun photo upload kelele nahit. Khalil button dabun photos joda.</p>`;
+    return;
+  }
+  box.innerHTML = photos.map((src, idx) => `
+    <div class="gallery-card">
+      <img src="${src}" alt="Bill Photo ${idx + 1}">
+      <div style="display:flex; gap:6px; justify-content:center;">
+        <a href="${src}" download="Achyuth_Bill_${rec.date}_${idx + 1}.jpg" class="btn btn-excel" style="text-decoration:none; font-size:11px;">⬇️ Download #${idx + 1}</a>
+        <button class="btn-del" onclick="deleteSingleBillPhoto('${rec._key}', ${idx})">🗑️ Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function appendPhotosToExistingBill(input) {
+  const files = Array.from(input.files || []);
+  if (!files.length || !activeBillTargetKey) return;
+  const rec = cloudMat.find(x => x._key === activeBillTargetKey);
+  if (!rec) return;
+
+  const newImgs = await Promise.all(files.map(file => new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxW = 550;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.55));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  })));
+
+  const updatedPhotos = [...getPhotosForRecord(rec), ...newImgs];
+  rec.billImgs = updatedPhotos;
+  rec.billImg = updatedPhotos[0] || "";
+  await fetch(`${DB_URL}/material/${rec._key}.json`, {
+    method: 'PATCH', headers: JSON_HEADERS,
+    body: JSON.stringify({ billImgs: updatedPhotos, billImg: rec.billImg })
+  });
+  input.value = "";
+  renderBillGalleryContent(rec);
+  renderAll();
+}
+
+async function deleteSingleBillPhoto(matKey, photoIdx) {
+  const rec = cloudMat.find(x => x._key === matKey);
+  if (!rec) return;
+  const photos = [...getPhotosForRecord(rec)];
+  photos.splice(photoIdx, 1);
+  rec.billImgs = photos;
+  rec.billImg = photos[0] || "";
+  await fetch(`${DB_URL}/material/${matKey}.json`, {
+    method: 'PATCH', headers: JSON_HEADERS,
+    body: JSON.stringify({ billImgs: photos, billImg: rec.billImg })
+  });
+  renderBillGalleryContent(rec);
+  renderAll();
 }
 
 function renderAll() {
@@ -581,20 +906,24 @@ function renderAll() {
   const mat = cloudMat.filter(r => (r.date || "").startsWith(m));
   const rep = cloudRep.filter(r => (r.date || "").startsWith(m));
 
+  document.getElementById('tabBtnMat').innerText = `🧱 Material & Bills (${mat.length})`;
+  document.getElementById('tabBtnRep').innerText = `📝 Daily Site Report (${rep.length})`;
+
   const totHajeri = matrixRows.reduce((s, r) => s + r.totalDays, 0);
   const totEarned = matrixRows.reduce((s, r) => s + r.totalEarned, 0);
   const totHafta = matrixRows.reduce((s, r) => s + r.totalHafta, 0);
   const netPay = matrixRows.reduce((s, r) => s + r.netPayable, 0);
   const totMat = mat.reduce((s, r) => s + Number(r.total || 0), 0);
+  const totMatQty = mat.reduce((s, r) => s + (Number(r.qtyNum) || parseFloat(r.qty) || 0), 0);
   const totPetty = rep.reduce((s, r) => s + Number(r.petty || 0), 0);
 
   document.getElementById('kpiBar').innerHTML = `
-    <div class="kpi"><span>Ekun Kamgar</span><strong>${matrixRows.length}</strong></div>
     <div class="kpi"><span>Total Hajeri (Days)</span><strong>${totHajeri}</strong></div>
     <div class="kpi"><span>Total Pagar (Earned)</span><strong>₹${totEarned}</strong></div>
     <div class="kpi"><span>Advance / Hafta</span><strong>₹${totHafta}</strong></div>
-    <div class="kpi"><span>Net Payable</span><strong>₹${netPay}</strong></div>
-    <div class="kpi"><span>Material + Petty</span><strong>₹${totMat + totPetty}</strong></div>
+    <div class="kpi"><span>Net Labour Pay</span><strong>₹${netPay}</strong></div>
+    <div class="kpi"><span>Material Bill (${totMatQty} Qty)</span><strong>₹${totMat}</strong></div>
+    <div class="kpi"><span>Petty Cash</span><strong>₹${totPetty}</strong></div>
   `;
 
   let dayHeaders = "";
@@ -619,12 +948,20 @@ function renderAll() {
       dayCells += `<td class="${cls}" contenteditable="${editMode}" onblur="updateMatrixDayCell('${w.name.replace(/'/g, "\\'")}', '${dateStr}', this.innerText)">${disp}</td>`;
     }
 
+    const modeBadge = row.isMonthly
+      ? `<span class="badge-m">Monthly</span>`
+      : `<span class="badge-d">Daily</span>`;
+
+    const rateDisplay = row.isMonthly
+      ? `<b>₹${w.wage}</b>/M <small style="color:#64748b">(₹${row.perDayRate.toFixed(0)}/d)</small>`
+      : `₹${w.wage}/d`;
+
     const bankCell = wIdx >= 0
       ? `<select class="tbl-sel" onchange="updateWorkerCell(${wIdx},'bank',this.value)">${BANKS.map(b => `<option value="${b}" ${w.bank===b?'selected':''}>${b || '-- Select Bank --'}</option>`).join('')}</select>`
       : (w.bank || '');
 
     const ifscCell = wIdx >= 0
-      ? `<select class="tbl-sel" onchange="updateWorkerCell(${wIdx},'ifsc',this.value)">${getIfscOptionsHtml(w.bank || "", w.ifsc || "")}</select>`
+      ? `<input class="tbl-inp" value="${w.ifsc || ''}" list="att_ifsc_${wIdx}" style="text-transform:uppercase;" placeholder="${w.bank ? 'Select/Type IFSC' : 'Select Bank First'}" onchange="updateWorkerCell(${wIdx},'ifsc',this.value)"><datalist id="att_ifsc_${wIdx}">${getIfscDatalistHtml(w.bank || "")}</datalist>`
       : (w.ifsc || '');
 
     return `
@@ -632,11 +969,12 @@ function renderAll() {
         <td class="sticky-col-1">${row.sr}</td>
         <td class="sticky-col-2">${w.name}</td>
         <td style="text-align:center;"><b>${w.desig}</b></td>
-        <td>₹${w.wage}</td>
+        <td>${modeBadge}</td>
+        <td>${rateDisplay}</td>
         ${dayCells}
         <td class="tot-cell">${row.totalDays}</td>
         <td class="tot-cell">₹${row.totalEarned}</td>
-        <td class="tot-cell" style="color:#b91c1c;">₹${row.totalHafta}</td>
+        <td class="tot-cell" style="color:#b91c1c;" contenteditable="${editMode}" onblur="updateWorkerMonthlyAdvance('${w.name.replace(/'/g, "\\'")}', '${m}', this.innerText)">${editMode ? row.totalHafta : '₹' + row.totalHafta}</td>
         <td class="tot-cell" style="background:#dcfce7 !important; color:#166534;">₹${row.netPayable}</td>
         <td>${w.aadhaar || ''}</td>
         <td>${w.pan || ''}</td>
@@ -648,13 +986,27 @@ function renderAll() {
     `;
   }).join('');
 
+  const grandTotalRowHtml = `
+    <tr class="grand-tot-row">
+      <td class="sticky-col-1">∑</td>
+      <td class="sticky-col-2">GRAND TOTAL (${matrixRows.length})</td>
+      <td colspan="${3 + totalDaysInMonth}" style="text-align:right;">TOTAL LABOUR SUMMARY:</td>
+      <td style="text-align:right;">${totHajeri}</td>
+      <td style="text-align:right;">₹${totEarned}</td>
+      <td style="text-align:right;">₹${totHafta}</td>
+      <td style="text-align:right;">₹${netPay}</td>
+      <td colspan="6"></td>
+    </tr>
+  `;
+
   document.getElementById('t_att').innerHTML = `
     <thead>
       <tr>
         <th class="sticky-col-1">Sr</th>
         <th class="sticky-col-2">Worker Name</th>
         <th>Pad</th>
-        <th>Rate</th>
+        <th>Mode</th>
+        <th>Rate / Salary</th>
         ${dayHeaders}
         <th>Total Days</th>
         <th>Earned ₹</th>
@@ -663,43 +1015,126 @@ function renderAll() {
         <th>Aadhaar No</th>
         <th>PAN No</th>
         <th>UAN No</th>
-        <th>Bank Name (Dropdown)</th>
+        <th>Bank Name</th>
         <th>Account No</th>
-        <th>IFSC Code (Dropdown)</th>
+        <th>IFSC (Select / Type)</th>
       </tr>
     </thead>
-    <tbody>${bodyHtml}</tbody>
+    <tbody>${bodyHtml}${grandTotalRowHtml}</tbody>
   `;
 
-  const matCols = ['date','site','supplier','item','qty','rate','total','status','remark'];
+  // TAB 2: MATERIAL & BILLS
+  let matRowsHtml = "";
+  for (let i = 0; i < mat.length; i++) {
+    const r = mat[i];
+    const qNum = r.qtyNum !== undefined ? r.qtyNum : (parseFloat(r.qty) || 0);
+    const unitStr = r.unit || (String(r.qty || "").replace(/[0-9.\s]/g, '') || "Nos");
+    const photos = getPhotosForRecord(r);
+    const thumbsHtml = photos.slice(0, 2).map(src => `<img src="${src}" class="thumb-img" onclick="openBillGallery('${r._key}')">`).join('');
+
+    matRowsHtml += `
+      <tr>
+        <td>${i + 1}</td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','date',this.innerText)">${r.date || ''}</td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','billNo',this.innerText)">${r.billNo || '-'}</td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','site',this.innerText)">${r.site || ''}</td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','supplier',this.innerText)"><b>${r.supplier || ''}</b></td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','item',this.innerText)">${r.item || ''}</td>
+        <td contenteditable="${editMode}" style="font-weight:bold; text-align:center;" onblur="updateMaterialCell('${r._key}','qtyNum',this.innerText)">${qNum}</td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','unit',this.innerText)">${unitStr}</td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','rate',this.innerText)">${r.rate || 0}</td>
+        <td class="tot-cell">₹${r.total || 0}</td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','status',this.innerText)">${r.status || ''}</td>
+        <td contenteditable="${editMode}" onblur="updateMaterialCell('${r._key}','remark',this.innerText)">${r.remark || ''}</td>
+        <td class="no-print">
+          ${thumbsHtml}
+          <button class="btn-bill" onclick="openBillGallery('${r._key}')">🧾 ${photos.length > 0 ? photos.length + ' Photos' : '+ Add Photo'}</button>
+        </td>
+        ${editMode ? `<td class="no-print"><button class="btn-del" onclick="deleteCloudRow('material','${r._key}')">🗑️</button></td>` : ''}
+      </tr>
+    `;
+
+    const grp = r.billGroupId;
+    const nextGrp = (i + 1 < mat.length) ? mat[i + 1].billGroupId : null;
+    if (grp && grp !== nextGrp) {
+      const grpItems = mat.filter(x => x.billGroupId === grp);
+      if (grpItems.length > 1) {
+        const grpSum = grpItems.reduce((s, x) => s + Number(x.total || 0), 0);
+        const grpQty = grpItems.reduce((s, x) => s + (Number(x.qtyNum) || parseFloat(x.qty) || 0), 0);
+        matRowsHtml += `
+          <tr class="bill-subtotal-row">
+            <td colspan="6" style="text-align:right;">🧾 Bill Sub-Total (${r.supplier} • ${r.date}):</td>
+            <td style="text-align:center;">${grpQty}</td>
+            <td>Items</td>
+            <td></td>
+            <td style="text-align:right;">₹${grpSum}</td>
+            <td colspan="${editMode ? 4 : 3}"></td>
+          </tr>
+        `;
+      }
+    }
+  }
+
   document.getElementById('t_mat').innerHTML = `
-    <thead><tr><th>Date</th><th>Site</th><th>Supplier</th><th>Material</th><th>Qty</th><th>Rate</th><th>Total ₹</th><th>Status</th><th>Remark</th><th class="no-print">Bill Photo</th></tr></thead>
-    <tbody>${mat.map(r => `<tr>
-      ${matCols.map(c => `<td contenteditable="${editMode}" onblur="updateCloudCell('material','${r._key}','${c}',this.innerText)">${r[c] ?? ''}</td>`).join('')}
-      <td class="no-print">${r.billImg ? `<button class="btn-bill" onclick="openBillModal('${r.billImg}', '${r.item} - ${r.date}')">🧾 View Bill</button>` : '<span style="color:#94a3b8">No Bill</span>'}</td>
-    </tr>`).join('')}</tbody>
+    <thead>
+      <tr>
+        <th>Sr</th><th>Date</th><th>Bill No</th><th>Site</th><th>Supplier</th>
+        <th>Vastu (Material)</th><th>Qty</th><th>Unit</th><th>Rate ₹</th><th>Total ₹</th>
+        <th>Status</th><th>Remark</th><th class="no-print">Bill Photos</th>
+        ${editMode ? '<th class="no-print">Del</th>' : ''}
+      </tr>
+    </thead>
+    <tbody>
+      ${mat.length === 0 ? `<tr><td colspan="14" style="text-align:center; padding:16px; color:#64748b;">Ya mahinyachi material bill nond nahi.</td></tr>` : matRowsHtml}
+      ${mat.length > 0 ? `
+        <tr style="background:#dcfce7; font-weight:bold;">
+          <td colspan="6" style="text-align:right;">GRAND TOTAL (ALL BILLS):</td>
+          <td style="text-align:center; color:#166534;">${totMatQty}</td>
+          <td>Items</td>
+          <td></td>
+          <td style="text-align:right; color:#166534; font-size:14px;">₹${totMat}</td>
+          <td colspan="${editMode ? 4 : 3}"></td>
+        </tr>
+      ` : ''}
+    </tbody>
   `;
 
+  // TAB 3: DAILY REPORT
   const repCols = ['date','site','work','petty','req','note'];
   document.getElementById('t_rep').innerHTML = `
-    <thead><tr><th>Date</th><th>Site</th><th>Work Done Today</th><th>Petty Cash ₹</th><th>Tomorrow Req</th><th>Note</th></tr></thead>
-    <tbody>${rep.map(r => `<tr>${repCols.map(c => `<td contenteditable="${editMode}" onblur="updateCloudCell('report','${r._key}','${c}',this.innerText)">${r[c] ?? ''}</td>`).join('')}</tr>`).join('')}</tbody>
+    <thead><tr><th>Sr</th><th>Date</th><th>Site</th><th>Work Done Today</th><th>Petty Cash ₹</th><th>Tomorrow Req</th><th>Note</th>${editMode ? '<th class="no-print">Del</th>' : ''}</tr></thead>
+    <tbody>
+      ${rep.length === 0 ? `<tr><td colspan="8" style="text-align:center; padding:16px; color:#64748b;">Ya mahinyacha Daily Report nahi.</td></tr>` : rep.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          ${repCols.map(c => `<td contenteditable="${editMode}" onblur="updateCloudCell('report','${r._key}','${c}',this.innerText)">${r[c] ?? ''}</td>`).join('')}
+          ${editMode ? `<td class="no-print"><button class="btn-del" onclick="deleteCloudRow('report','${r._key}')">🗑️</button></td>` : ''}
+        </tr>
+      `).join('')}
+    </tbody>
   `;
 
+  // TAB 4: KYC & BANK MASTER
   document.getElementById('t_mst').innerHTML = `
-    <thead><tr><th>Sr</th><th>Worker Name</th><th>Pad</th><th>Base Wage ₹</th><th>Aadhaar No</th><th>PAN No</th><th>UAN No</th><th>Bank Name (Dropdown)</th><th>Account Number</th><th>IFSC Code (Dropdown)</th></tr></thead>
+    <thead><tr><th>Sr</th><th>Worker Name</th><th>Pad</th><th>Pagar Mode</th><th>Roz / Month ₹</th><th>Aadhaar No</th><th>PAN No</th><th>UAN No</th><th>Bank Name</th><th>Account Number</th><th>IFSC (Select / Type)</th></tr></thead>
     <tbody>${cloudWorkers.map((w, idx) => `
       <tr>
         <td>${idx+1}</td>
         <td contenteditable="${editMode}" onblur="updateWorkerCell(${idx},'name',this.innerText)">${w.name||''}</td>
         <td contenteditable="${editMode}" onblur="updateWorkerCell(${idx},'desig',this.innerText)">${w.desig||''}</td>
+        <td>
+          <select class="tbl-sel" style="min-width:90px" onchange="updateWorkerCell(${idx},'payType',this.value)">
+            <option value="Daily" ${(w.payType||'Daily')==='Daily'?'selected':''}>Daily Roz</option>
+            <option value="Monthly" ${w.payType==='Monthly'?'selected':''}>Monthly</option>
+          </select>
+        </td>
         <td contenteditable="${editMode}" onblur="updateWorkerCell(${idx},'wage',this.innerText)">${w.wage||0}</td>
         <td contenteditable="${editMode}" onblur="updateWorkerCell(${idx},'aadhaar',this.innerText)">${w.aadhaar||''}</td>
         <td contenteditable="${editMode}" onblur="updateWorkerCell(${idx},'pan',this.innerText)">${w.pan||''}</td>
         <td contenteditable="${editMode}" onblur="updateWorkerCell(${idx},'uan',this.innerText)">${w.uan||''}</td>
         <td><select class="tbl-sel" onchange="updateWorkerCell(${idx},'bank',this.value)">${BANKS.map(b => `<option value="${b}" ${w.bank===b?'selected':''}>${b || '-- Select Bank --'}</option>`).join('')}</select></td>
         <td contenteditable="${editMode}" onblur="updateWorkerCell(${idx},'acc',this.innerText)">${w.acc||''}</td>
-        <td><select class="tbl-sel" onchange="updateWorkerCell(${idx},'ifsc',this.value)">${getIfscOptionsHtml(w.bank || "", w.ifsc || "")}</select></td>
+        <td><input class="tbl-inp" value="${w.ifsc||''}" list="mst_c_ifsc_${idx}" style="text-transform:uppercase;" placeholder="${w.bank ? 'Select/Type IFSC' : 'Select Bank First'}" onchange="updateWorkerCell(${idx},'ifsc',this.value)"><datalist id="mst_c_ifsc_${idx}">${getIfscDatalistHtml(w.bank || "")}</datalist></td>
       </tr>
     `).join('')}</tbody>
   `;
@@ -734,6 +1169,10 @@ function colToLetter(col) {
   return letter;
 }
 
+function bankToExcelRangeName(bankName) {
+  return "IFSC_" + bankName.replace(/[^A-Za-z0-9]/g, "_");
+}
+
 async function downloadStyledExcel(mode) {
   const m = document.getElementById('monthFilter').value;
   const wFilter = document.getElementById('workerFilter').value;
@@ -745,14 +1184,22 @@ async function downloadStyledExcel(mode) {
   const wb = new ExcelJS.Workbook();
   wb.creator = "Achyuth Enterprises";
 
-  // Hidden Lookup Sheet for Excel Dropdowns (Banks & IFSCs)
   const wsLookup = wb.addWorksheet("Dropdown_Lists");
   wsLookup.state = "hidden";
   const validBanks = BANKS.filter(Boolean);
   validBanks.forEach((b, i) => { wsLookup.getCell(`A${i + 1}`).value = b; });
-  ALL_IFSC_LIST.forEach((code, i) => { wsLookup.getCell(`B${i + 1}`).value = code; });
   const bankRangeFormula = `Dropdown_Lists!$A$1:$A$${validBanks.length}`;
-  const ifscRangeFormula = `Dropdown_Lists!$B$1:$B$${ALL_IFSC_LIST.length}`;
+
+  validBanks.forEach((b, bIdx) => {
+    const colIdx = bIdx + 2;
+    const colL = colToLetter(colIdx);
+    const codes = BANK_IFSC_MAP[b] || [""];
+    codes.forEach((code, rIdx) => {
+      wsLookup.getCell(`${colL}${rIdx + 1}`).value = code;
+    });
+    const rangeName = bankToExcelRangeName(b);
+    wb.definedNames.add(`Dropdown_Lists!$${colL}$1:$${colL}$${Math.max(1, codes.length)}`, rangeName);
+  });
 
   function setupStyledSheet(sheetName, titleText, headers, rowsData, colWidths) {
     const ws = wb.addWorksheet(sheetName);
@@ -794,14 +1241,14 @@ async function downloadStyledExcel(mode) {
     }
 
     const headers = [
-      "Sr", "Worker Name", "Pad", "Base Wage (₹)",
+      "Sr", "Worker Name", "Pad", "Pagar Mode", "Roz / Monthly (₹)",
       ...dayCols,
       "Total Days", "Earned Pay (₹)", "Advance (₹)", "Net Payable (₹)",
       "Aadhaar No", "PAN No", "UAN No", "Bank Name", "Account No", "IFSC Code"
     ];
 
-    const firstDayColIdx = 5;
-    const lastDayColIdx = 4 + totalDaysInMonth;
+    const firstDayColIdx = 6;
+    const lastDayColIdx = 5 + totalDaysInMonth;
     const totDaysColIdx = lastDayColIdx + 1;
     const earnedColIdx = lastDayColIdx + 2;
     const advColIdx = lastDayColIdx + 3;
@@ -826,11 +1273,12 @@ async function downloadStyledExcel(mode) {
         const rec = row.dayMap[d];
         dVals.push(rec && Number(rec.mult) > 0 ? Number(rec.mult) : "");
       }
+      const earnedFormula = `IF(D${rNum}="Monthly",ROUND((E${rNum}/${totalDaysInMonth})*${totDaysL}${rNum},0),ROUND(E${rNum}*${totDaysL}${rNum},0))`;
       return [
-        row.sr, w.name, w.desig, w.wage,
+        row.sr, w.name, w.desig, w.payType || "Daily", w.wage,
         ...dVals,
         { formula: `SUM(${firstDayL}${rNum}:${lastDayL}${rNum})`, result: row.totalDays },
-        { formula: `ROUND(${totDaysL}${rNum}*D${rNum},0)`, result: row.totalEarned },
+        { formula: earnedFormula, result: row.totalEarned },
         row.totalHafta,
         { formula: `${earnedL}${rNum}-${advL}${rNum}`, result: row.netPayable },
         w.aadhaar || "", w.pan || "", w.uan || "", w.bank || "", w.acc || "", w.ifsc || ""
@@ -838,7 +1286,7 @@ async function downloadStyledExcel(mode) {
     });
 
     const widths = [
-      5, 22, 7, 13,
+      5, 22, 7, 12, 16,
       ...dayWidths,
       11, 15, 13, 15,
       16, 14, 16, 22, 18, 15
@@ -846,22 +1294,25 @@ async function downloadStyledExcel(mode) {
 
     const wsAtt = setupStyledSheet(
       "Master_Attendance_Card",
-      "WORKER-WISE MASTER ATTENDANCE & PAYROLL CARD (1 = 6PM | 1.5 = 8PM | 2 = 9PM+)",
+      `MASTER ATTENDANCE & PAYROLL CARD (${totalDaysInMonth} DAYS • DAILY & MONTHLY AUTO-CALC)`,
       headers,
       rowsData,
       widths
     );
 
-    // Apply Excel Dropdowns for Bank Name and IFSC Code across all worker rows
     for (let r = 3; r <= Math.max(60, matrixRows.length + 5); r++) {
+      wsAtt.getCell(`D${r}`).dataValidation = { type: 'list', allowBlank: false, formulae: ['"Daily,Monthly"'] };
       wsAtt.getCell(`${bankL}${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [bankRangeFormula] };
-      wsAtt.getCell(`${ifscL}${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ifscRangeFormula] };
+      wsAtt.getCell(`${ifscL}${r}`).dataValidation = {
+        type: 'list', allowBlank: true, showErrorMessage: false,
+        formulae: [`IF(${bankL}${r}="","",INDIRECT("IFSC_"&SUBSTITUTE(${bankL}${r}," ","_")))`]
+      };
     }
 
     matrixRows.forEach((row, idx) => {
       const excelRow = wsAtt.getRow(idx + 3);
       for (let d = 1; d <= totalDaysInMonth; d++) {
-        const cell = excelRow.getCell(4 + d);
+        const cell = excelRow.getCell(5 + d);
         cell.alignment = { horizontal: 'center' };
         if (row.dayMap[d] && Number(row.dayMap[d].mult) > 0) {
           cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCFCE7' } };
@@ -870,10 +1321,10 @@ async function downloadStyledExcel(mode) {
       }
     });
 
-    const lastDataRow = matrixRows.length + 2;
+    const lastDataRow = Math.max(3, matrixRows.length + 2);
     const emptyDays = new Array(totalDaysInMonth).fill("");
     const totRow = wsAtt.addRow([
-      "", "TOTAL PAYOUT", "", "",
+      "", "TOTAL PAYOUT", "", "", "",
       ...emptyDays,
       { formula: `SUM(${totDaysL}3:${totDaysL}${lastDataRow})` },
       { formula: `SUM(${earnedL}3:${earnedL}${lastDataRow})` },
@@ -887,13 +1338,28 @@ async function downloadStyledExcel(mode) {
   if (mode === 'ALL' || mode === 'MAT') {
     const wsMat = setupStyledSheet(
       "Material_Sheet",
-      "MATERIAL & HARDWARE SUPPLY SHEET",
-      ["Date", "Site", "Supplier / Hardware", "Material Name", "Qty & Unit", "Rate (₹)", "Total Amount (₹)", "Payment Status", "Bill / Remark", "Bill Attached"],
-      mat.map(r => [r.date, r.site, r.supplier, r.item, r.qty, r.rate, r.total, r.status, r.remark, r.billImg ? "Yes (Uploaded)" : "No"]),
-      [13, 15, 22, 24, 14, 12, 16, 16, 20, 15]
+      "HARDWARE MATERIAL & BILLS (PER-ITEM QTY, RATE, TOTAL & PHOTO COUNT)",
+      ["Sr", "Date", "Bill No", "Site", "Supplier / Hardware", "Material Item", "Quantity", "Unit", "Rate (₹)", "Total Amount (₹)", "Payment Status", "Remark", "Bill Photos"],
+      mat.map((r, i) => {
+        const rNum = i + 3;
+        const qNum = r.qtyNum !== undefined ? r.qtyNum : (parseFloat(r.qty) || 0);
+        const unitStr = r.unit || (String(r.qty || "").replace(/[0-9.\s]/g, '') || "Nos");
+        const pCount = getPhotosForRecord(r).length;
+        return [
+          i + 1, r.date, r.billNo || "-", r.site, r.supplier, r.item,
+          qNum, unitStr, r.rate || 0,
+          { formula: `ROUND(G${rNum}*I${rNum},0)`, result: r.total || 0 },
+          r.status, r.remark || "", pCount > 0 ? `${pCount} Photo(s) Attached` : "No"
+        ];
+      }),
+      [6, 12, 12, 15, 22, 24, 11, 10, 12, 16, 16, 20, 18]
     );
-    const matLast = mat.length + 2;
-    const matTotRow = wsMat.addRow(["", "", "", "TOTAL MATERIAL COST", "", "", { formula: `SUM(G3:G${matLast})` }, "", "", ""]);
+    const matLast = Math.max(3, mat.length + 2);
+    const matTotRow = wsMat.addRow([
+      "", "", "", "", "", "TOTAL MATERIAL COST & QTY",
+      { formula: `SUM(G3:G${matLast})` }, "", "",
+      { formula: `SUM(J3:J${matLast})` }, "", "", ""
+    ]);
     matTotRow.eachCell(c => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCFCE7' } }; });
   }
 
@@ -905,7 +1371,7 @@ async function downloadStyledExcel(mode) {
       rep.map(r => [r.date, r.site, r.work, r.petty, r.req, r.note]),
       [13, 16, 38, 15, 30, 25]
     );
-    const repLast = rep.length + 2;
+    const repLast = Math.max(3, rep.length + 2);
     const repTotRow = wsRep.addRow(["", "", "TOTAL PETTY CASH", { formula: `SUM(D3:D${repLast})` }, "", ""]);
     repTotRow.eachCell(c => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } }; });
   }
@@ -914,13 +1380,17 @@ async function downloadStyledExcel(mode) {
     const wsMst = setupStyledSheet(
       "Worker_KYC_Bank_Master",
       "WORKER KYC (AADHAAR / PAN / UAN) & BANK MASTER",
-      ["Worker Name", "Pad", "Base Wage (₹)", "Aadhaar Number", "PAN Number", "UAN Number", "Bank Name", "Account Number", "IFSC Code"],
-      cloudWorkers.map(w => [w.name, w.desig, w.wage, w.aadhaar || "", w.pan || "", w.uan || "", w.bank || "", w.acc || "", w.ifsc || ""]),
-      [24, 10, 15, 18, 15, 18, 22, 20, 15]
+      ["Worker Name", "Pad", "Pagar Mode", "Roz / Monthly (₹)", "Aadhaar Number", "PAN Number", "UAN Number", "Bank Name", "Account Number", "IFSC Code"],
+      cloudWorkers.map(w => [w.name, w.desig, w.payType || "Daily", w.wage, w.aadhaar || "", w.pan || "", w.uan || "", w.bank || "", w.acc || "", w.ifsc || ""]),
+      [24, 10, 12, 16, 18, 15, 18, 22, 20, 15]
     );
     for (let r = 3; r <= Math.max(60, cloudWorkers.length + 5); r++) {
-      wsMst.getCell(`G${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [bankRangeFormula] };
-      wsMst.getCell(`I${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ifscRangeFormula] };
+      wsMst.getCell(`C${r}`).dataValidation = { type: 'list', allowBlank: false, formulae: ['"Daily,Monthly"'] };
+      wsMst.getCell(`H${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [bankRangeFormula] };
+      wsMst.getCell(`J${r}`).dataValidation = {
+        type: 'list', allowBlank: true, showErrorMessage: false,
+        formulae: [`IF(H${r}="","",INDIRECT("IFSC_"&SUBSTITUTE(H${r}," ","_")))`]
+      };
     }
   }
 
@@ -943,7 +1413,7 @@ async function downloadStyledExcel(mode) {
 if (sessionStorage.getItem('ae_client_auth') === '1') {
   document.getElementById('clientLoginScreen').style.display = 'none';
   document.getElementById('clientMainApp').style.display = 'block';
-  fetchCloudData();
+  fetchCloudData(false);
 }
 </script>
 </body>

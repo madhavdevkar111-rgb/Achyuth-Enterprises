@@ -15,7 +15,7 @@
     .login-box button { width: 100%; background: #16a34a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
     .err-msg { color: #dc2626; font-size: 13px; font-weight: bold; margin-top: 8px; display: none; }
 
-    .container { max-width: 900px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; display: none; }
+    .container { max-width: 920px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; display: none; }
     .header { background: #1e3a8a; color: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
     .header h1 { margin: 0; font-size: 18px; }
     .header p { margin: 2px 0 0; font-size: 12px; color: #93c5fd; }
@@ -40,8 +40,6 @@
     th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
     th { background: #f8fafc; white-space: nowrap; }
     td input, td select { padding: 5px; font-size: 12px; margin: 0; min-width: 75px; }
-    .preview-box { margin-top: 8px; display: none; text-align: center; }
-    .preview-box img { max-height: 150px; border-radius: 8px; border: 1px solid #cbd5e1; }
     .status-pill { font-size: 12px; background: #e0f2fe; color: #0369a1; padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; font-weight: 600; }
 
     .search-input { border: 2px solid #2563eb; background: #eff6ff; font-size: 16px; font-weight: 600; padding: 12px; }
@@ -52,9 +50,12 @@
     .summary-strip div span { font-size: 11px; color: #bfdbfe; display: block; }
     .summary-strip div strong { font-size: 15px; }
 
-    /* Multi-Item Material Table */
     .mat-item-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 10px; }
     .mat-item-row { display: grid; grid-template-columns: 2fr 0.9fr 1fr 1fr 1fr auto; gap: 6px; align-items: end; margin-bottom: 8px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .multi-preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .multi-preview-item { position: relative; border: 1px solid #94a3b8; border-radius: 6px; overflow: hidden; width: 90px; height: 90px; }
+    .multi-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .multi-preview-item button { position: absolute; top: 2px; right: 2px; background: #dc2626; color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; cursor: pointer; }
     @media (max-width: 650px) {
       .mat-item-row { grid-template-columns: 1fr 1fr; }
     }
@@ -76,7 +77,7 @@
   <div class="header">
     <div>
       <h1>Achyuth Enterprises 🟢 Live</h1>
-      <p>Daily Roz + Monthly Salary • Live Sync with Client Viewer</p>
+      <p>Daily Roz + Monthly Salary • 100% Synced Admin</p>
     </div>
     <a href="../Client/" class="viewer-link">📊 Owner Sheet</a>
   </div>
@@ -87,7 +88,7 @@
     <button class="tab-btn" onclick="openTab('editAtt', this); loadAttendanceEditor();">✏️ Hajeri Edit</button>
     <button class="tab-btn" onclick="openTab('mst', this)">🏦 Master Plan</button>
     <button class="tab-btn" onclick="openTab('enr', this)">🆕 New Enrollment</button>
-    <button class="tab-btn" onclick="openTab('mat', this)">🧱 Material + Bill</button>
+    <button class="tab-btn" onclick="openTab('mat', this)">🧱 Material + Bills</button>
     <button class="tab-btn" onclick="openTab('rep', this)">📋 Daily Report</button>
   </div>
 
@@ -164,7 +165,7 @@
         <div class="kyc-box-title">📋 3. Ya Kamgarachi Hajeri & Advance Yadi</div>
         <div style="overflow-x:auto; max-height:260px;">
           <table id="qs_historyTable">
-            <thead><tr><th>Date</th><th>Vel</th><th>Day Rate ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Del</th></tr></thead>
+            <thead><tr><th>Date</th><th>Vel</th><th>Rate ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Del</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -200,7 +201,7 @@
     </div>
 
     <div class="grid-2">
-      <div><label id="a_wageLbl">Base Roz / Per-Day Calc (₹)</label><input type="number" id="a_wage" value="700" oninput="updateWagePreview()"></div>
+      <div><label id="a_wageLbl">Base Roz / Monthly Salary (₹)</label><input type="number" id="a_wage" value="700" oninput="updateWagePreview()"></div>
       <div><label>Hafta / Uchal (Advance ₹)</label><input type="number" id="a_hafta" value="0" oninput="updateWagePreview()"></div>
     </div>
 
@@ -255,7 +256,7 @@
       <table id="editAttTable">
         <thead>
           <tr>
-            <th>Date</th><th>Kamgarache Naav</th><th>Pad</th><th>Out Time</th><th>Day Rate ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Delete</th>
+            <th>Date</th><th>Kamgarache Naav</th><th>Pad</th><th>Out Time</th><th>Rate ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Delete</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -328,10 +329,10 @@
     <button class="btn-primary" onclick="enrollNewWorker()">➕ Navin Kamgar Live Save Kara</button>
   </div>
 
-  <!-- TAB 5: MULTI-ITEM MATERIAL + BILL PHOTO -->
+  <!-- TAB 5: MULTI-ITEM MATERIAL + MULTIPLE BILL PHOTOS -->
   <div id="mat" class="content">
-    <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🧱 Hardware Material Bill Entry (Multiple Items + Bill Photo)</h3>
-    <p style="font-size:12px; color:#475569; margin-top:0;">Ekach bill madhe anek vastu (Sutali, Hathoda, Cement, Pipe...) joda — pratyek vastuchi vegli quantity ani rate bharun bill photo sahit live save kara.</p>
+    <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🧱 Hardware Material Bill Entry (Multiple Items + Multiple Bill Photos)</h3>
+    <p style="font-size:12px; color:#475569; margin-top:0;">Ekach divasache kiwa ekach site che anek bill photos (multiple photos) ani anek vastu vegveglya quantity sahit upload kara.</p>
 
     <div class="grid-3">
       <div><label>Tarikh (Date)</label><input type="date" id="m_date"></div>
@@ -351,7 +352,6 @@
       </div>
     </div>
 
-    <!-- Dynamic List of Hardware Items -->
     <div class="mat-item-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <strong style="font-size:13px; color:#1e3a8a;">📦 Vastunchi Yadi (Pratyek Vastuchi Quantity & Rate):</strong>
@@ -382,11 +382,11 @@
     <label>Remark / Tip</label>
     <input type="text" id="m_remark" placeholder="Kahi vishesh mahiti">
 
-    <label>📸 Bill / Pavti Photo Upload Kara (Client Viewer madhe Live disel)</label>
-    <input type="file" id="m_billFile" accept="image/*" capture="environment" onchange="compressBillImage(this)">
-    <div class="preview-box" id="billPreviewBox"><img id="billPreviewImg" src="" alt="Bill"></div>
+    <label>📸 Multiple Bill / Pavti Photos Upload Kara (Ekach veli anek photos nivda kiwa ajun joda)</label>
+    <input type="file" id="m_billFile" accept="image/*" multiple onchange="compressMultipleBillImages(this)">
+    <div id="billMultiPreviewBox" class="multi-preview-grid"></div>
 
-    <button class="btn-primary" onclick="saveMaterial()">✅ Material Bill + Photo Client Viewer Var Live Save Kara</button>
+    <button class="btn-primary" onclick="saveMaterial()">✅ Material Bill + Sarva Photos Live Save Kara</button>
   </div>
 
   <!-- TAB 6: DAILY REPORT -->
@@ -408,7 +408,7 @@
     <label>Supervisor Note / Adchan</label>
     <input type="text" id="r_note" placeholder="Kahi vishesh mahiti">
 
-    <button class="btn-primary" onclick="saveReport()">✅ Daily Report Live Save Kara</button>
+    <button class="btn-primary" onclick="saveReport()">✅ Daily Report Client Viewer Var Live Save Kara</button>
   </div>
 
   <div id="toast" class="toast"></div>
@@ -443,6 +443,27 @@ let BANK_IFSC_MAP = {
   "IDBI Bank": ["IBKL0000007", "IBKL0000491"]
 };
 
+const LEGACY_NAME_MAP = {
+  "Mahesh": "MAHESH Prasad",
+  "Kamlesh": "Kamlesh kumar",
+  "Chavan": "Ganesh Babarao Chavan",
+  "Karan": "KARAN WAGHMARE",
+  "Rajaram": "RAJARAM",
+  "Shivsampath": "shiva Sampat",
+  "Prakash": "Prakash Kaknu Lohbande",
+  "Anil-1": "Anil Kairal Kumar",
+  "Anil-2": "Anil Kumar",
+  "Saroj": "Saroj Kumar",
+  "Arun": "ARUN PAWAR",
+  "Ramsharan": "Ramsaran",
+  "Buradas": "BHURA DAS",
+  "Rajbahaddur": "Rajbahadur",
+  "Akshay Noda": "AKSHAT NOOLA",
+  "Ganesh": "GANESH PANCHAL",
+  "Gautam": "Goutam Mahadu Sonkambie",
+  "Shivshankar": "SHIVSHANKAR 1"
+};
+
 function registerCustomIfsc(bankName, ifscCode) {
   if (!bankName || !ifscCode) return;
   const code = ifscCode.trim().toUpperCase();
@@ -462,14 +483,19 @@ function onBankSelectChange(bankSelId, ifscInputId, datalistId) {
   document.getElementById(datalistId).innerHTML = getIfscDatalistHtml(b);
 }
 
-function getEffectiveDailyRate(worker, dateStr) {
-  const base = Number(worker.wage) || 0;
-  if (worker.payType === "Monthly") {
-    const parts = (dateStr || "2026-11-01").split('-').map(Number);
-    const daysInMonth = (parts.length >= 2) ? new Date(parts[0], parts[1], 0).getDate() : 30;
-    return base / daysInMonth;
+function getDaysInMonth(ym) {
+  const [y, m] = (ym || "2026-11").split('-').map(Number);
+  return new Date(y, m, 0).getDate();
+}
+
+function calcLineEarned(payType, wage, mult, dateStr) {
+  const wAmt = Number(wage) || 0;
+  const mVal = Number(mult) || 0;
+  if (payType === "Monthly") {
+    const dim = getDaysInMonth((dateStr || "2026-11").slice(0, 7));
+    return Math.round((wAmt / dim) * mVal);
   }
-  return base;
+  return Math.round(wAmt * mVal);
 }
 
 const OUT_TIME_LABELS = {
@@ -549,7 +575,7 @@ let workers = [...DEFAULT_WORKERS];
 let originalWorkerNames = workers.map(w => w.name);
 let cloudAttList = [];
 let selectedQsIdx = -1;
-let currentBillBase64 = "";
+let currentBillPhotos = [];
 let matItems = [{ item: "", qty: 1, unit: "Nos", rate: 0 }];
 
 const today = new Date().toISOString().split('T')[0];
@@ -585,55 +611,75 @@ async function initCloudSync() {
   initUI();
   renderMatItemRows();
   try {
-    const wRes = await fetch(`${DB_URL}/workers.json`);
+    const [wRes, initRes] = await Promise.all([
+      fetch(`${DB_URL}/workers.json?t=${Date.now()}`),
+      fetch(`${DB_URL}/meta/workers_initialized.json?t=${Date.now()}`)
+    ]);
     const wData = await wRes.json();
-    if (wData && Array.isArray(wData) && wData.length >= 38) {
+    const isInit = await initRes.json();
+
+    if (wData && Array.isArray(wData) && wData.length > 0 && (isInit === true || wData.length >= 38)) {
       workers = wData.map(w => ({
         payType: "Daily",
         ...((!w.acc && !w.bankManuallySet) ? { ...w, bank: "", ifsc: "" } : w)
       }));
       workers.forEach(w => registerCustomIfsc(w.bank, w.ifsc));
+      if (!isInit) {
+        await fetch(`${DB_URL}/meta/workers_initialized.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(true) });
+      }
     } else {
       await fetch(`${DB_URL}/workers.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(DEFAULT_WORKERS) });
+      await fetch(`${DB_URL}/meta/workers_initialized.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(true) });
       workers = [...DEFAULT_WORKERS];
     }
     originalWorkerNames = workers.map(w => w.name);
     initUI();
 
-    const aRes = await fetch(`${DB_URL}/attendance.json`);
+    const aRes = await fetch(`${DB_URL}/attendance.json?t=${Date.now()}`);
     const aData = await aRes.json();
+    const bulkPatch = {};
+    let needsPatch = false;
+
     if (!aData || !aData['nov26_0_01']) {
-      const bulkObj = {};
       NOV_2026_DAYS_BY_IDX.forEach((days, wIdx) => {
         const w = workers[wIdx];
         if (!w) return;
         days.forEach(dayNum => {
           const dd = String(dayNum).padStart(2, '0');
           const dateStr = `2026-11-${dd}`;
-          const effRate = getEffectiveDailyRate(w, dateStr);
-          const earned = Math.round(effRate * 1);
-          bulkObj[`nov26_${wIdx}_${dd}`] = {
-            date: dateStr,
-            name: w.name,
-            desig: w.desig,
-            payType: w.payType || "Daily",
-            outTime: "Up to 6:00 PM (1x)",
-            mult: 1,
-            baseWage: Number(effRate.toFixed(2)),
-            earned: earned,
-            hafta: 0,
-            net: earned,
-            aadhaar: w.aadhaar || "",
-            pan: w.pan || "",
-            uan: w.uan || "",
-            bank: w.bank || "",
-            acc: w.acc || "",
-            ifsc: w.ifsc || ""
+          const earned = calcLineEarned(w.payType, w.wage, 1, dateStr);
+          bulkPatch[`nov26_${wIdx}_${dd}`] = {
+            date: dateStr, name: w.name, desig: w.desig, payType: w.payType || "Daily",
+            outTime: "Up to 6:00 PM (1x)", mult: 1, baseWage: Number(w.wage),
+            earned, hafta: 0, net: earned,
+            aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
+            bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
           };
+          needsPatch = true;
         });
       });
-      await fetch(`${DB_URL}/attendance.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(bulkObj) });
+    } else {
+      Object.keys(aData).forEach(k => {
+        const rec = aData[k];
+        if (rec && LEGACY_NAME_MAP[rec.name]) {
+          const newName = LEGACY_NAME_MAP[rec.name];
+          const w = workers.find(x => x.name === newName) || {};
+          bulkPatch[k] = {
+            ...rec,
+            name: newName,
+            pan: rec.pan || w.pan || "",
+            uan: rec.uan || w.uan || "",
+            aadhaar: rec.aadhaar || w.aadhaar || ""
+          };
+          needsPatch = true;
+        }
+      });
     }
+
+    if (needsPatch) {
+      await fetch(`${DB_URL}/attendance.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(bulkPatch) });
+    }
+
     await loadAllAttendanceSilent();
     initQuickSearch();
   } catch (e) { console.log("Cloud sync note:", e); }
@@ -641,7 +687,7 @@ async function initCloudSync() {
 
 async function loadAllAttendanceSilent() {
   try {
-    const res = await fetch(`${DB_URL}/attendance.json`);
+    const res = await fetch(`${DB_URL}/attendance.json?t=${Date.now()}`);
     const obj = await res.json();
     cloudAttList = obj ? Object.keys(obj).map(k => ({ _key: k, ...obj[k] })) : [];
     cloudAttList.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (a.name || "").localeCompare(b.name || ""));
@@ -669,7 +715,7 @@ function initUI() {
   filterSearchChips();
 }
 
-// ==================== MULTI-ITEM HARDWARE MATERIAL ====================
+// ==================== MULTI-ITEM & MULTIPLE BILL PHOTOS ====================
 function addMatItemRow() {
   matItems.push({ item: "", qty: 1, unit: "Nos", rate: 0 });
   renderMatItemRows();
@@ -736,26 +782,45 @@ function updateMatTotals() {
   document.getElementById('matGrandTotalBox').innerText = `Ekun Vastu: ${matItems.length} | Total Quantity: ${totalQty} | Ekun Bill Rakkam: ₹${grandTotal}`;
 }
 
-function compressBillImage(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const maxW = 750;
-      const scale = Math.min(1, maxW / img.width);
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      currentBillBase64 = canvas.toDataURL('image/jpeg', 0.68);
-      document.getElementById('billPreviewImg').src = currentBillBase64;
-      document.getElementById('billPreviewBox').style.display = 'block';
+function compressMultipleBillImages(input) {
+  const files = Array.from(input.files || []);
+  if (files.length === 0) return;
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const maxW = 550;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const compressed = canvas.toDataURL('image/jpeg', 0.55);
+        currentBillPhotos.push(compressed);
+        renderMultiBillPreviews();
+      };
+      img.src = e.target.result;
     };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
+  });
+  input.value = "";
+}
+
+function removeBillPhotoPreview(idx) {
+  currentBillPhotos.splice(idx, 1);
+  renderMultiBillPreviews();
+}
+
+function renderMultiBillPreviews() {
+  const box = document.getElementById('billMultiPreviewBox');
+  box.innerHTML = currentBillPhotos.map((src, idx) => `
+    <div class="multi-preview-item">
+      <img src="${src}" alt="Bill ${idx + 1}">
+      <button type="button" onclick="removeBillPhotoPreview(${idx})">✖</button>
+    </div>
+  `).join('');
 }
 
 async function saveMaterial() {
@@ -773,9 +838,8 @@ async function saveMaterial() {
   const remark = document.getElementById('m_remark').value.trim();
   const billGroupId = "bill_" + Date.now();
 
-  showToast("⏳ Material Bill + Photo Client Viewer var save hot aahe...");
+  showToast(`⏳ ${validItems.length} Vastu ani ${currentBillPhotos.length} Bill Photos save hot aahet...`);
 
-  // Save each item as an individual row linked to the same billGroupId so per-item qty, rate & total are crystal clear in Viewer & Excel
   const batchObj = {};
   validItems.forEach((it, idx) => {
     const q = Number(it.qty) || 0;
@@ -795,20 +859,26 @@ async function saveMaterial() {
       total: tot,
       status,
       remark,
-      billImg: currentBillBase64 || ""
+      billImgs: idx === 0 ? [...currentBillPhotos] : [],
+      billImg: idx === 0 && currentBillPhotos.length > 0 ? currentBillPhotos[0] : ""
     };
   });
 
-  await fetch(`${DB_URL}/material.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(batchObj) });
+  try {
+    const res = await fetch(`${DB_URL}/material.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(batchObj) });
+    if (!res.ok) throw new Error("Upload failed");
 
-  matItems = [{ item: "", qty: 1, unit: "Nos", rate: 0 }];
-  renderMatItemRows();
-  document.getElementById('m_billNo').value = "";
-  document.getElementById('m_remark').value = "";
-  document.getElementById('m_billFile').value = "";
-  document.getElementById('billPreviewBox').style.display = 'none';
-  currentBillBase64 = "";
-  showToast(`✅ ${validItems.length} Vastuncha Bill + Photo Live Save jhala! Client Viewer var lagech disel.`);
+    matItems = [{ item: "", qty: 1, unit: "Nos", rate: 0 }];
+    renderMatItemRows();
+    document.getElementById('m_billNo').value = "";
+    document.getElementById('m_remark').value = "";
+    const photoCount = currentBillPhotos.length;
+    currentBillPhotos = [];
+    renderMultiBillPreviews();
+    showToast(`✅ ${validItems.length} Vastuncha Bill + ${photoCount} Photos Live Save jhale!`);
+  } catch (e) {
+    alert("Bill save hotana adchan aali. Photos thode kami karun punha prayatna kara.");
+  }
 }
 
 // ==================== QUICK SEARCH LOGIC ====================
@@ -897,7 +967,7 @@ function refreshQuickWorkerStats() {
             <option value="0" ${r.mult==0?'selected':''}>0x</option>
           </select>
         </td>
-        <td>₹${r.baseWage}</td>
+        <td>₹${r.baseWage}${r.payType==='Monthly'?'/M':''}</td>
         <td><input type="number" value="${r.hafta||0}" style="min-width:60px" onchange="patchAttNum('${r._key}','hafta',this.value).then(refreshQuickWorkerStats)"></td>
         <td><b>₹${r.net||0}</b></td>
         <td><button class="btn-del" onclick="deleteAtt('${r._key}').then(refreshQuickWorkerStats)">✖</button></td>
@@ -912,8 +982,8 @@ function loadWorkerDateRecord() {
   if (!w || !d) return;
   const existing = cloudAttList.find(r => r.name === w.name && r.date === d);
   const noteEl = document.getElementById('qs_dateNote');
-  const effRate = getEffectiveDailyRate(w, d);
-  const modeInfo = w.payType === "Monthly" ? ` (Monthly ₹${w.wage} ÷ Month Days = ₹${effRate.toFixed(2)}/day)` : "";
+  const dim = getDaysInMonth(d.slice(0, 7));
+  const modeInfo = w.payType === "Monthly" ? ` (Monthly ₹${w.wage} ÷ ${dim} days)` : "";
   if (existing) {
     document.getElementById('qs_outTime').value = String(existing.mult);
     document.getElementById('qs_hafta').value = existing.hafta || 0;
@@ -933,8 +1003,7 @@ async function saveQuickAttendance() {
   const multStr = document.getElementById('qs_outTime').value;
   const mult = parseFloat(multStr) || 0;
   const hafta = parseFloat(document.getElementById('qs_hafta').value) || 0;
-  const effRate = getEffectiveDailyRate(w, d);
-  const earned = Math.round(effRate * mult);
+  const earned = calcLineEarned(w.payType, w.wage, mult, d);
   const net = earned - hafta;
 
   const existing = cloudAttList.find(r => r.name === w.name && r.date === d);
@@ -943,14 +1012,14 @@ async function saveQuickAttendance() {
   if (existing) {
     await fetch(`${DB_URL}/attendance/${existing._key}.json`, {
       method: 'PATCH', headers: JSON_HEADERS,
-      body: JSON.stringify({ outTime: OUT_TIME_LABELS[multStr], mult, payType: w.payType || "Daily", baseWage: Number(effRate.toFixed(2)), earned, hafta, net })
+      body: JSON.stringify({ outTime: OUT_TIME_LABELS[multStr], mult, payType: w.payType || "Daily", baseWage: Number(w.wage), earned, hafta, net })
     });
   } else {
     await fetch(`${DB_URL}/attendance.json`, {
       method: 'POST', headers: JSON_HEADERS,
       body: JSON.stringify({
         date: d, name: w.name, desig: w.desig, payType: w.payType || "Daily",
-        outTime: OUT_TIME_LABELS[multStr], mult, baseWage: Number(effRate.toFixed(2)), earned, hafta, net,
+        outTime: OUT_TIME_LABELS[multStr], mult, baseWage: Number(w.wage), earned, hafta, net,
         aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
         bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
       })
@@ -992,13 +1061,12 @@ async function saveQuickProfile() {
   const patchAll = {};
   cloudAttList.forEach(rec => {
     if (rec.name === oldName || rec.name === updated.name) {
-      const effRate = getEffectiveDailyRate(updated, rec.date);
-      const earned = Math.round(effRate * (Number(rec.mult) || 0));
+      const earned = calcLineEarned(updated.payType, updated.wage, rec.mult, rec.date);
       const net = earned - (Number(rec.hafta) || 0);
       patchAll[rec._key] = {
         ...rec,
         name: updated.name, desig: updated.desig, payType: updated.payType,
-        baseWage: Number(effRate.toFixed(2)), earned, net,
+        baseWage: Number(updated.wage), earned, net,
         aadhaar: updated.aadhaar, pan: updated.pan, uan: updated.uan,
         bank: updated.bank, acc: updated.acc, ifsc: updated.ifsc
       };
@@ -1017,12 +1085,11 @@ async function saveQuickProfile() {
 
 function fillWorkerBank() {
   const w = workers[document.getElementById('a_worker').value];
-  const d = document.getElementById('a_date').value;
   if (!w) return;
   const isM = w.payType === "Monthly";
-  document.getElementById('a_desig').value = `${w.desig} (${isM ? 'Monthly ₹'+w.wage : 'Daily ₹'+w.wage})`;
-  document.getElementById('a_wageLbl').innerText = isM ? `Monthly ₹${w.wage} ÷ Month Days = Per Day (₹)` : "Base Roz / Pagar (₹)";
-  document.getElementById('a_wage').value = Number(getEffectiveDailyRate(w, d).toFixed(2));
+  document.getElementById('a_desig').value = `${w.desig} (${isM ? 'Monthly Fix' : 'Daily Roz'})`;
+  document.getElementById('a_wageLbl').innerText = isM ? "Monthly Fix Salary (₹)" : "Daily Roz Rate (₹)";
+  document.getElementById('a_wage').value = Number(w.wage) || 600;
   document.getElementById('a_aadhaar').value = w.aadhaar || "";
   document.getElementById('a_pan').value = w.pan || "";
   document.getElementById('a_uan').value = w.uan || "";
@@ -1082,28 +1149,31 @@ async function enrollNewWorker() {
 }
 
 function updateWagePreview() {
+  const w = workers[document.getElementById('a_worker').value] || { payType: "Daily" };
+  const dateStr = document.getElementById('a_date').value;
   const mult = parseFloat(document.getElementById('a_outTime').value) || 0;
   const baseWage = parseFloat(document.getElementById('a_wage').value) || 0;
   const hafta = parseFloat(document.getElementById('a_hafta').value) || 0;
-  const earned = Math.round(baseWage * mult);
+  const earned = calcLineEarned(w.payType, baseWage, mult, dateStr);
   const net = earned - hafta;
   document.getElementById('wagePreviewBox').innerText = `Hajeri: ${mult}x | Aajcha Pagar: ₹${earned} | Net Payable: ₹${net}`;
 }
 
 async function saveAttendance() {
   const w = workers[document.getElementById('a_worker').value];
+  const dateStr = document.getElementById('a_date').value;
   const multVal = document.getElementById('a_outTime').value;
   const mult = parseFloat(multVal) || 0;
   const baseWage = parseFloat(document.getElementById('a_wage').value) || 0;
   const hafta = parseFloat(document.getElementById('a_hafta').value) || 0;
-  const earned = Math.round(baseWage * mult);
+  const earned = calcLineEarned(w.payType, baseWage, mult, dateStr);
   const net = earned - hafta;
   const selBank = document.getElementById('a_bank').value;
   const typedIfsc = document.getElementById('a_ifsc').value.trim().toUpperCase();
   registerCustomIfsc(selBank, typedIfsc);
 
   const entry = {
-    date: document.getElementById('a_date').value,
+    date: dateStr,
     name: w.name,
     desig: w.desig,
     payType: w.payType || "Daily",
@@ -1134,12 +1204,11 @@ async function markAllBulk() {
   const bulkObj = {};
   const ts = Date.now();
   workers.forEach((w, i) => {
-    const effRate = getEffectiveDailyRate(w, date);
-    const earned = Math.round(effRate * mult);
+    const earned = calcLineEarned(w.payType, w.wage, mult, date);
     bulkObj[`bulk_${ts}_${i}`] = {
       date, name: w.name, desig: w.desig, payType: w.payType || "Daily",
       outTime: OUT_TIME_LABELS[multVal],
-      mult, baseWage: Number(effRate.toFixed(2)), earned, hafta: 0, net: earned,
+      mult, baseWage: Number(w.wage), earned, hafta: 0, net: earned,
       aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
       bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
     };
@@ -1213,10 +1282,9 @@ async function patchAttWorkerName(key, newName) {
   const item = cloudAttList.find(x => x._key === key);
   const w = workers.find(x => x.name === newName);
   if (!item || !w) return;
-  const effRate = getEffectiveDailyRate(w, item.date);
   item.name = w.name; item.desig = w.desig; item.payType = w.payType || "Daily";
-  item.baseWage = Number(effRate.toFixed(2));
-  item.earned = Math.round(effRate * (item.mult || 0));
+  item.baseWage = Number(w.wage);
+  item.earned = calcLineEarned(item.payType, item.baseWage, item.mult, item.date);
   item.net = item.earned - (item.hafta || 0);
   await fetch(`${DB_URL}/attendance/${key}.json`, {
     method: 'PATCH', headers: JSON_HEADERS,
@@ -1238,7 +1306,7 @@ async function patchAttDesig(key, newDesig) {
   if (item.payType !== "Monthly") {
     item.baseWage = (newDesig === 'F') ? 700 : 600;
   }
-  item.earned = Math.round(item.baseWage * (item.mult || 0));
+  item.earned = calcLineEarned(item.payType, item.baseWage, item.mult, item.date);
   item.net = item.earned - (item.hafta || 0);
   await fetch(`${DB_URL}/attendance/${key}.json`, {
     method: 'PATCH', headers: JSON_HEADERS,
@@ -1252,7 +1320,7 @@ async function patchAttMult(key, multStr) {
   const item = cloudAttList.find(x => x._key === key);
   if (!item) return;
   const mult = parseFloat(multStr) || 0;
-  const earned = Math.round((item.baseWage || 0) * mult);
+  const earned = calcLineEarned(item.payType, item.baseWage, mult, item.date);
   const net = earned - (item.hafta || 0);
   item.mult = mult; item.earned = earned; item.net = net; item.outTime = OUT_TIME_LABELS[multStr];
   await fetch(`${DB_URL}/attendance/${key}.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify({ mult, outTime: item.outTime, earned, net }) });
@@ -1264,7 +1332,7 @@ async function patchAttNum(key, field, valStr) {
   const item = cloudAttList.find(x => x._key === key);
   if (!item) return;
   item[field] = parseFloat(valStr) || 0;
-  item.earned = Math.round((item.baseWage || 0) * (item.mult || 0));
+  item.earned = calcLineEarned(item.payType, item.baseWage, item.mult, item.date);
   item.net = item.earned - (item.hafta || 0);
   await fetch(`${DB_URL}/attendance/${key}.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify({ [field]: item[field], earned: item.earned, net: item.net }) });
   renderAttendanceEditor();
@@ -1363,29 +1431,30 @@ async function saveMasterList() {
     return { ...w, payType: w.payType || "Daily", bankManuallySet: Boolean(w.bank || w.ifsc || w.acc) };
   });
   await fetch(`${DB_URL}/workers.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(workers) });
+  await fetch(`${DB_URL}/meta/workers_initialized.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(true) });
 
   try {
-    const aRes = await fetch(`${DB_URL}/attendance.json`);
+    const aRes = await fetch(`${DB_URL}/attendance.json?t=${Date.now()}`);
     const aObj = await aRes.json();
     if (aObj) {
       const patchAll = {};
       Object.keys(aObj).forEach(k => {
         const rec = aObj[k];
-        let w = workers.find(x => x.name === rec.name);
+        const mappedName = LEGACY_NAME_MAP[rec.name] || rec.name;
+        let w = workers.find(x => x.name === mappedName);
         if (!w) {
           const oldIdx = originalWorkerNames.indexOf(rec.name);
           if (oldIdx !== -1 && workers[oldIdx]) w = workers[oldIdx];
         }
         if (w) {
-          const effRate = getEffectiveDailyRate(w, rec.date);
-          const earned = Math.round(effRate * (Number(rec.mult) || 0));
+          const earned = calcLineEarned(w.payType, w.wage, rec.mult, rec.date);
           const net = earned - (Number(rec.hafta) || 0);
           patchAll[k] = {
             ...rec,
             name: w.name,
             desig: w.desig,
             payType: w.payType || "Daily",
-            baseWage: Number(effRate.toFixed(2)),
+            baseWage: Number(w.wage),
             earned: earned,
             net: net,
             aadhaar: w.aadhaar || "",

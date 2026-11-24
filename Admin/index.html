@@ -15,7 +15,7 @@
     .login-box button { width: 100%; background: #16a34a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
     .err-msg { color: #dc2626; font-size: 13px; font-weight: bold; margin-top: 8px; display: none; }
 
-    .container { max-width: 840px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; display: none; }
+    .container { max-width: 900px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; display: none; }
     .header { background: #1e3a8a; color: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
     .header h1 { margin: 0; font-size: 18px; }
     .header p { margin: 2px 0 0; font-size: 12px; color: #93c5fd; }
@@ -26,7 +26,7 @@
     .content { padding: 16px; display: none; }
     .content.active { display: block; }
     label { display: block; font-size: 13px; font-weight: 600; margin-top: 10px; color: #334155; }
-    input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; }
+    input, select, textarea { width: 100%; padding: 9px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .calc-badge { background: #eff6ff; border: 1px solid #93c5fd; color: #1e3a8a; padding: 10px; border-radius: 8px; margin-top: 12px; font-weight: bold; font-size: 14px; text-align: center; }
@@ -39,9 +39,9 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
     th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
     th { background: #f8fafc; white-space: nowrap; }
-    td input, td select { padding: 5px; font-size: 12px; margin: 0; min-width: 95px; }
+    td input, td select { padding: 5px; font-size: 12px; margin: 0; min-width: 75px; }
     .preview-box { margin-top: 8px; display: none; text-align: center; }
-    .preview-box img { max-height: 140px; border-radius: 8px; border: 1px solid #cbd5e1; }
+    .preview-box img { max-height: 150px; border-radius: 8px; border: 1px solid #cbd5e1; }
     .status-pill { font-size: 12px; background: #e0f2fe; color: #0369a1; padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; font-weight: 600; }
 
     .search-input { border: 2px solid #2563eb; background: #eff6ff; font-size: 16px; font-weight: 600; padding: 12px; }
@@ -51,6 +51,13 @@
     .summary-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: #1e3a8a; color: #fff; padding: 10px; border-radius: 8px; margin-top: 12px; text-align: center; }
     .summary-strip div span { font-size: 11px; color: #bfdbfe; display: block; }
     .summary-strip div strong { font-size: 15px; }
+
+    /* Multi-Item Material Table */
+    .mat-item-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 10px; }
+    .mat-item-row { display: grid; grid-template-columns: 2fr 0.9fr 1fr 1fr 1fr auto; gap: 6px; align-items: end; margin-bottom: 8px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0; }
+    @media (max-width: 650px) {
+      .mat-item-row { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -69,7 +76,7 @@
   <div class="header">
     <div>
       <h1>Achyuth Enterprises 🟢 Live</h1>
-      <p>Fitter: ₹700 | Labour: ₹600 • Admin Portal</p>
+      <p>Daily Roz + Monthly Salary • Live Sync with Client Viewer</p>
     </div>
     <a href="../Client/" class="viewer-link">📊 Owner Sheet</a>
   </div>
@@ -87,7 +94,7 @@
   <!-- TAB 0: QUICK SEARCH -->
   <div id="qSearch" class="content active">
     <label style="margin-top:0; color:#1e3a8a;">🔍 Kamgarache Naav Type Kara (Search Worker):</label>
-    <input type="text" id="qs_input" class="search-input" placeholder="Ud. Mahesh, Kamlesh, Karan, Rajaram..." oninput="filterSearchChips()">
+    <input type="text" id="qs_input" class="search-input" placeholder="Ud. Mahesh, Akshat, Kamlesh, Karan..." oninput="filterSearchChips()">
     <div id="qs_chips" class="search-chips"></div>
 
     <div id="qs_panel" style="display:none; margin-top:14px;">
@@ -114,18 +121,27 @@
       </div>
 
       <div class="kyc-box">
-        <div class="kyc-box-title">🏦 2. Bank Details (Dropdown), IFSC (Dropdown), UAN, Aadhaar & PAN Update</div>
-        <div class="grid-3">
+        <div class="kyc-box-title">🏦 2. Salary Type, Bank, IFSC & KYC Update</div>
+        <div class="grid-2">
           <div><label style="margin-top:4px;">Kamgarache Naav</label><input type="text" id="qs_name"></div>
           <div>
             <label style="margin-top:4px;">Pad (Designation)</label>
-            <select id="qs_desig" onchange="document.getElementById('qs_wage').value=(this.value==='F'?700:600)">
-              <option value="F">F (Fitter - ₹700)</option>
-              <option value="L">L (Labour - ₹600)</option>
-              <option value="SUP">SUP (Supervisor - ₹600)</option>
+            <select id="qs_desig">
+              <option value="F">F (Fitter)</option>
+              <option value="L">L (Labour)</option>
+              <option value="SUP">SUP (Supervisor)</option>
             </select>
           </div>
-          <div><label style="margin-top:4px;">Base Wage (₹)</label><input type="number" id="qs_wage"></div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label style="margin-top:6px;">Pagar Type (Salary Mode)</label>
+            <select id="qs_payType" onchange="onQsPayTypeChange()">
+              <option value="Daily">Daily Roz (Per Day ₹)</option>
+              <option value="Monthly">Monthly Fix Salary (Per Month ₹)</option>
+            </select>
+          </div>
+          <div><label id="qs_wageLbl" style="margin-top:6px;">Base Roz / Monthly Salary (₹)</label><input type="number" id="qs_wage"></div>
         </div>
         <div class="grid-3">
           <div><label style="margin-top:6px;">Aadhaar Number</label><input type="text" id="qs_aadhaar" placeholder="Aadhaar"></div>
@@ -133,18 +149,22 @@
           <div><label style="margin-top:6px;">UAN Number</label><input type="text" id="qs_uan" placeholder="UAN"></div>
         </div>
         <div class="grid-3">
-          <div><label style="margin-top:6px;">Bank Name (Dropdown)</label><select id="qs_bank" onchange="onBankSelectChange('qs_bank','qs_ifsc')"></select></div>
+          <div><label style="margin-top:6px;">Bank Name</label><select id="qs_bank" onchange="onBankSelectChange('qs_bank','qs_ifsc','qs_ifsc_list')"></select></div>
           <div><label style="margin-top:6px;">Account Number</label><input type="text" id="qs_acc" placeholder="Account No"></div>
-          <div><label style="margin-top:6px;">IFSC Code (Dropdown)</label><select id="qs_ifsc"></select></div>
+          <div>
+            <label style="margin-top:6px;">IFSC (Nivda / Type Kara)</label>
+            <input type="text" id="qs_ifsc" list="qs_ifsc_list" style="text-transform:uppercase;" placeholder="Select or Type IFSC">
+            <datalist id="qs_ifsc_list"></datalist>
+          </div>
         </div>
-        <button class="btn-secondary" style="width:100%; margin-top:10px; padding:11px; font-size:14px;" onclick="saveQuickProfile()">💾 Bank & KYC Update Kara (Juni/Navin Sarva Hajerit Auto-Update Hoil)</button>
+        <button class="btn-secondary" style="width:100%; margin-top:10px; padding:11px; font-size:14px;" onclick="saveQuickProfile()">💾 Profile & Salary Mode Save Kara (Auto-Sync)</button>
       </div>
 
       <div class="kyc-box">
         <div class="kyc-box-title">📋 3. Ya Kamgarachi Hajeri & Advance Yadi</div>
         <div style="overflow-x:auto; max-height:260px;">
           <table id="qs_historyTable">
-            <thead><tr><th>Date</th><th>Vel</th><th>Base ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Del</th></tr></thead>
+            <thead><tr><th>Date</th><th>Vel</th><th>Day Rate ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Del</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -155,7 +175,7 @@
   <!-- TAB 1: DAILY LABOUR ATTENDANCE -->
   <div id="att" class="content">
     <div class="grid-2">
-      <div><label>Tarikh (Date)</label><input type="date" id="a_date"></div>
+      <div><label>Tarikh (Date)</label><input type="date" id="a_date" onchange="fillWorkerBank()"></div>
       <div>
         <label>Kamgarache Naav (Worker Name)</label>
         <select id="a_worker" onchange="fillWorkerBank()"></select>
@@ -164,12 +184,8 @@
 
     <div class="grid-2">
       <div>
-        <label>Pad (Designation)</label>
-        <select id="a_desig" onchange="onAttendDesigChange()">
-          <option value="F">F (Fitter - ₹700)</option>
-          <option value="L">L (Labour - ₹600)</option>
-          <option value="SUP">SUP (Supervisor - ₹600)</option>
-        </select>
+        <label>Pad & Pagar Mode</label>
+        <input type="text" id="a_desig" readonly style="background:#f8fafc;">
       </div>
       <div>
         <label>Kam Sutnyachi Vel (Out Time)</label>
@@ -184,23 +200,27 @@
     </div>
 
     <div class="grid-2">
-      <div><label>Base Roz / Pagar (₹)</label><input type="number" id="a_wage" value="700" oninput="updateWagePreview()"></div>
+      <div><label id="a_wageLbl">Base Roz / Per-Day Calc (₹)</label><input type="number" id="a_wage" value="700" oninput="updateWagePreview()"></div>
       <div><label>Hafta / Uchal (Advance ₹)</label><input type="number" id="a_hafta" value="0" oninput="updateWagePreview()"></div>
     </div>
 
     <div class="calc-badge" id="wagePreviewBox">Hajeri: 1.0x | Aajcha Pagar: ₹700 | Net Payable: ₹700</div>
 
     <div class="kyc-box">
-      <div class="kyc-box-title">🪪 Master Plan KYC & Bank Details (Select via Dropdown)</div>
+      <div class="kyc-box-title">🪪 Master Plan KYC & Bank Details</div>
       <div class="grid-3">
         <div><label style="margin-top:4px;">Aadhaar No</label><input type="text" id="a_aadhaar" placeholder="Aadhaar"></div>
         <div><label style="margin-top:4px;">PAN No</label><input type="text" id="a_pan" placeholder="PAN"></div>
         <div><label style="margin-top:4px;">UAN No</label><input type="text" id="a_uan" placeholder="UAN"></div>
       </div>
       <div class="grid-3">
-        <div><label style="margin-top:6px;">Bank Name</label><select id="a_bank" onchange="onBankSelectChange('a_bank','a_ifsc')"></select></div>
+        <div><label style="margin-top:6px;">Bank Name</label><select id="a_bank" onchange="onBankSelectChange('a_bank','a_ifsc','a_ifsc_list')"></select></div>
         <div><label style="margin-top:6px;">Account No</label><input type="text" id="a_acc" placeholder="Account No"></div>
-        <div><label style="margin-top:6px;">IFSC Code</label><select id="a_ifsc"></select></div>
+        <div>
+          <label style="margin-top:6px;">IFSC Code</label>
+          <input type="text" id="a_ifsc" list="a_ifsc_list" style="text-transform:uppercase;" placeholder="Select or Type IFSC">
+          <datalist id="a_ifsc_list"></datalist>
+        </div>
       </div>
     </div>
 
@@ -235,7 +255,7 @@
       <table id="editAttTable">
         <thead>
           <tr>
-            <th>Date</th><th>Kamgarache Naav</th><th>Pad</th><th>Out Time</th><th>Base ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Delete</th>
+            <th>Date</th><th>Kamgarache Naav</th><th>Pad</th><th>Out Time</th><th>Day Rate ₹</th><th>Hafta ₹</th><th>Net ₹</th><th>Delete</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -245,15 +265,15 @@
 
   <!-- TAB 3: SINGLE MASTER PLAN -->
   <div id="mst" class="content">
-    <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🏦 Master Plan — Bank & IFSC Dropdown + KYC Auto-Sync</h3>
-    <p style="font-size:12px; color:#475569; margin-top:0;">Joparyant tumhi ithe Bank ani IFSC dropdown madhun nivdat nahi toparyant te rikame rahil. Ithe nivdun Save dabba — <b>junya ani navin sarva hajeri madhe automatic update hoil!</b></p>
+    <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🏦 Master Plan — Daily Roz & Monthly Salary + Bank/IFSC</h3>
+    <p style="font-size:12px; color:#475569; margin-top:0;">Ithe konatyahi kamgaracha Pagar Mode, Bank ani IFSC badlun Save dabba — Client Viewer madhe lagech update hoil.</p>
     <div style="overflow-x:auto;">
       <table id="masterTable">
         <thead>
           <tr>
-            <th>Sr</th><th>Kamgarache Naav</th><th>Pad</th><th>Wage ₹</th>
+            <th>Sr</th><th>Kamgarache Naav</th><th>Pad</th><th>Pagar Mode</th><th>Roz / Month ₹</th>
             <th>Aadhaar No</th><th>PAN No</th><th>UAN No</th>
-            <th>Bank Name (Dropdown)</th><th>Account No</th><th>IFSC Code (Dropdown)</th><th>Del</th>
+            <th>Bank Name</th><th>Account No</th><th>IFSC (Select / Type)</th><th>Del</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -265,22 +285,27 @@
   <!-- TAB 4: NEW WORKER ENROLLMENT -->
   <div id="enr" class="content">
     <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🆕 Navin Kamgar Nondani (New Enrollment)</h3>
-    <p style="margin:0 0 10px; font-size:12px; color:#64748b;">Ithe ekda mahiti bharli ki Master Plan ani Hajeri madhe automatic disel.</p>
-
     <div class="grid-2">
       <div><label>Kamgarache Purna Naav *</label><input type="text" id="e_name" placeholder="Ud. Rameshwar Kale"></div>
       <div>
         <label>Pad (Designation) *</label>
         <select id="e_desig" onchange="setDefaultWageByDesig()">
-          <option value="F">F (Fitter - ₹700)</option>
-          <option value="L" selected>L (Labour - ₹600)</option>
-          <option value="SUP">SUP (Supervisor - ₹600)</option>
+          <option value="F">F (Fitter)</option>
+          <option value="L" selected>L (Labour)</option>
+          <option value="SUP">SUP (Supervisor)</option>
         </select>
       </div>
     </div>
 
-    <div class="grid-2">
-      <div><label>Tharlela Roz / Base Wage (₹) *</label><input type="number" id="e_wage" value="600"></div>
+    <div class="grid-3">
+      <div>
+        <label>Pagar Mode *</label>
+        <select id="e_payType" onchange="setDefaultWageByDesig()">
+          <option value="Daily" selected>Daily Roz (Per Day)</option>
+          <option value="Monthly">Monthly Fix Salary</option>
+        </select>
+      </div>
+      <div><label id="e_wageLbl">Roz / Monthly Salary (₹) *</label><input type="number" id="e_wage" value="600"></div>
       <div><label>Mobile Number</label><input type="tel" id="e_mobile" placeholder="10 digit mobile"></div>
     </div>
 
@@ -291,48 +316,31 @@
     </div>
 
     <div class="grid-3">
-      <div><label>Bank Name (Dropdown)</label><select id="e_bank" onchange="onBankSelectChange('e_bank','e_ifsc')"></select></div>
+      <div><label>Bank Name</label><select id="e_bank" onchange="onBankSelectChange('e_bank','e_ifsc','e_ifsc_list')"></select></div>
       <div><label>Account Number</label><input type="text" id="e_acc" placeholder="Bank Acc No"></div>
-      <div><label>IFSC Code (Dropdown)</label><select id="e_ifsc"></select></div>
+      <div>
+        <label>IFSC (Select / Type)</label>
+        <input type="text" id="e_ifsc" list="e_ifsc_list" style="text-transform:uppercase;" placeholder="Select or Type IFSC">
+        <datalist id="e_ifsc_list"></datalist>
+      </div>
     </div>
 
     <button class="btn-primary" onclick="enrollNewWorker()">➕ Navin Kamgar Live Save Kara</button>
   </div>
 
-  <!-- TAB 5: MATERIAL + BILL PHOTO -->
+  <!-- TAB 5: MULTI-ITEM MATERIAL + BILL PHOTO -->
   <div id="mat" class="content">
-    <div class="grid-2">
+    <h3 style="margin:0 0 6px; color:#1e3a8a; font-size:16px;">🧱 Hardware Material Bill Entry (Multiple Items + Bill Photo)</h3>
+    <p style="font-size:12px; color:#475569; margin-top:0;">Ekach bill madhe anek vastu (Sutali, Hathoda, Cement, Pipe...) joda — pratyek vastuchi vegli quantity ani rate bharun bill photo sahit live save kara.</p>
+
+    <div class="grid-3">
       <div><label>Tarikh (Date)</label><input type="date" id="m_date"></div>
       <div><label>Site Location</label><input type="text" id="m_site" value="Tingrenagar"></div>
-    </div>
-
-    <label>Hardware / Supplier Naav</label>
-    <input type="text" id="m_supplier" placeholder="Ud. Mahalaxmi Hardware">
-
-    <label>Material Naav (Pipe, Cement, Reti, Khile...)</label>
-    <input type="text" id="m_item" placeholder="Ud. DI Pipe 300mm / Cement Goni">
-
-    <div class="grid-2">
-      <div><label>Nag / Vajan (Quantity)</label><input type="number" id="m_qty" value="1" oninput="calcMatTotal()"></div>
-      <div>
-        <label>Unit</label>
-        <select id="m_unit">
-          <option value="Nos">Nos (Nag)</option>
-          <option value="Bags">Bags (Goni)</option>
-          <option value="Brass">Brass</option>
-          <option value="Kg">Kg</option>
-          <option value="Meters">Meters</option>
-          <option value="Liters">Liters</option>
-        </select>
-      </div>
+      <div><label>Bill / Chalan No</label><input type="text" id="m_billNo" placeholder="Ud. Bill #104"></div>
     </div>
 
     <div class="grid-2">
-      <div><label>Dar (Rate ₹)</label><input type="number" id="m_rate" value="0" oninput="calcMatTotal()"></div>
-      <div><label>Ekun Bill (Total ₹)</label><input type="number" id="m_total" value="0"></div>
-    </div>
-
-    <div class="grid-2">
+      <div><label>Hardware / Supplier Naav *</label><input type="text" id="m_supplier" placeholder="Ud. Mahalaxmi Hardware"></div>
       <div>
         <label>Payment Status</label>
         <select id="m_status">
@@ -341,14 +349,44 @@
           <option value="UPI / Online">UPI / Online</option>
         </select>
       </div>
-      <div><label>Bill No / Remark</label><input type="text" id="m_remark" placeholder="Bill No. / Tip"></div>
     </div>
 
-    <label>📸 Bill / Pavti Photo Upload Kara (Owner la Live disel)</label>
+    <!-- Dynamic List of Hardware Items -->
+    <div class="mat-item-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <strong style="font-size:13px; color:#1e3a8a;">📦 Vastunchi Yadi (Pratyek Vastuchi Quantity & Rate):</strong>
+        <button type="button" class="btn-secondary" style="margin-top:0; padding:6px 10px;" onclick="addMatItemRow()">➕ Ajun Vastu Joda</button>
+      </div>
+      <datalist id="hw_items_list">
+        <option value="Sutali (Binding / Jute Rope)">
+        <option value="Hathoda (Hammer)">
+        <option value="Cement Bags">
+        <option value="DI Pipe 300mm">
+        <option value="HDPE Pipe">
+        <option value="Khile (Nails)">
+        <option value="Binding Wire (Tar)">
+        <option value="Reti (Sand)">
+        <option value="Khadi (Aggregate)">
+        <option value="Ghamela (Pan)">
+        <option value="Favda (Spade)">
+        <option value="Safety Helmet / Gloves">
+        <option value="Cutting Blade / Grinder">
+        <option value="JCB / Diesel Kharch">
+      </datalist>
+      <div id="matItemsContainer"></div>
+      <div class="calc-badge" id="matGrandTotalBox" style="margin-top:8px;">
+        Ekun Vastu: 1 | Total Quantity: 1 | Ekun Bill Rakkam: ₹0
+      </div>
+    </div>
+
+    <label>Remark / Tip</label>
+    <input type="text" id="m_remark" placeholder="Kahi vishesh mahiti">
+
+    <label>📸 Bill / Pavti Photo Upload Kara (Client Viewer madhe Live disel)</label>
     <input type="file" id="m_billFile" accept="image/*" capture="environment" onchange="compressBillImage(this)">
     <div class="preview-box" id="billPreviewBox"><img id="billPreviewImg" src="" alt="Bill"></div>
 
-    <button class="btn-primary" onclick="saveMaterial()">✅ Material + Bill Live Save Kara</button>
+    <button class="btn-primary" onclick="saveMaterial()">✅ Material Bill + Photo Client Viewer Var Live Save Kara</button>
   </div>
 
   <!-- TAB 6: DAILY REPORT -->
@@ -388,10 +426,10 @@ const BANKS = [
   "Indian Bank", "Central Bank of India", "Kotak Mahindra Bank", "Yes Bank", "IDBI Bank"
 ];
 
-const BANK_IFSC_MAP = {
-  "State Bank of India": ["SBIN0000454", "SBIN0004151", "SBIN0011697", "SBIN0006319", "SBIN0001881", "SBIN0013280"],
-  "Bank of Maharashtra": ["MAHB0000001", "MAHB0000041", "MAHB0000321", "MAHB0001150", "MAHB0001388"],
-  "HDFC Bank": ["HDFC0000007", "HDFC0000104", "HDFC0000427", "HDFC0001791", "HDFC0002405"],
+let BANK_IFSC_MAP = {
+  "State Bank of India": ["SBIN0000454", "SBIN0004151", "SBIN0011697", "SBIN0006319", "SBIN0001881", "SBIN0013280", "SBIN0008962", "SBIN0014887"],
+  "Bank of Maharashtra": ["MAHB0000001", "MAHB0000041", "MAHB0000321", "MAHB0001150", "MAHB0001388", "MAHB0000849"],
+  "HDFC Bank": ["HDFC0000007", "HDFC0000104", "HDFC0000427", "HDFC0001791", "HDFC0002405", "HDFC0000818"],
   "ICICI Bank": ["ICIC0000005", "ICIC0000338", "ICIC0001114", "ICIC0002387", "ICIC0003462"],
   "Bank of Baroda": ["BARB0POONAC", "BARB0VIMPUN", "BARB0KOTHRU", "BARB0HADAPS", "BARB0CAMPUN"],
   "Union Bank of India": ["UBIN0532142", "UBIN0556891", "UBIN0810452", "UBIN0901245"],
@@ -405,23 +443,33 @@ const BANK_IFSC_MAP = {
   "IDBI Bank": ["IBKL0000007", "IBKL0000491"]
 };
 
-const ALL_IFSC_LIST = Object.values(BANK_IFSC_MAP).flat();
-
-function getIfscOptionsHtml(bankName, selectedIfsc) {
-  const list = (bankName && BANK_IFSC_MAP[bankName]) ? BANK_IFSC_MAP[bankName] : ALL_IFSC_LIST;
-  const opts = [`<option value="">-- Select IFSC --</option>`];
-  list.forEach(code => {
-    opts.push(`<option value="${code}" ${selectedIfsc === code ? 'selected' : ''}>${code}</option>`);
-  });
-  if (selectedIfsc && !list.includes(selectedIfsc)) {
-    opts.push(`<option value="${selectedIfsc}" selected>${selectedIfsc}</option>`);
-  }
-  return opts.join('');
+function registerCustomIfsc(bankName, ifscCode) {
+  if (!bankName || !ifscCode) return;
+  const code = ifscCode.trim().toUpperCase();
+  if (!code) return;
+  if (!BANK_IFSC_MAP[bankName]) BANK_IFSC_MAP[bankName] = [];
+  if (!BANK_IFSC_MAP[bankName].includes(code)) BANK_IFSC_MAP[bankName].push(code);
 }
 
-function onBankSelectChange(bankSelId, ifscSelId) {
+function getIfscDatalistHtml(bankName) {
+  if (!bankName) return "";
+  return (BANK_IFSC_MAP[bankName] || []).map(code => `<option value="${code}">`).join('');
+}
+
+function onBankSelectChange(bankSelId, ifscInputId, datalistId) {
   const b = document.getElementById(bankSelId).value;
-  document.getElementById(ifscSelId).innerHTML = getIfscOptionsHtml(b, "");
+  document.getElementById(ifscInputId).value = "";
+  document.getElementById(datalistId).innerHTML = getIfscDatalistHtml(b);
+}
+
+function getEffectiveDailyRate(worker, dateStr) {
+  const base = Number(worker.wage) || 0;
+  if (worker.payType === "Monthly") {
+    const parts = (dateStr || "2026-11-01").split('-').map(Number);
+    const daysInMonth = (parts.length >= 2) ? new Date(parts[0], parts[1], 0).getDate() : 30;
+    return base / daysInMonth;
+  }
+  return base;
 }
 
 const OUT_TIME_LABELS = {
@@ -432,46 +480,45 @@ const OUT_TIME_LABELS = {
   "0": "Absent (0x)"
 };
 
-// All bank & IFSC kept blank by default until selected via Master Plan dropdown
 const DEFAULT_WORKERS = [
-  { name: "MAHESH Prasad", desig: "F", wage: 700, aadhaar: "", pan: "HGIPM3561F", uan: "101182284638", bank: "", acc: "", ifsc: "" },
-  { name: "Kamlesh kumar", desig: "F", wage: 700, aadhaar: "", pan: "PDPPK4183M", uan: "102278024420", bank: "", acc: "", ifsc: "" },
-  { name: "Ganesh Babarao Chavan", desig: "F", wage: 700, aadhaar: "", pan: "CZZPR7631A", uan: "101812331674", bank: "", acc: "", ifsc: "" },
-  { name: "KARAN WAGHMARE", desig: "F", wage: 700, aadhaar: "", pan: "AGQPW5162K", uan: "102176386430", bank: "", acc: "", ifsc: "" },
-  { name: "RAJARAM", desig: "L", wage: 600, aadhaar: "", pan: "ETHPK9165G", uan: "102313705823", bank: "", acc: "", ifsc: "" },
-  { name: "shiva Sampat", desig: "L", wage: 600, aadhaar: "", pan: "NAKPS7043L", uan: "101525564216", bank: "", acc: "", ifsc: "" },
-  { name: "Prakash Kaknu Lohbande", desig: "L", wage: 600, aadhaar: "", pan: "ARRPL8656R", uan: "102366652551", bank: "", acc: "", ifsc: "" },
-  { name: "Rambabu", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "101384244919", bank: "", acc: "", ifsc: "" },
-  { name: "Anil Kairal Kumar", desig: "L", wage: 600, aadhaar: "", pan: "FOBPK9744D", uan: "102365742961", bank: "", acc: "", ifsc: "" },
-  { name: "Anil Kumar", desig: "L", wage: 600, aadhaar: "", pan: "GQGPA7627R", uan: "102005923181", bank: "", acc: "", ifsc: "" },
-  { name: "Madhukar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "Ranju", desig: "L", wage: 600, aadhaar: "", pan: "GYPPK8448R", uan: "101883739562", bank: "", acc: "", ifsc: "" },
-  { name: "Saroj Kumar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "101156907651", bank: "", acc: "", ifsc: "" },
-  { name: "ARUN PAWAR", desig: "L", wage: 600, aadhaar: "", pan: "GWBPP8871D", uan: "101813281503", bank: "", acc: "", ifsc: "" },
-  { name: "Ramsaran", desig: "L", wage: 600, aadhaar: "", pan: "IGWPR0808D", uan: "101771300361", bank: "", acc: "", ifsc: "" },
-  { name: "BHURA DAS", desig: "L", wage: 600, aadhaar: "", pan: "ITVPB3743R", uan: "101262052097", bank: "", acc: "", ifsc: "" },
-  { name: "Rajbahadur", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "AKSHAT NOOLA", desig: "SUP", wage: 600, aadhaar: "", pan: "AZNPN5255C", uan: "101167456771", bank: "", acc: "", ifsc: "" },
-  { name: "GANESH PANCHAL", desig: "L", wage: 600, aadhaar: "", pan: "BSQPP9856G", uan: "101351093094", bank: "", acc: "", ifsc: "" },
-  { name: "Goutam Mahadu Sonkambie", desig: "L", wage: 600, aadhaar: "", pan: "HZFPS1603Q", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "SHIVSHANKAR 1", desig: "L", wage: 600, aadhaar: "", pan: "ATKPL1805H", uan: "101636698182", bank: "", acc: "", ifsc: "" },
-  { name: "SHIV SHANKAR 2", desig: "L", wage: 600, aadhaar: "", pan: "RNFPS0101H", uan: "101279976073", bank: "", acc: "", ifsc: "" },
-  { name: "INDRAJEET", desig: "L", wage: 600, aadhaar: "", pan: "AEMPY8394R", uan: "102000654645", bank: "", acc: "", ifsc: "" },
-  { name: "BALAJI NAGORAO BANSODE", desig: "L", wage: 600, aadhaar: "", pan: "ITSPB3830C", uan: "102313500450", bank: "", acc: "", ifsc: "" },
-  { name: "MAHENDRA KUMAR", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "102214134204", bank: "", acc: "", ifsc: "" },
-  { name: "RAKESH", desig: "L", wage: 600, aadhaar: "", pan: "ESNPR1355C", uan: "102313705269", bank: "", acc: "", ifsc: "" },
-  { name: "DINESH", desig: "L", wage: 600, aadhaar: "", pan: "HTFPR4686Q", uan: "101354867387", bank: "", acc: "", ifsc: "" },
-  { name: "CHHOTTE LAL", desig: "L", wage: 600, aadhaar: "", pan: "FZYPD9855E", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "LAMLESH KUMAR", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "101490934804", bank: "", acc: "", ifsc: "" },
-  { name: "UDAYRAJ", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
-  { name: "LAVKUSH", desig: "L", wage: 600, aadhaar: "", pan: "BBIPL4662H", uan: "101409896515", bank: "", acc: "", ifsc: "" },
-  { name: "sudhir kumar", desig: "L", wage: 600, aadhaar: "", pan: "QPXPK3923J", uan: "102283573996", bank: "", acc: "", ifsc: "" },
-  { name: "jitendra", desig: "L", wage: 600, aadhaar: "", pan: "DJFPJ5559A", uan: "101706055391", bank: "", acc: "", ifsc: "" },
-  { name: "Kalyan", desig: "L", wage: 600, aadhaar: "", pan: "OBIPK4989P", uan: "101849312909", bank: "", acc: "", ifsc: "" },
-  { name: "Chunbad", desig: "L", wage: 600, aadhaar: "", pan: "DIJPC7172Q", uan: "102365736286", bank: "", acc: "", ifsc: "" },
-  { name: "Ashish kumar", desig: "L", wage: 600, aadhaar: "", pan: "", uan: "102365732681", bank: "", acc: "", ifsc: "" },
-  { name: "Anurag kumar", desig: "L", wage: 600, aadhaar: "", pan: "RAAPK9734A", uan: "102366654082", bank: "", acc: "", ifsc: "" },
-  { name: "Lekhram", desig: "L", wage: 600, aadhaar: "", pan: "BPXPL2289D", uan: "101197446064", bank: "", acc: "", ifsc: "" }
+  { name: "MAHESH Prasad", desig: "F", payType: "Daily", wage: 700, aadhaar: "", pan: "HGIPM3561F", uan: "101182284638", bank: "", acc: "", ifsc: "" },
+  { name: "Kamlesh kumar", desig: "F", payType: "Daily", wage: 700, aadhaar: "", pan: "PDPPK4183M", uan: "102278024420", bank: "", acc: "", ifsc: "" },
+  { name: "Ganesh Babarao Chavan", desig: "F", payType: "Daily", wage: 700, aadhaar: "", pan: "CZZPR7631A", uan: "101812331674", bank: "", acc: "", ifsc: "" },
+  { name: "KARAN WAGHMARE", desig: "F", payType: "Daily", wage: 700, aadhaar: "", pan: "AGQPW5162K", uan: "102176386430", bank: "", acc: "", ifsc: "" },
+  { name: "RAJARAM", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ETHPK9165G", uan: "102313705823", bank: "", acc: "", ifsc: "" },
+  { name: "shiva Sampat", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "NAKPS7043L", uan: "101525564216", bank: "", acc: "", ifsc: "" },
+  { name: "Prakash Kaknu Lohbande", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ARRPL8656R", uan: "102366652551", bank: "", acc: "", ifsc: "" },
+  { name: "Rambabu", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "101384244919", bank: "", acc: "", ifsc: "" },
+  { name: "Anil Kairal Kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "FOBPK9744D", uan: "102365742961", bank: "", acc: "", ifsc: "" },
+  { name: "Anil Kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "GQGPA7627R", uan: "102005923181", bank: "", acc: "", ifsc: "" },
+  { name: "Madhukar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "Ranju", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "GYPPK8448R", uan: "101883739562", bank: "", acc: "", ifsc: "" },
+  { name: "Saroj Kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "101156907651", bank: "", acc: "", ifsc: "" },
+  { name: "ARUN PAWAR", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "GWBPP8871D", uan: "101813281503", bank: "", acc: "", ifsc: "" },
+  { name: "Ramsaran", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "IGWPR0808D", uan: "101771300361", bank: "", acc: "", ifsc: "" },
+  { name: "BHURA DAS", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ITVPB3743R", uan: "101262052097", bank: "", acc: "", ifsc: "" },
+  { name: "Rajbahadur", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "AKSHAT NOOLA", desig: "SUP", payType: "Daily", wage: 600, aadhaar: "", pan: "AZNPN5255C", uan: "101167456771", bank: "", acc: "", ifsc: "" },
+  { name: "GANESH PANCHAL", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "BSQPP9856G", uan: "101351093094", bank: "", acc: "", ifsc: "" },
+  { name: "Goutam Mahadu Sonkambie", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "HZFPS1603Q", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "SHIVSHANKAR 1", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ATKPL1805H", uan: "101636698182", bank: "", acc: "", ifsc: "" },
+  { name: "SHIV SHANKAR 2", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "RNFPS0101H", uan: "101279976073", bank: "", acc: "", ifsc: "" },
+  { name: "INDRAJEET", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "AEMPY8394R", uan: "102000654645", bank: "", acc: "", ifsc: "" },
+  { name: "BALAJI NAGORAO BANSODE", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ITSPB3830C", uan: "102313500450", bank: "", acc: "", ifsc: "" },
+  { name: "MAHENDRA KUMAR", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "102214134204", bank: "", acc: "", ifsc: "" },
+  { name: "RAKESH", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "ESNPR1355C", uan: "102313705269", bank: "", acc: "", ifsc: "" },
+  { name: "DINESH", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "HTFPR4686Q", uan: "101354867387", bank: "", acc: "", ifsc: "" },
+  { name: "CHHOTTE LAL", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "FZYPD9855E", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "LAMLESH KUMAR", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "101490934804", bank: "", acc: "", ifsc: "" },
+  { name: "UDAYRAJ", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "", bank: "", acc: "", ifsc: "" },
+  { name: "LAVKUSH", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "BBIPL4662H", uan: "101409896515", bank: "", acc: "", ifsc: "" },
+  { name: "sudhir kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "QPXPK3923J", uan: "102283573996", bank: "", acc: "", ifsc: "" },
+  { name: "jitendra", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "DJFPJ5559A", uan: "101706055391", bank: "", acc: "", ifsc: "" },
+  { name: "Kalyan", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "OBIPK4989P", uan: "101849312909", bank: "", acc: "", ifsc: "" },
+  { name: "Chunbad", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "DIJPC7172Q", uan: "102365736286", bank: "", acc: "", ifsc: "" },
+  { name: "Ashish kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "", uan: "102365732681", bank: "", acc: "", ifsc: "" },
+  { name: "Anurag kumar", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "RAAPK9734A", uan: "102366654082", bank: "", acc: "", ifsc: "" },
+  { name: "Lekhram", desig: "L", payType: "Daily", wage: 600, aadhaar: "", pan: "BPXPL2289D", uan: "101197446064", bank: "", acc: "", ifsc: "" }
 ];
 
 const NOV_2026_DAYS_BY_IDX = [
@@ -503,6 +550,8 @@ let originalWorkerNames = workers.map(w => w.name);
 let cloudAttList = [];
 let selectedQsIdx = -1;
 let currentBillBase64 = "";
+let matItems = [{ item: "", qty: 1, unit: "Nos", rate: 0 }];
+
 const today = new Date().toISOString().split('T')[0];
 ['a_date', 'm_date', 'r_date', 'qs_date'].forEach(id => document.getElementById(id).value = today);
 
@@ -534,12 +583,16 @@ function checkAdminLogin() {
 
 async function initCloudSync() {
   initUI();
+  renderMatItemRows();
   try {
     const wRes = await fetch(`${DB_URL}/workers.json`);
     const wData = await wRes.json();
     if (wData && Array.isArray(wData) && wData.length >= 38) {
-      // Clear any old pre-filled default banks if account number is empty (so only user-selected banks stay)
-      workers = wData.map(w => (!w.acc && !w.bankManuallySet) ? { ...w, bank: "", ifsc: "" } : w);
+      workers = wData.map(w => ({
+        payType: "Daily",
+        ...((!w.acc && !w.bankManuallySet) ? { ...w, bank: "", ifsc: "" } : w)
+      }));
+      workers.forEach(w => registerCustomIfsc(w.bank, w.ifsc));
     } else {
       await fetch(`${DB_URL}/workers.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(DEFAULT_WORKERS) });
       workers = [...DEFAULT_WORKERS];
@@ -549,26 +602,27 @@ async function initCloudSync() {
 
     const aRes = await fetch(`${DB_URL}/attendance.json`);
     const aData = await aRes.json();
-    const needsCleanBank = aData && aData['nov26_0_01'] && aData['nov26_0_01'].bank && !aData['nov26_0_01'].acc;
-    if (!aData || !aData['nov26_0_01'] || needsCleanBank) {
+    if (!aData || !aData['nov26_0_01']) {
       const bulkObj = {};
       NOV_2026_DAYS_BY_IDX.forEach((days, wIdx) => {
         const w = workers[wIdx];
         if (!w) return;
         days.forEach(dayNum => {
           const dd = String(dayNum).padStart(2, '0');
-          const key = `nov26_${wIdx}_${dd}`;
-          const prev = (aData && aData[key]) ? aData[key] : {};
-          bulkObj[key] = {
-            date: `2026-11-${dd}`,
+          const dateStr = `2026-11-${dd}`;
+          const effRate = getEffectiveDailyRate(w, dateStr);
+          const earned = Math.round(effRate * 1);
+          bulkObj[`nov26_${wIdx}_${dd}`] = {
+            date: dateStr,
             name: w.name,
             desig: w.desig,
-            outTime: prev.outTime || "Up to 6:00 PM (1x)",
-            mult: prev.mult ?? 1,
-            baseWage: w.wage,
-            earned: prev.earned ?? w.wage,
-            hafta: prev.hafta ?? 0,
-            net: prev.net ?? w.wage,
+            payType: w.payType || "Daily",
+            outTime: "Up to 6:00 PM (1x)",
+            mult: 1,
+            baseWage: Number(effRate.toFixed(2)),
+            earned: earned,
+            hafta: 0,
+            net: earned,
             aadhaar: w.aadhaar || "",
             pan: w.pan || "",
             uan: w.uan || "",
@@ -596,11 +650,14 @@ async function loadAllAttendanceSilent() {
 
 function initUI() {
   const bankOpts = BANKS.map(b => `<option value="${b}">${b || '-- Select Bank --'}</option>`).join('');
-  document.getElementById('a_worker').innerHTML = workers.map((w, i) => `<option value="${i}">${i+1}. ${w.name} (${w.desig} - ₹${w.wage})</option>`).join('');
+  document.getElementById('a_worker').innerHTML = workers.map((w, i) => {
+    const modeTag = w.payType === "Monthly" ? `₹${w.wage}/Month` : `₹${w.wage}/Day`;
+    return `<option value="${i}">${i+1}. ${w.name} (${w.desig} • ${modeTag})</option>`;
+  }).join('');
   document.getElementById('a_bank').innerHTML = bankOpts;
   document.getElementById('e_bank').innerHTML = bankOpts;
   document.getElementById('qs_bank').innerHTML = bankOpts;
-  document.getElementById('e_ifsc').innerHTML = getIfscOptionsHtml("", "");
+  document.getElementById('e_ifsc_list').innerHTML = "";
 
   const filterSel = document.getElementById('ea_nameFilter');
   const prevSel = filterSel.value;
@@ -610,6 +667,148 @@ function initUI() {
   fillWorkerBank();
   renderMasterTable();
   filterSearchChips();
+}
+
+// ==================== MULTI-ITEM HARDWARE MATERIAL ====================
+function addMatItemRow() {
+  matItems.push({ item: "", qty: 1, unit: "Nos", rate: 0 });
+  renderMatItemRows();
+}
+
+function removeMatItemRow(idx) {
+  if (matItems.length === 1) {
+    matItems[0] = { item: "", qty: 1, unit: "Nos", rate: 0 };
+  } else {
+    matItems.splice(idx, 1);
+  }
+  renderMatItemRows();
+}
+
+function renderMatItemRows() {
+  const container = document.getElementById('matItemsContainer');
+  container.innerHTML = matItems.map((it, idx) => {
+    const lineTot = Math.round((Number(it.qty) || 0) * (Number(it.rate) || 0));
+    return `
+      <div class="mat-item-row">
+        <div>
+          <label style="margin-top:0; font-size:11px;">Vastu Naav #${idx + 1}</label>
+          <input list="hw_items_list" value="${it.item}" placeholder="Sutali / Hathoda / Cement..." oninput="matItems[${idx}].item=this.value">
+        </div>
+        <div>
+          <label style="margin-top:0; font-size:11px;">Qty</label>
+          <input type="number" step="any" value="${it.qty}" oninput="matItems[${idx}].qty=parseFloat(this.value)||0; updateMatTotals();">
+        </div>
+        <div>
+          <label style="margin-top:0; font-size:11px;">Unit</label>
+          <select onchange="matItems[${idx}].unit=this.value">
+            ${["Nos","Kg","Bags","Brass","Meters","Box","Set","Liters"].map(u => `<option value="${u}" ${it.unit===u?'selected':''}>${u}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label style="margin-top:0; font-size:11px;">Rate (₹)</label>
+          <input type="number" step="any" value="${it.rate}" oninput="matItems[${idx}].rate=parseFloat(this.value)||0; updateMatTotals();">
+        </div>
+        <div>
+          <label style="margin-top:0; font-size:11px;">Total (₹)</label>
+          <input type="number" id="mat_line_tot_${idx}" value="${lineTot}" readonly style="background:#f1f5f9; font-weight:bold;">
+        </div>
+        <div>
+          <button type="button" class="btn-del" style="padding:9px 10px;" onclick="removeMatItemRow(${idx})">✖</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  updateMatTotals();
+}
+
+function updateMatTotals() {
+  let grandTotal = 0;
+  let totalQty = 0;
+  matItems.forEach((it, idx) => {
+    const q = Number(it.qty) || 0;
+    const r = Number(it.rate) || 0;
+    const lineTot = Math.round(q * r);
+    totalQty += q;
+    grandTotal += lineTot;
+    const el = document.getElementById(`mat_line_tot_${idx}`);
+    if (el) el.value = lineTot;
+  });
+  document.getElementById('matGrandTotalBox').innerText = `Ekun Vastu: ${matItems.length} | Total Quantity: ${totalQty} | Ekun Bill Rakkam: ₹${grandTotal}`;
+}
+
+function compressBillImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const maxW = 750;
+      const scale = Math.min(1, maxW / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      currentBillBase64 = canvas.toDataURL('image/jpeg', 0.68);
+      document.getElementById('billPreviewImg').src = currentBillBase64;
+      document.getElementById('billPreviewBox').style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveMaterial() {
+  const validItems = matItems.filter(it => it.item.trim() !== "");
+  if (validItems.length === 0) {
+    alert("Kamit kami ek vastu (Material Name) taka!");
+    return;
+  }
+
+  const date = document.getElementById('m_date').value;
+  const site = document.getElementById('m_site').value;
+  const billNo = document.getElementById('m_billNo').value.trim();
+  const supplier = document.getElementById('m_supplier').value.trim();
+  const status = document.getElementById('m_status').value;
+  const remark = document.getElementById('m_remark').value.trim();
+  const billGroupId = "bill_" + Date.now();
+
+  showToast("⏳ Material Bill + Photo Client Viewer var save hot aahe...");
+
+  // Save each item as an individual row linked to the same billGroupId so per-item qty, rate & total are crystal clear in Viewer & Excel
+  const batchObj = {};
+  validItems.forEach((it, idx) => {
+    const q = Number(it.qty) || 0;
+    const r = Number(it.rate) || 0;
+    const tot = Math.round(q * r);
+    batchObj[`${billGroupId}_${idx}`] = {
+      billGroupId,
+      billNo: billNo || "-",
+      date,
+      site,
+      supplier: supplier || "-",
+      item: it.item.trim(),
+      qtyNum: q,
+      unit: it.unit,
+      qty: `${q} ${it.unit}`,
+      rate: r,
+      total: tot,
+      status,
+      remark,
+      billImg: currentBillBase64 || ""
+    };
+  });
+
+  await fetch(`${DB_URL}/material.json`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify(batchObj) });
+
+  matItems = [{ item: "", qty: 1, unit: "Nos", rate: 0 }];
+  renderMatItemRows();
+  document.getElementById('m_billNo').value = "";
+  document.getElementById('m_remark').value = "";
+  document.getElementById('m_billFile').value = "";
+  document.getElementById('billPreviewBox').style.display = 'none';
+  currentBillBase64 = "";
+  showToast(`✅ ${validItems.length} Vastuncha Bill + Photo Live Save jhala! Client Viewer var lagech disel.`);
 }
 
 // ==================== QUICK SEARCH LOGIC ====================
@@ -627,13 +826,18 @@ function filterSearchChips() {
 
   chipsEl.innerHTML = matches.map(({ w, idx }) => `
     <div class="chip ${idx === selectedQsIdx ? 'active' : ''}" onclick="selectQuickWorker(${idx})">
-      ${idx + 1}. ${w.name} (${w.desig})
+      ${idx + 1}. ${w.name} (${w.payType === 'Monthly' ? '₹'+w.wage+'/M' : '₹'+w.wage})
     </div>
   `).join('');
 
   if (q && matches.length === 1 && selectedQsIdx !== matches[0].idx) {
     selectQuickWorker(matches[0].idx);
   }
+}
+
+function onQsPayTypeChange() {
+  const pt = document.getElementById('qs_payType').value;
+  document.getElementById('qs_wageLbl').innerText = pt === "Monthly" ? "Monthly Fix Salary (₹)" : "Daily Roz Rate (₹)";
 }
 
 async function selectQuickWorker(idx) {
@@ -645,13 +849,16 @@ async function selectQuickWorker(idx) {
   document.getElementById('qs_panel').style.display = 'block';
   document.getElementById('qs_name').value = w.name || "";
   document.getElementById('qs_desig').value = w.desig || "L";
+  document.getElementById('qs_payType').value = w.payType || "Daily";
+  onQsPayTypeChange();
   document.getElementById('qs_wage').value = w.wage || 600;
   document.getElementById('qs_aadhaar').value = w.aadhaar || "";
   document.getElementById('qs_pan').value = w.pan || "";
   document.getElementById('qs_uan').value = w.uan || "";
   document.getElementById('qs_bank').value = w.bank || "";
   document.getElementById('qs_acc').value = w.acc || "";
-  document.getElementById('qs_ifsc').innerHTML = getIfscOptionsHtml(w.bank || "", w.ifsc || "");
+  document.getElementById('qs_ifsc_list').innerHTML = getIfscDatalistHtml(w.bank || "");
+  document.getElementById('qs_ifsc').value = w.ifsc || "";
 
   await loadAllAttendanceSilent();
   refreshQuickWorkerStats();
@@ -663,12 +870,12 @@ function refreshQuickWorkerStats() {
   if (!w) return;
   const myRecords = cloudAttList.filter(r => r.name === w.name);
   const totHajeri = myRecords.reduce((s, r) => s + Number(r.mult || 0), 0);
-  const totEarned = myRecords.reduce((s, r) => s + Number(r.earned || 0), 0);
+  const totEarned = Math.round(myRecords.reduce((s, r) => s + Number(r.earned || 0), 0));
   const totHafta = myRecords.reduce((s, r) => s + Number(r.hafta || 0), 0);
-  const netPay = myRecords.reduce((s, r) => s + Number(r.net || 0), 0);
+  const netPay = totEarned - totHafta;
 
   document.getElementById('qs_summary').innerHTML = `
-    <div><span>Ekun Hajeri</span><strong>${totHajeri}</strong></div>
+    <div><span>Ekun Hajeri</span><strong>${totHajeri} Days</strong></div>
     <div><span>Total Pagar</span><strong>₹${totEarned}</strong></div>
     <div><span>Advance / Hafta</span><strong>₹${totHafta}</strong></div>
     <div><span>Net Baki</span><strong>₹${netPay}</strong></div>
@@ -705,14 +912,16 @@ function loadWorkerDateRecord() {
   if (!w || !d) return;
   const existing = cloudAttList.find(r => r.name === w.name && r.date === d);
   const noteEl = document.getElementById('qs_dateNote');
+  const effRate = getEffectiveDailyRate(w, d);
+  const modeInfo = w.payType === "Monthly" ? ` (Monthly ₹${w.wage} ÷ Month Days = ₹${effRate.toFixed(2)}/day)` : "";
   if (existing) {
     document.getElementById('qs_outTime').value = String(existing.mult);
     document.getElementById('qs_hafta').value = existing.hafta || 0;
-    noteEl.innerText = `ℹ️ ${d} chi hajeri aadhi save aahe (${existing.mult}x, Hafta: ₹${existing.hafta || 0}) — badal karun Update dabba.`;
+    noteEl.innerText = `ℹ️ ${d} chi hajeri save aahe (${existing.mult}x)${modeInfo}.`;
   } else {
     document.getElementById('qs_outTime').value = "1";
     document.getElementById('qs_hafta').value = 0;
-    noteEl.innerText = `➕ ${d} chi navin hajeri / advance nond hoil.`;
+    noteEl.innerText = `➕ ${d} chi navin hajeri nond hoil${modeInfo}.`;
   }
 }
 
@@ -724,8 +933,8 @@ async function saveQuickAttendance() {
   const multStr = document.getElementById('qs_outTime').value;
   const mult = parseFloat(multStr) || 0;
   const hafta = parseFloat(document.getElementById('qs_hafta').value) || 0;
-  const baseWage = Number(w.wage) || 600;
-  const earned = Math.round(baseWage * mult);
+  const effRate = getEffectiveDailyRate(w, d);
+  const earned = Math.round(effRate * mult);
   const net = earned - hafta;
 
   const existing = cloudAttList.find(r => r.name === w.name && r.date === d);
@@ -734,14 +943,14 @@ async function saveQuickAttendance() {
   if (existing) {
     await fetch(`${DB_URL}/attendance/${existing._key}.json`, {
       method: 'PATCH', headers: JSON_HEADERS,
-      body: JSON.stringify({ outTime: OUT_TIME_LABELS[multStr], mult, baseWage, earned, hafta, net })
+      body: JSON.stringify({ outTime: OUT_TIME_LABELS[multStr], mult, payType: w.payType || "Daily", baseWage: Number(effRate.toFixed(2)), earned, hafta, net })
     });
   } else {
     await fetch(`${DB_URL}/attendance.json`, {
       method: 'POST', headers: JSON_HEADERS,
       body: JSON.stringify({
-        date: d, name: w.name, desig: w.desig,
-        outTime: OUT_TIME_LABELS[multStr], mult, baseWage, earned, hafta, net,
+        date: d, name: w.name, desig: w.desig, payType: w.payType || "Daily",
+        outTime: OUT_TIME_LABELS[multStr], mult, baseWage: Number(effRate.toFixed(2)), earned, hafta, net,
         aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
         bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
       })
@@ -758,33 +967,38 @@ async function saveQuickProfile() {
   if (selectedQsIdx < 0 || !workers[selectedQsIdx]) return;
   const oldName = workers[selectedQsIdx].name;
   const selBank = document.getElementById('qs_bank').value;
-  const selIfsc = document.getElementById('qs_ifsc').value;
+  const typedIfsc = document.getElementById('qs_ifsc').value.trim().toUpperCase();
+  registerCustomIfsc(selBank, typedIfsc);
+
   const updated = {
     ...workers[selectedQsIdx],
     name: document.getElementById('qs_name').value.trim() || oldName,
     desig: document.getElementById('qs_desig').value,
+    payType: document.getElementById('qs_payType').value,
     wage: Number(document.getElementById('qs_wage').value) || 600,
     aadhaar: document.getElementById('qs_aadhaar').value.trim(),
     pan: document.getElementById('qs_pan').value.trim().toUpperCase(),
     uan: document.getElementById('qs_uan').value.trim(),
     bank: selBank,
     acc: document.getElementById('qs_acc').value.trim(),
-    ifsc: selIfsc,
-    bankManuallySet: Boolean(selBank || selIfsc)
+    ifsc: typedIfsc,
+    bankManuallySet: Boolean(selBank || typedIfsc)
   };
 
   workers[selectedQsIdx] = updated;
-  showToast("⏳ Bank, IFSC, KYC ani sarva hajeri records update hot aahet...");
+  showToast("⏳ Salary Mode, Bank, KYC ani sarva hajeri records update hot aahet...");
   await fetch(`${DB_URL}/workers.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(workers) });
 
   const patchAll = {};
   cloudAttList.forEach(rec => {
     if (rec.name === oldName || rec.name === updated.name) {
-      const earned = Math.round(updated.wage * (Number(rec.mult) || 0));
+      const effRate = getEffectiveDailyRate(updated, rec.date);
+      const earned = Math.round(effRate * (Number(rec.mult) || 0));
       const net = earned - (Number(rec.hafta) || 0);
       patchAll[rec._key] = {
         ...rec,
-        name: updated.name, desig: updated.desig, baseWage: updated.wage, earned, net,
+        name: updated.name, desig: updated.desig, payType: updated.payType,
+        baseWage: Number(effRate.toFixed(2)), earned, net,
         aadhaar: updated.aadhaar, pan: updated.pan, uan: updated.uan,
         bank: updated.bank, acc: updated.acc, ifsc: updated.ifsc
       };
@@ -798,33 +1012,36 @@ async function saveQuickProfile() {
   initUI();
   await loadAllAttendanceSilent();
   refreshQuickWorkerStats();
-  showToast(`✅ ${updated.name} che Bank, IFSC & Sarva Hajeri Auto-Update jhale!`);
+  showToast(`✅ ${updated.name} che Profile & Sarva Hajeri Auto-Update jhale!`);
 }
-// ============================================================
 
 function fillWorkerBank() {
   const w = workers[document.getElementById('a_worker').value];
+  const d = document.getElementById('a_date').value;
   if (!w) return;
-  document.getElementById('a_desig').value = w.desig || "L";
-  document.getElementById('a_wage').value = w.wage || (w.desig === 'F' ? 700 : 600);
+  const isM = w.payType === "Monthly";
+  document.getElementById('a_desig').value = `${w.desig} (${isM ? 'Monthly ₹'+w.wage : 'Daily ₹'+w.wage})`;
+  document.getElementById('a_wageLbl').innerText = isM ? `Monthly ₹${w.wage} ÷ Month Days = Per Day (₹)` : "Base Roz / Pagar (₹)";
+  document.getElementById('a_wage').value = Number(getEffectiveDailyRate(w, d).toFixed(2));
   document.getElementById('a_aadhaar').value = w.aadhaar || "";
   document.getElementById('a_pan').value = w.pan || "";
   document.getElementById('a_uan').value = w.uan || "";
   document.getElementById('a_bank').value = w.bank || "";
   document.getElementById('a_acc').value = w.acc || "";
-  document.getElementById('a_ifsc').innerHTML = getIfscOptionsHtml(w.bank || "", w.ifsc || "");
-  updateWagePreview();
-}
-
-function onAttendDesigChange() {
-  const d = document.getElementById('a_desig').value;
-  document.getElementById('a_wage').value = (d === 'F') ? 700 : 600;
+  document.getElementById('a_ifsc_list').innerHTML = getIfscDatalistHtml(w.bank || "");
+  document.getElementById('a_ifsc').value = w.ifsc || "";
   updateWagePreview();
 }
 
 function setDefaultWageByDesig() {
   const d = document.getElementById('e_desig').value;
-  document.getElementById('e_wage').value = (d === 'F') ? 700 : 600;
+  const pt = document.getElementById('e_payType').value;
+  document.getElementById('e_wageLbl').innerText = pt === "Monthly" ? "Monthly Fix Salary (₹) *" : "Daily Roz Rate (₹) *";
+  if (pt === "Monthly") {
+    document.getElementById('e_wage').value = 18000;
+  } else {
+    document.getElementById('e_wage').value = (d === 'F') ? 700 : 600;
+  }
 }
 
 async function enrollNewWorker() {
@@ -832,10 +1049,13 @@ async function enrollNewWorker() {
   if (!name) { alert("Kamgarache naav taka!"); return; }
 
   const selBank = document.getElementById('e_bank').value;
-  const selIfsc = document.getElementById('e_ifsc').value;
+  const typedIfsc = document.getElementById('e_ifsc').value.trim().toUpperCase();
+  registerCustomIfsc(selBank, typedIfsc);
+
   const newW = {
     name: name,
     desig: document.getElementById('e_desig').value,
+    payType: document.getElementById('e_payType').value,
     wage: Number(document.getElementById('e_wage').value) || 600,
     mobile: document.getElementById('e_mobile').value.trim(),
     aadhaar: document.getElementById('e_aadhaar').value.trim(),
@@ -843,8 +1063,8 @@ async function enrollNewWorker() {
     uan: document.getElementById('e_uan').value.trim(),
     bank: selBank,
     acc: document.getElementById('e_acc').value.trim(),
-    ifsc: selIfsc,
-    bankManuallySet: Boolean(selBank || selIfsc)
+    ifsc: typedIfsc,
+    bankManuallySet: Boolean(selBank || typedIfsc)
   };
 
   workers.push(newW);
@@ -852,13 +1072,13 @@ async function enrollNewWorker() {
   showToast("⏳ Navin kamgar cloud var save hot aahe...");
   await fetch(`${DB_URL}/workers.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(workers) });
 
-  ['e_name','e_mobile','e_aadhaar','e_pan','e_uan','e_acc'].forEach(id => document.getElementById(id).value = "");
+  ['e_name','e_mobile','e_aadhaar','e_pan','e_uan','e_acc','e_ifsc'].forEach(id => document.getElementById(id).value = "");
   document.getElementById('e_bank').value = "";
-  document.getElementById('e_ifsc').innerHTML = getIfscOptionsHtml("", "");
+  document.getElementById('e_ifsc_list').innerHTML = "";
   initUI();
   document.getElementById('a_worker').value = workers.length - 1;
   fillWorkerBank();
-  showToast(`🎉 ${name} chi Enrollment purna jhali!`);
+  showToast(`🎉 ${name} (${newW.payType}) chi Enrollment purna jhali!`);
 }
 
 function updateWagePreview() {
@@ -878,19 +1098,23 @@ async function saveAttendance() {
   const hafta = parseFloat(document.getElementById('a_hafta').value) || 0;
   const earned = Math.round(baseWage * mult);
   const net = earned - hafta;
+  const selBank = document.getElementById('a_bank').value;
+  const typedIfsc = document.getElementById('a_ifsc').value.trim().toUpperCase();
+  registerCustomIfsc(selBank, typedIfsc);
 
   const entry = {
     date: document.getElementById('a_date').value,
     name: w.name,
-    desig: document.getElementById('a_desig').value,
+    desig: w.desig,
+    payType: w.payType || "Daily",
     outTime: OUT_TIME_LABELS[multVal],
     mult, baseWage, earned, hafta, net,
     aadhaar: document.getElementById('a_aadhaar').value,
     pan: document.getElementById('a_pan').value,
     uan: document.getElementById('a_uan').value,
-    bank: document.getElementById('a_bank').value,
+    bank: selBank,
     acc: document.getElementById('a_acc').value,
-    ifsc: document.getElementById('a_ifsc').value
+    ifsc: typedIfsc
   };
 
   showToast("⏳ Cloud var save hot aahe...");
@@ -910,11 +1134,12 @@ async function markAllBulk() {
   const bulkObj = {};
   const ts = Date.now();
   workers.forEach((w, i) => {
-    const earned = Math.round(w.wage * mult);
+    const effRate = getEffectiveDailyRate(w, date);
+    const earned = Math.round(effRate * mult);
     bulkObj[`bulk_${ts}_${i}`] = {
-      date, name: w.name, desig: w.desig,
+      date, name: w.name, desig: w.desig, payType: w.payType || "Daily",
       outTime: OUT_TIME_LABELS[multVal],
-      mult, baseWage: w.wage, earned, hafta: 0, net: earned,
+      mult, baseWage: Number(effRate.toFixed(2)), earned, hafta: 0, net: earned,
       aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
       bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
     };
@@ -988,13 +1213,15 @@ async function patchAttWorkerName(key, newName) {
   const item = cloudAttList.find(x => x._key === key);
   const w = workers.find(x => x.name === newName);
   if (!item || !w) return;
-  item.name = w.name; item.desig = w.desig; item.baseWage = w.wage;
-  item.earned = Math.round(w.wage * (item.mult || 0));
+  const effRate = getEffectiveDailyRate(w, item.date);
+  item.name = w.name; item.desig = w.desig; item.payType = w.payType || "Daily";
+  item.baseWage = Number(effRate.toFixed(2));
+  item.earned = Math.round(effRate * (item.mult || 0));
   item.net = item.earned - (item.hafta || 0);
   await fetch(`${DB_URL}/attendance/${key}.json`, {
     method: 'PATCH', headers: JSON_HEADERS,
     body: JSON.stringify({
-      name: w.name, desig: w.desig, baseWage: w.wage,
+      name: w.name, desig: w.desig, payType: item.payType, baseWage: item.baseWage,
       earned: item.earned, net: item.net,
       aadhaar: w.aadhaar || "", pan: w.pan || "", uan: w.uan || "",
       bank: w.bank || "", acc: w.acc || "", ifsc: w.ifsc || ""
@@ -1008,7 +1235,9 @@ async function patchAttDesig(key, newDesig) {
   const item = cloudAttList.find(x => x._key === key);
   if (!item) return;
   item.desig = newDesig;
-  item.baseWage = (newDesig === 'F') ? 700 : 600;
+  if (item.payType !== "Monthly") {
+    item.baseWage = (newDesig === 'F') ? 700 : 600;
+  }
   item.earned = Math.round(item.baseWage * (item.mult || 0));
   item.net = item.earned - (item.hafta || 0);
   await fetch(`${DB_URL}/attendance/${key}.json`, {
@@ -1050,56 +1279,6 @@ async function deleteAtt(key) {
   showToast("🗑️ Delete jhale!");
 }
 
-function calcMatTotal() {
-  const q = parseFloat(document.getElementById('m_qty').value) || 0;
-  const r = parseFloat(document.getElementById('m_rate').value) || 0;
-  document.getElementById('m_total').value = q * r;
-}
-
-function compressBillImage(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const maxW = 700;
-      const scale = Math.min(1, maxW / img.width);
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      currentBillBase64 = canvas.toDataURL('image/jpeg', 0.65);
-      document.getElementById('billPreviewImg').src = currentBillBase64;
-      document.getElementById('billPreviewBox').style.display = 'block';
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-async function saveMaterial() {
-  const entry = {
-    date: document.getElementById('m_date').value,
-    site: document.getElementById('m_site').value,
-    supplier: document.getElementById('m_supplier').value,
-    item: document.getElementById('m_item').value,
-    qty: `${document.getElementById('m_qty').value} ${document.getElementById('m_unit').value}`,
-    rate: parseFloat(document.getElementById('m_rate').value) || 0,
-    total: parseFloat(document.getElementById('m_total').value) || 0,
-    status: document.getElementById('m_status').value,
-    remark: document.getElementById('m_remark').value,
-    billImg: currentBillBase64
-  };
-  showToast("⏳ Material + Bill upload hot aahe...");
-  await fetch(`${DB_URL}/material.json`, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(entry) });
-  document.getElementById('m_item').value = "";
-  document.getElementById('m_billFile').value = "";
-  document.getElementById('billPreviewBox').style.display = 'none';
-  currentBillBase64 = "";
-  showToast("✅ Material + Bill Photo Live Save jhala!");
-}
-
 async function saveReport() {
   const entry = {
     date: document.getElementById('r_date').value,
@@ -1112,13 +1291,23 @@ async function saveReport() {
   showToast("⏳ Report save hot aahe...");
   await fetch(`${DB_URL}/report.json`, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(entry) });
   document.getElementById('r_work').value = "";
-  showToast("✅ Daily Report Live Save jhala!");
+  showToast("✅ Daily Report Client Viewer Var Live Save jhala!");
 }
 
 function onMasterBankChange(i, bankVal) {
   workers[i].bank = bankVal;
   workers[i].ifsc = "";
   workers[i].bankManuallySet = Boolean(bankVal);
+  renderMasterTable();
+}
+
+function onMasterPayTypeChange(i, ptVal) {
+  workers[i].payType = ptVal;
+  if (ptVal === "Monthly" && workers[i].wage < 2000) {
+    workers[i].wage = 18000;
+  } else if (ptVal === "Daily" && workers[i].wage >= 2000) {
+    workers[i].wage = (workers[i].desig === 'F') ? 700 : 600;
+  }
   renderMasterTable();
 }
 
@@ -1129,13 +1318,19 @@ function renderMasterTable() {
       <td>${i+1}</td>
       <td><input value="${w.name||''}" onchange="workers[${i}].name=this.value"></td>
       <td>
-        <select style="min-width:65px" onchange="workers[${i}].desig=this.value; workers[${i}].wage=(this.value==='F'?700:600); renderMasterTable();">
-          <option value="F" ${w.desig==='F'?'selected':''}>F (700)</option>
-          <option value="L" ${w.desig==='L'?'selected':''}>L (600)</option>
-          <option value="SUP" ${w.desig==='SUP'?'selected':''}>SUP (600)</option>
+        <select style="min-width:65px" onchange="workers[${i}].desig=this.value; if(workers[${i}].payType!=='Monthly'){workers[${i}].wage=(this.value==='F'?700:600);} renderMasterTable();">
+          <option value="F" ${w.desig==='F'?'selected':''}>F</option>
+          <option value="L" ${w.desig==='L'?'selected':''}>L</option>
+          <option value="SUP" ${w.desig==='SUP'?'selected':''}>SUP</option>
         </select>
       </td>
-      <td><input type="number" value="${w.wage||600}" style="min-width:65px" onchange="workers[${i}].wage=Number(this.value)"></td>
+      <td>
+        <select style="min-width:90px" onchange="onMasterPayTypeChange(${i}, this.value)">
+          <option value="Daily" ${(w.payType||'Daily')==='Daily'?'selected':''}>Daily Roz</option>
+          <option value="Monthly" ${w.payType==='Monthly'?'selected':''}>Monthly</option>
+        </select>
+      </td>
+      <td><input type="number" value="${w.wage||600}" style="min-width:75px" onchange="workers[${i}].wage=Number(this.value)"></td>
       <td><input value="${w.aadhaar||''}" placeholder="Aadhaar" onchange="workers[${i}].aadhaar=this.value"></td>
       <td><input value="${w.pan||''}" placeholder="PAN" onchange="workers[${i}].pan=this.value.toUpperCase()"></td>
       <td><input value="${w.uan||''}" placeholder="UAN" onchange="workers[${i}].uan=this.value"></td>
@@ -1146,9 +1341,8 @@ function renderMasterTable() {
       </td>
       <td><input value="${w.acc||''}" placeholder="Acc No" onchange="workers[${i}].acc=this.value"></td>
       <td>
-        <select onchange="workers[${i}].ifsc=this.value; workers[${i}].bankManuallySet=true;">
-          ${getIfscOptionsHtml(w.bank || "", w.ifsc || "")}
-        </select>
+        <input value="${w.ifsc||''}" list="mst_ifsc_${i}" style="text-transform:uppercase;" placeholder="${w.bank ? 'Select/Type IFSC' : 'Select Bank First'}" onchange="workers[${i}].ifsc=this.value.toUpperCase(); workers[${i}].bankManuallySet=true; registerCustomIfsc(workers[${i}].bank, workers[${i}].ifsc);">
+        <datalist id="mst_ifsc_${i}">${getIfscDatalistHtml(w.bank || "")}</datalist>
       </td>
       <td><button class="btn-del" onclick="removeWorker(${i})">✖</button></td>
     </tr>
@@ -1164,7 +1358,10 @@ function removeWorker(idx) {
 
 async function saveMasterList() {
   showToast("⏳ Master Plan & Sarva Juni/Navin Hajeri update hot aahet...");
-  workers = workers.map(w => ({ ...w, bankManuallySet: Boolean(w.bank || w.ifsc || w.acc) }));
+  workers = workers.map(w => {
+    registerCustomIfsc(w.bank, w.ifsc);
+    return { ...w, payType: w.payType || "Daily", bankManuallySet: Boolean(w.bank || w.ifsc || w.acc) };
+  });
   await fetch(`${DB_URL}/workers.json`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(workers) });
 
   try {
@@ -1180,13 +1377,15 @@ async function saveMasterList() {
           if (oldIdx !== -1 && workers[oldIdx]) w = workers[oldIdx];
         }
         if (w) {
-          const earned = Math.round((w.wage || 0) * (Number(rec.mult) || 0));
+          const effRate = getEffectiveDailyRate(w, rec.date);
+          const earned = Math.round(effRate * (Number(rec.mult) || 0));
           const net = earned - (Number(rec.hafta) || 0);
           patchAll[k] = {
             ...rec,
             name: w.name,
             desig: w.desig,
-            baseWage: w.wage,
+            payType: w.payType || "Daily",
+            baseWage: Number(effRate.toFixed(2)),
             earned: earned,
             net: net,
             aadhaar: w.aadhaar || "",
